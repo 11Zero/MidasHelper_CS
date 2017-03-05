@@ -15,6 +15,7 @@ using System.ComponentModel;
 using System.Windows.Threading;
 using System.Threading;
 
+
 namespace MidasHelper_CS
 {
     /// <summary>
@@ -23,6 +24,7 @@ namespace MidasHelper_CS
     public partial class MainWindow : Window
     {
         private BackThreader threader = null;
+        private Queue<int> msgQueue = null;
         //public TextBlock status_bar_text = null;
         private BackgroundWorker backThreader = null;
         private double[] x_input = null;
@@ -34,7 +36,7 @@ namespace MidasHelper_CS
         private Log log = null;
         public delegate object delegateGetTextCallBack(object text);
         public delegate void delegateSetTextCallBack(string str, object object_id);
- 
+        private SectionForm section_form = null;
         public MainWindow()
         {
             InitializeComponent();
@@ -49,6 +51,8 @@ namespace MidasHelper_CS
              x_input = new double[50];
              y_input = new double[50];
              z_input = new double[50];
+             msgQueue = new Queue<int>();
+             section_form = new SectionForm();
             log = new Log(AppDomain.CurrentDomain.BaseDirectory + @"/log/Log.txt");
             InitializeBackgroundWorker();
         }
@@ -65,8 +69,13 @@ namespace MidasHelper_CS
           DoWorkEventArgs e)
        {
            BackgroundWorker worker = sender as BackgroundWorker;
-
-           e.Result = RunMessage((int)e.Argument, worker, e);
+           while (true)
+           {
+               if (msgQueue.Count>0)
+               {
+                   e.Result = RunMessage((int)msgQueue.Dequeue(), worker, e); 
+               } 
+           }
        }
 
        // This event handler deals with the results of the
@@ -88,7 +97,14 @@ namespace MidasHelper_CS
 
        private void PostMessage(int msg)
        {
-           backThreader.RunWorkerAsync(msg);
+           if (!backThreader.IsBusy)
+               backThreader.RunWorkerAsync(0);
+           if (msgQueue.Count>200)
+           {
+               SetText("当前消息队列过于拥堵，暂停接收消息", this.status_bar_text);
+               return;
+           }
+           msgQueue.Enqueue(msg);
        }
 
         private int RunMessage(int msg, BackgroundWorker worker, DoWorkEventArgs e)
@@ -194,6 +210,7 @@ namespace MidasHelper_CS
                 else
                     x_input[x_input_count++] = double.Parse(str_splited[i]);
             }
+            log.log("**********************************************");
             for (int i = 0; i < x_input_count; i++)
             {
                 log.log(x_input[i].ToString());
@@ -275,8 +292,18 @@ namespace MidasHelper_CS
         private void btn_test_Click(object sender, RoutedEventArgs e)
         {
             //this.status_bar_text.Text = "23";
-            PostMessage(3);
+            //PostMessage(3);
+            //PostMessage(2);
+            //PostMessage(1);
             //MessageBox.Show("123");
+            section_form.Show();
+        }
+
+        private void btn_export_mct_Click(object sender, RoutedEventArgs e)
+        {
+            PostMessage(1);
+            PostMessage(2);
+            PostMessage(3);
         }
 
 

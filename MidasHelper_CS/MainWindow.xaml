@@ -1,7 +1,7 @@
 ﻿<Window x:Class="MidasHelper_CS.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="MainWindow" Loaded="Window_Loaded" WindowStartupLocation="CenterScreen" mc:Ignorable="d" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" Height="436" Width="831">
+        Title="MainWindow" Loaded="Window_Loaded" WindowStartupLocation="CenterScreen" mc:Ignorable="d" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" Height="598" Width="980">
     <!--<Grid>
         <StatusBar Margin="0,489,0,0" x:FieldModifier="public">
             </StatusBar>
@@ -14,9 +14,9 @@
         </Viewbox>
         <StatusBar DockPanel.Dock="Bottom" Height="20" VerticalAlignment="Bottom"></StatusBar>-->
         <DockPanel DockPanel.Dock="Bottom" HorizontalAlignment="Center" VerticalAlignment="Center" 
-                   Height="20" Name="Bottom_dockPanel" Width="810"
+                   Height="26" Name="Bottom_dockPanel" Width="958"
                    Background="Ivory">
-            <StatusBar Height="18" Name="BottomStatusBar" Width="810" x:FieldModifier="public">
+            <StatusBar Height="28" Name="BottomStatusBar" Width="955" x:FieldModifier="public">
                 <TextBlock Width="200" Name="status_bar_text" x:FieldModifier="public" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                 <Separator Width="1" HorizontalAlignment="Left"/>
                 <!--<TextBlock Width="100" Name="status_bar_text1" x:FieldModifier="public"/>-->
@@ -26,24 +26,84 @@
         </DockPanel>
 
         <DockPanel DockPanel.Dock="Top" HorizontalAlignment="Center" VerticalAlignment="Center" 
-                   Height="23" Name="Top_dockPanel" Width="809" 
+                   Height="22" Name="Top_dockPanel" Width="954" 
                    Background="Aquamarine"/>
 
         <DockPanel DockPanel.Dock="Left" HorizontalAlignment="Center" VerticalAlignment="Center" 
-                   Height="339" Name="Left_dockPanel" Width="100" 
+                   Height="498" Name="Left_dockPanel" Width="104" 
                    Background="Chocolate"/>
-        
+
         <DockPanel DockPanel.Dock="Right" HorizontalAlignment="Right" VerticalAlignment="Center" 
-                   Height="343" Name="Center_dockPanel" Width="708"
+                   Height="501" Name="Center_dockPanel" Width="850"
                    Background="AntiqueWhite">
-            <Grid Height="342" Name="Center_grid" Width="705">
-                <Button Content="Button" Height="23" HorizontalAlignment="Left" Margin="610,297,0,0" Name="btn_test" VerticalAlignment="Top" Width="75" Click="btn_test_Click" />
-                <TextBox Height="23" HorizontalAlignment="Left" Margin="48,22,0,0" Name="text_x_input" VerticalAlignment="Top" Width="321"  x:FieldModifier="public"/>
-                <Label Content="x距离" Height="28" HorizontalAlignment="Left" Margin="6,21,0,0" Name="label1" VerticalAlignment="Top" />
-                <TextBox Height="23" HorizontalAlignment="Left" Margin="48,66,0,0" Name="text_y_input" VerticalAlignment="Top" Width="321" />
-                <Label Content="y距离" Height="28" HorizontalAlignment="Left" Margin="6,66,0,0" Name="label2" VerticalAlignment="Top" />
-                <Label Content="z距离" Height="28" HorizontalAlignment="Left" Margin="7,111,0,0" Name="label3" VerticalAlignment="Top" />
-                <TextBox Height="23" HorizontalAlignment="Left" Margin="48,113,0,0" Name="text_z_input" VerticalAlignment="Top" Width="321" />
+            <Grid Height="500" Name="Center_grid" Width="849">
+                <Button Content="Button" Height="23" HorizontalAlignment="Left" Margin="438,459,0,0" Name="btn_test" VerticalAlignment="Top" Width="75" Click="btn_test_Click" />
+                <!--<Label MaxWidth="550" Height="35" HorizontalAlignment="Left" Margin="26,134,0,0" Name="label4" VerticalAlignment="Top" Width="176"-->
+                <GroupBox Header="支架参数" Name="groupBox1" Margin="18,16,403,208">
+                    <Grid Height="238" Width="400">
+                        <TextBox Height="23" HorizontalAlignment="Left" Margin="48,6,0,0" Name="text_x_input" VerticalAlignment="Top" Width="321" x:FieldModifier="public" />
+                        <Label Content="x距离" Height="28" HorizontalAlignment="Left" Margin="6,6,0,0" Name="label1" VerticalAlignment="Top" />
+                        <TextBox Height="23" HorizontalAlignment="Left" Margin="48,35,0,0" Name="text_y_input" VerticalAlignment="Top" Width="321" />
+                        <Label Content="y距离" Height="28" HorizontalAlignment="Left" Margin="6,35,0,0" Name="label2" VerticalAlignment="Top" />
+                        <Label Content="z距离" Height="28" HorizontalAlignment="Left" Margin="6,69,0,0" Name="label3" VerticalAlignment="Top" />
+                        <TextBox Height="23" HorizontalAlignment="Left" Margin="48,69,0,0" Name="text_z_input" VerticalAlignment="Top" Width="321" />
+                        <TextBox Height="23" HorizontalAlignment="Right" Margin="0,111,193,0" Name="text_h1" VerticalAlignment="Top" Width="80" />
+                        <TextBlock TextWrapping="Wrap" Text="顶层可调托撑h1" Margin="6,114,0,86" HorizontalAlignment="Left" Width="158" />
+                        <TextBox Height="23" HorizontalAlignment="Right" Margin="0,156,193,0" Name="text_h2" VerticalAlignment="Top" Width="98" />
+                        <TextBlock TextWrapping="Wrap" Text="扫地杆高度h2" Margin="6,156,0,45" HorizontalAlignment="Left" Width="79" />
+                        <TextBox Height="23" HorizontalAlignment="Right" Margin="0,199,193,0" Name="text_h3" VerticalAlignment="Top" Width="80" />
+                        <TextBlock TextWrapping="Wrap" Text="下部可调托撑高度h3" Margin="0,202,0,6" HorizontalAlignment="Left" Width="124" />
+                        <TextBox Height="23" HorizontalAlignment="Right" Margin="0,157,31,0" Name="text_l1" VerticalAlignment="Top" Width="50" />
+                        <TextBlock TextWrapping="Wrap" Text="剪刀撑面间距l1" Margin="215,160,0,41" HorizontalAlignment="Left" Width="89" />
+                        <TextBox Height="23" HorizontalAlignment="Right" Margin="0,199,31,0" Name="text_l2" VerticalAlignment="Top" Width="52" />
+                        <TextBlock TextWrapping="Wrap" Text="剪刀撑线间距l2" Margin="215,202,0,-1" HorizontalAlignment="Left" Width="89" />
+                        <TextBlock TextWrapping="Wrap" Text="注:单位(m)" Margin="0,114,31,87" HorizontalAlignment="Right" Width="75" />
+                    </Grid>
+                </GroupBox>
+                <GroupBox Header="阶段设置" Height="184" HorizontalAlignment="Left" Margin="18,298,0,0" Name="groupBox2" VerticalAlignment="Top" Width="428">
+                </GroupBox>
+                <Grid Height="145" HorizontalAlignment="Left" Margin="32,322,0,0" Name="grid1" VerticalAlignment="Top" Width="400">
+                    <TextBlock TextWrapping="Wrap" Text="第一次预压" Margin="31,22,0,94" HorizontalAlignment="Left" Width="79" />
+                    <TextBox Height="23" HorizontalAlignment="Right" Margin="0,19,215,0" Name="text_step1" VerticalAlignment="Top" Width="76" />
+                    <TextBlock TextWrapping="Wrap" Text="第二次预压" Margin="31,57,0,59" HorizontalAlignment="Left" Width="79" />
+                    <TextBox Height="23" HorizontalAlignment="Right" Margin="0,54,215,0" Name="text_step2" VerticalAlignment="Top" Width="76" />
+                    <TextBlock TextWrapping="Wrap" Text="第三次预压" Margin="31,92,0,24" HorizontalAlignment="Left" Width="79" />
+                    <TextBox Height="23" HorizontalAlignment="Right" Margin="0,89,215,0" Name="text_step3" VerticalAlignment="Top" Width="76" />
+                    <TextBlock TextWrapping="Wrap" Text="第一次浇筑" Margin="209,22,0,94" HorizontalAlignment="Left" Width="79" />
+                    <TextBox Height="23" HorizontalAlignment="Right" Margin="0,19,37,0" Name="text_step4" VerticalAlignment="Top" Width="76" />
+                    <TextBlock TextWrapping="Wrap" Text="第二次浇筑" Margin="209,57,0,59" HorizontalAlignment="Left" Width="79" />
+                    <TextBox Height="23" HorizontalAlignment="Right" Margin="0,54,37,0" Name="text_step5" VerticalAlignment="Top" Width="76" />
+                </Grid>
+                <GroupBox Header="荷载参数" Height="221" HorizontalAlignment="Left" Margin="478,16,0,0" Name="groupBox3" VerticalAlignment="Top" Width="293">
+                    <Grid Height="241" Width="346">
+                        <TextBlock TextWrapping="Wrap" Text="钢筋混凝土自重G1" Margin="21,14,0,204" HorizontalAlignment="Left" Width="110" />
+                        <TextBox Height="20" HorizontalAlignment="Right" Margin="0,14,91,0" Name="text_G1" VerticalAlignment="Top" Width="112" />
+                        <TextBlock TextWrapping="Wrap" Text="模板+支撑梁自重G2" Margin="21,44,0,174" HorizontalAlignment="Left" Width="110" />
+                        <TextBox Height="20" HorizontalAlignment="Right" Margin="0,44,91,0" Name="text_G2" VerticalAlignment="Top" Width="112" />
+                        <TextBlock TextWrapping="Wrap" Text="防护设置附加构件荷载G3" Margin="21,72,0,141" HorizontalAlignment="Left" Width="142" />
+                        <TextBox Height="20" HorizontalAlignment="Right" Margin="0,72,91,0" Name="text_G3" VerticalAlignment="Top" Width="80" />
+                        <TextBlock TextWrapping="Wrap" Text="施工人员材料设备荷载P1" Margin="21,102,0,111" HorizontalAlignment="Left" Width="142" />
+                        <TextBox Height="20" HorizontalAlignment="Right" Margin="0,102,91,0" Name="text_P1" VerticalAlignment="Top" Width="80" />
+                        <TextBlock TextWrapping="Wrap" Text="浇筑+振捣混凝土荷载P2" Margin="21,127,0,86" HorizontalAlignment="Left" Width="142" />
+                        <TextBox Height="20" HorizontalAlignment="Right" Margin="0,127,91,0" Name="text_P2" VerticalAlignment="Top" Width="80" />
+                        <TextBlock TextWrapping="Wrap" Text="风荷载P3" Margin="21,154,0,59" HorizontalAlignment="Left" Width="142" />
+                        <TextBox Height="20" HorizontalAlignment="Right" Margin="0,154,91,0" Name="text_P3" VerticalAlignment="Top" Width="164" />
+                    </Grid>
+                </GroupBox>
+                <GroupBox Header="测点布置方案" Height="173" HorizontalAlignment="Left" Margin="478,309,0,0" Name="groupBox4" VerticalAlignment="Top" Width="365">
+                    <Grid Height="136" Width="340">
+                        <RadioButton Content="一级方案" Height="16" HorizontalAlignment="Left" Margin="34,29,0,0" Name="radio_btn_rank1" VerticalAlignment="Top" />
+                        <RadioButton Content="二级方案" Height="16" HorizontalAlignment="Left" Margin="137,29,0,0" Name="radio_btn_rank2" VerticalAlignment="Top" />
+                        <RadioButton Content="三级方案" Height="16" HorizontalAlignment="Left" Margin="246,29,0,0" Name="radio_btn_rank3" VerticalAlignment="Top" />
+                        <Button Content="导入位移数据" Height="23" HorizontalAlignment="Left" Margin="34,62,0,0" Name="btn_import_s" VerticalAlignment="Top" Width="75" />
+                        <Button Content="导入应力数据" Height="23" HorizontalAlignment="Left" Margin="137,62,0,0" Name="btn_import_d" VerticalAlignment="Top" Width="75" />
+                        <Button Content="导出监测方案" HorizontalAlignment="Left" Margin="235,62,0,51" Name="btn_export_plan" Width="75" />
+                        <ProgressBar Height="15" HorizontalAlignment="Left" Margin="34,107,0,0" Name="progressBar1" VerticalAlignment="Top" Width="276" />
+                    </Grid>
+                </GroupBox>
+                <Button Content="生成MCT" Height="23" HorizontalAlignment="Left" Margin="505,269,0,0" Name="btn_export_mct" VerticalAlignment="Top" Width="75" Click="btn_export_mct_Click" />
+                <Button Content="清空" Height="23" HorizontalAlignment="Left" Margin="627,269,0,0" Name="btn_clear" VerticalAlignment="Top" Width="75" />
+                <Button Content="承载力计算器" Height="23" HorizontalAlignment="Left" Margin="736,269,0,0" Name="btn_cacul" VerticalAlignment="Top" Width="86" />
             </Grid>
         </DockPanel>
     </DockPanel>
