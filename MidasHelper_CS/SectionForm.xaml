@@ -1,14 +1,83 @@
 ﻿<Window x:Class="MidasHelper_CS.SectionForm"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="SectionForm" Height="432" Width="766"
+        Title="SectionForm" Height="472" Width="1038"
         xmlns:sharpGL="clr-namespace:SharpGL.WPF;assembly=SharpGL.WPF" Loaded="Window_Loaded">
     <Grid>
         <sharpGL:OpenGLControl 
             Name="openGLControl" 
             OpenGLDraw="openGLControl_OpenGLDraw" 
             OpenGLInitialized="openGLControl_OpenGLInitialized" Resized="openGLControl_Resized"
-            DrawFPS="true" RenderContextType="FBO" FrameRate="20" Margin="0,0,180,0" />
-        <Button Content="测试" Height="23" HorizontalAlignment="Left" Margin="604,29,0,0" Name="btn_test" VerticalAlignment="Top" Width="75" Click="btn_test_Click" />
+            DrawFPS="true" RenderContextType="FBO" FrameRate="20" Margin="0,0,341,0" />
+        <GroupBox Header="外部轮廓" Height="290" HorizontalAlignment="Left" Margin="691,7,0,0" Name="groupBox1" VerticalAlignment="Top" Width="144">
+            <Grid>
+                <Label Content="H01" Height="28" HorizontalAlignment="Left" Margin="14,7,0,0" Name="label_h01" VerticalAlignment="Top" />
+                <TextBox Height="23" HorizontalAlignment="Left" Margin="61,8,0,0" Name="text_h01" VerticalAlignment="Top" Width="55" />
+                <Label Content="H02" Height="28" HorizontalAlignment="Left" Margin="15,34,0,0" Name="label_h02" VerticalAlignment="Top" />
+                <TextBox Height="23" HorizontalAlignment="Left" Margin="61,37,0,0" Name="text_h02" VerticalAlignment="Top" Width="55" />
+                <Label Content="H03" HorizontalAlignment="Left" Margin="15,64,0,0" Name="label_h03" Height="26" VerticalAlignment="Top" />
+                <TextBox Height="23" HorizontalAlignment="Left" Margin="61,67,0,0" Name="text_h03" VerticalAlignment="Top" Width="55" />
+                <Label Content="B01" Height="28" HorizontalAlignment="Left" Margin="15,95,0,0" Name="label_b01" VerticalAlignment="Top" />
+                <TextBox Height="23" HorizontalAlignment="Left" Margin="61,95,0,0" Name="text_b01" VerticalAlignment="Top" Width="55" />
+                <Label Content="B02" Height="28" HorizontalAlignment="Left" Margin="15,123,0,0" Name="label_b02" VerticalAlignment="Top" />
+                <TextBox Height="23" HorizontalAlignment="Left" Margin="61,124,0,0" Name="text_b02" VerticalAlignment="Top" Width="55" />
+                <Label Content="B03" Height="28" HorizontalAlignment="Left" Margin="16,152,0,0" Name="label_b03" VerticalAlignment="Top" />
+                <TextBox Height="23" HorizontalAlignment="Left" Margin="61,153,0,0" Name="text_b03" VerticalAlignment="Top" Width="55" />
+                <Label Content="B04" Height="28" HorizontalAlignment="Left" Margin="16,180,0,0" Name="label_b04" VerticalAlignment="Top" />
+                <TextBox Height="23" HorizontalAlignment="Left" Margin="61,180,0,0" Name="text_b04" VerticalAlignment="Top" Width="55" />
+                <Label Content="B05" Height="28" HorizontalAlignment="Left" Margin="16,209,0,0" Name="label_b05" VerticalAlignment="Top" />
+                <TextBox Height="23" HorizontalAlignment="Left" Margin="61,209,0,0" Name="text_b05" VerticalAlignment="Top" Width="55" />
+                <Label Content="B06" HorizontalAlignment="Left" Margin="16,236,0,0" Name="label_b06" Height="33" VerticalAlignment="Top" />
+                <TextBox Height="23" HorizontalAlignment="Left" Margin="61,238,0,0" Name="text_b06" VerticalAlignment="Top" Width="55" />
+            </Grid>
+        </GroupBox>
+        <Button Content="确定" Height="23" Name="btn_test" Width="75" Click="btn_test_Click" Margin="925,401,16,0" VerticalAlignment="Top" />
+        <GroupBox Header="斜角尺寸" Height="318" HorizontalAlignment="Left" Margin="843,7,0,0" Name="groupBox2" VerticalAlignment="Top" Width="160">
+            <Grid>
+                <Label Content="h" Height="28" HorizontalAlignment="Left" Margin="62,2,0,0" Name="label_h" VerticalAlignment="Top" />
+                <Label Content="b" Height="28" HorizontalAlignment="Left" Margin="106,2,0,0" Name="label_b" VerticalAlignment="Top" />
+                <Label Content="1，1" Height="28" HorizontalAlignment="Left" Margin="6,26,0,0" Name="label_11" VerticalAlignment="Top" />
+                <TextBox Height="23" HorizontalAlignment="Left" Margin="47,28,0,0" Name="text_h11" VerticalAlignment="Top" Width="40" />
+                <TextBox Height="23" HorizontalAlignment="Left" Margin="93,28,0,0" Name="text_b11" VerticalAlignment="Top" Width="42" />
+                <Label Content="1，2" Height="28" HorizontalAlignment="Left" Margin="6,57,0,0" Name="label_12" VerticalAlignment="Top" />
+                <TextBox Height="23" HorizontalAlignment="Left" Margin="47,59,0,0" Name="text_h12" VerticalAlignment="Top" Width="40" />
+                <TextBox Height="23" HorizontalAlignment="Left" Margin="93,59,0,0" Name="text_b12" VerticalAlignment="Top" Width="42" />
+                <Label Content="2，1" Height="28" HorizontalAlignment="Left" Margin="6,88,0,0" Name="label_21" VerticalAlignment="Top" />
+                <TextBox HorizontalAlignment="Left" Margin="47,90,0,0" Name="text_h21" Width="40" Height="23" VerticalAlignment="Top" />
+                <TextBox Height="23" HorizontalAlignment="Left" Margin="93,90,0,0" Name="text_b21" VerticalAlignment="Top" Width="42" />
+                <Label Content="2，2" Height="28" HorizontalAlignment="Left" Margin="6,122,0,0" Name="label_22" VerticalAlignment="Top" />
+                <TextBox Height="23" HorizontalAlignment="Left" Margin="47,124,0,0" Name="text_h22" VerticalAlignment="Top" Width="40" />
+                <TextBox Height="23" HorizontalAlignment="Left" Margin="93,124,0,0" Name="text_b22" VerticalAlignment="Top" Width="42" />
+                <Label Content="3，1" Height="28" HorizontalAlignment="Left" Margin="6,156,0,0" Name="label_31" VerticalAlignment="Top" />
+                <TextBox Height="23" HorizontalAlignment="Left" Margin="47,158,0,0" Name="text_h31" VerticalAlignment="Top" Width="40" />
+                <TextBox Height="23" HorizontalAlignment="Left" Margin="93,158,0,0" Name="text_b31" VerticalAlignment="Top" Width="42" />
+                <Label Content="3，2" Height="28" HorizontalAlignment="Left" Margin="6,190,0,0" Name="label_32" VerticalAlignment="Top" />
+                <TextBox Height="23" HorizontalAlignment="Left" Margin="47,192,0,0" Name="text_h32" VerticalAlignment="Top" Width="40" />
+                <TextBox Height="23" HorizontalAlignment="Left" Margin="93,192,0,0" Name="text_b32" VerticalAlignment="Top" Width="42" />
+                <Label Content="4，1" Height="28" HorizontalAlignment="Left" Margin="6,223,0,0" Name="label_41" VerticalAlignment="Top" />
+                <TextBox Height="23" HorizontalAlignment="Left" Margin="47,225,0,0" Name="text_h41" VerticalAlignment="Top" Width="40" />
+                <TextBox Height="23" HorizontalAlignment="Left" Margin="93,225,0,0" Name="text_b41" VerticalAlignment="Top" Width="42" />
+                <Label Content="4，2" Height="28" HorizontalAlignment="Left" Margin="6,257,0,0" Name="label_42" VerticalAlignment="Top" />
+                <TextBox Height="23" HorizontalAlignment="Left" Margin="47,259,0,0" Name="text_h42" VerticalAlignment="Top" Width="40" />
+                <TextBox Height="23" HorizontalAlignment="Left" Margin="93,259,0,0" Name="text_b42" VerticalAlignment="Top" Width="42" />
+            </Grid>
+        </GroupBox>
+        <GroupBox Header="上下板厚" Height="93" HorizontalAlignment="Left" Margin="691,331,0,0" Name="groupBox3" VerticalAlignment="Top" Width="212">
+         <Grid>
+            <Label Content="H11" Height="28" HorizontalAlignment="Left" Margin="6,6,0,0" Name="label_H11" VerticalAlignment="Top" />
+            <TextBox Height="23" HorizontalAlignment="Left" Margin="40,8,0,0" Name="text_H11" VerticalAlignment="Top" Width="55" />
+            <Label Content="H12" Height="28" HorizontalAlignment="Left" Margin="102,7,0,0" Name="label_H12" VerticalAlignment="Top" />
+            <TextBox Height="23" HorizontalAlignment="Left" Margin="134,8,0,0" Name="text_H12" VerticalAlignment="Top" Width="55" />
+            <Label Content="H21" Height="28" HorizontalAlignment="Left" Margin="6,40,0,0" Name="label_H21" VerticalAlignment="Top" />
+            <TextBox Height="23" HorizontalAlignment="Left" Margin="40,42,0,0" Name="text_H21" VerticalAlignment="Top" Width="55" />
+            <Label Content="H22" Height="28" HorizontalAlignment="Left" Margin="102,41,0,0" Name="label_H22" VerticalAlignment="Top" />
+            <TextBox Height="23" HorizontalAlignment="Left" Margin="134,42,0,0" Name="text_H22" VerticalAlignment="Top" Width="55" />
+        </Grid>   
+        </GroupBox>
+        <ComboBox Height="23" HorizontalAlignment="Left" Margin="906,340,0,0" Name="combo_select" VerticalAlignment="Top" Width="96" />
+        <CheckBox Content="文字显示" Height="16" HorizontalAlignment="Left" Margin="930,377,0,0" Name="check_textview" VerticalAlignment="Top" />
+        <Label Content="顺桥向桥长(m)" Height="28" HorizontalAlignment="Left" Margin="691,303,0,0" Name="label_bridge_length" VerticalAlignment="Top" />
+        <TextBox Height="23" HorizontalAlignment="Right" Margin="0,304,182,0" Name="text_bridge_length" VerticalAlignment="Top" Width="49" />
+        
     </Grid>
 </Window>
