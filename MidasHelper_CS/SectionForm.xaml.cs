@@ -29,6 +29,16 @@ namespace MidasHelper_CS
         private double yTimes = 1.0;///y方向缩放倍数
         private double xRange = 0;///x方向图形尺寸
         private double yRange = 0;///y方向图形尺寸
+        public double bridgeLength = 0.0;
+        public int H01 = 0, H02 = 0, H03 = 0;
+
+        public int B01 = 0, B02 = 0, B03 = 0, B04 = 0, B05 = 0;
+        public int H11 = 0, H12 = 0, H21 = 0, H22 = 0, H31 = 0, H32 = 0, H41 = 0;
+        public int h11 = 0, h12 = 0, h21 = 0, h22 = 0, h31 = 0, h32 = 0, h41 = 0, h42 = 0;
+        public int b11 = 0, b12 = 0, b21 = 0, b22 = 0, b31 = 0, b32 = 0, b41 = 0, b42 = 0;
+        //public int h11 = 0, h12 = 0, h21 = 0, h22 = 0, h31 = 0, h32 = 0, h41 = 0, h42 = 0;
+        //public int b11 = 0, b12 = 0, b21 = 0, b22 = 0, b31 = 0, b32 = 0, b41 = 0, b42 = 0;
+
         //private OpenGL gl = null;
         public SectionForm()
         {
@@ -111,7 +121,7 @@ namespace MidasHelper_CS
         /// <param name="eY">终点y坐标</param>
         /// <param name="isArrow">是否带箭头</param>
         /// <param name="withBorder">是否带边界线</param>
-        private void drawLine(int sX, int sY, int eX, int eY,bool isArrow=false, bool withBorder=true)
+        private void drawLine(int sX, int sY, int eX, int eY, bool isArrow = false, bool withBorder = true)
         {
             OpenGL gl = openGLControl.OpenGL;
             gl.Clear(OpenGL.GL_COLOR_BUFFER_BIT | OpenGL.GL_DEPTH_BUFFER_BIT);
@@ -137,8 +147,8 @@ namespace MidasHelper_CS
             yTimes = 0.8;
             xLength = 2;
             yLength = 2;
-            xRange = xTimes/xLength;///opengl整个空间大小为-1，-1到1,1，所以画线时需根据实际尺寸及绘图空间进行缩放
-            yRange = yTimes/yLength;
+            xRange = xTimes / xLength;///opengl整个空间大小为-1，-1到1,1，所以画线时需根据实际尺寸及绘图空间进行缩放
+            yRange = yTimes / yLength;
             //  Set the clear color.
             gl.ClearColor(0, 0, 0, 0);
             //gl.Translate(-xTimes / 5, yTimes / 5, 0);
@@ -184,14 +194,16 @@ namespace MidasHelper_CS
             gl.LoadIdentity();
             gl.Color(1.0f, 0.0f, 0.0f);
             gl.Begin(SharpGL.Enumerations.BeginMode.Lines);
-            gl.Vertex(1.0f,2.0f);
+            gl.Vertex(1.0f, 2.0f);
             gl.Vertex(2.0f, 1.0f);
             gl.End();
         }
 
         private void btn_test_Click(object sender, RoutedEventArgs e)
         {
-            drawLine(0,0,1,1);
+            string xmlpath = AppDomain.CurrentDomain.BaseDirectory +"sectionconfig.xml";
+            MessageBox.Show(XmlHelper.getXmlElementValue(xmlpath, "内部轮廓", "h11"));
+            //drawLine(0, 0, 1, 1);
             //drawLine(0, 0, -2, 2);
             //drawOneSection();
         }
