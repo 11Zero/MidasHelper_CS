@@ -37,6 +37,7 @@ namespace MidasHelper_CS
         public delegate object delegateGetTextCallBack(object text);
         public delegate void delegateSetTextCallBack(string str, object object_id);
         private SectionForm section_form = null;
+        public bool section_from_closed = true;
         public MainWindow()
         {
             InitializeComponent();
@@ -52,7 +53,7 @@ namespace MidasHelper_CS
              y_input = new double[50];
              z_input = new double[50];
              msgQueue = new Queue<int>();
-             section_form = new SectionForm();
+             //section_form = new SectionForm();
             log = new Log(AppDomain.CurrentDomain.BaseDirectory + @"/log/Log.txt");
             InitializeBackgroundWorker();
         }
@@ -296,7 +297,17 @@ namespace MidasHelper_CS
             //PostMessage(2);
             //PostMessage(1);
             //MessageBox.Show("123");
-            section_form.Show();
+            if (!section_from_closed)
+            {
+                section_form.Show();
+            }
+            else
+            {
+                section_form = new SectionForm(this);
+                section_form.Show();
+                this.section_from_closed = false;
+            }
+ 
         }
 
         private void btn_export_mct_Click(object sender, RoutedEventArgs e)
