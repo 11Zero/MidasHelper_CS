@@ -72,6 +72,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Mctxt.cs" />
+    <Compile Include="Midas.cs" />
     <Compile Include="SectionForm.xaml.cs">
       <DependentUpon>SectionForm.xaml</DependentUpon>
     </Compile>
@@ -119,6 +121,9 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <AppDesigner Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <SplashScreen Include="SplashScreen1.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

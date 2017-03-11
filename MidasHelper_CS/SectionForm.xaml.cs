@@ -1022,7 +1022,6 @@ namespace MidasHelper_CS
             }
 
         }
-
         private void Window_Closed(object sender, EventArgs e)
         {
             this.parentWin.section_from_closed = true;
