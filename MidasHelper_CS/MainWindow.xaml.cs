@@ -54,6 +54,8 @@ namespace MidasHelper_CS
         private int z_bridging_count = 0;
         private double tan_alpha = 1.0;
         private Log log = null;
+        private bool buckle_analyse = false;
+        private bool nolinear_analyse = false;
         //private Mctxt mctfile = null;
         private FileStream mctfile = null;
         public delegate object delegateGetTextCallBack(object text);
@@ -61,7 +63,15 @@ namespace MidasHelper_CS
         public delegate void delegateSetProcessCallBack(object value);
         private SectionForm section_form = null;
         public bool section_from_closed = true;
+        public int selected_section = -1;
         private double h0, h1, h2, h3, l1, l2, G1, G2, G3, P1, P2, P3, Y1, Y2, Y3, J1, J2;
+        public int H01 = 0, H02 = 0, H03 = 0;
+        public int B01 = 0, B02 = 0, B03 = 0, B04 = 0, B05 = 0, B06 = 0;
+        public int H11 = 0, H12 = 0, H21 = 0, H22 = 0, H31 = 0, H32 = 0, H41 = 0;
+        public int h11 = 0, h12 = 0, h21 = 0, h22 = 0, h31 = 0, h32 = 0, h41 = 0, h42 = 0;
+        public int b11 = 0, b12 = 0, b21 = 0, b22 = 0, b31 = 0, b32 = 0, b41 = 0, b42 = 0;
+        public double bridge_length = 0.0;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -221,7 +231,7 @@ namespace MidasHelper_CS
         {
             if (!Dispatcher.CheckAccess())
             {
-                Dispatcher.Invoke(DispatcherPriority.Normal, new delegateSetProcessCallBack(SetProcessCallBack),value);
+                Dispatcher.Invoke(DispatcherPriority.Normal, new delegateSetProcessCallBack(SetProcessCallBack), value);
                 return;
             }
         }
@@ -232,6 +242,8 @@ namespace MidasHelper_CS
         {
             string x_str = "";
             x_input_count = 0;
+            x_length = 0.0;
+            x_bridging_count = 0;
             x_str = (string)GetText(text_x_input);
             x_str = x_str.Replace(",", " ");
             if (x_str == "")
@@ -292,6 +304,8 @@ namespace MidasHelper_CS
         {
             string y_str = "";
             y_input_count = 0;
+            y_length = 0.0;
+            y_bridging_count = 0;
             y_str = (string)GetText(text_y_input);
             y_str = y_str.Replace(",", " ");
             if (y_str == "")
@@ -352,6 +366,8 @@ namespace MidasHelper_CS
         {
             string z_str = "";
             z_input_count = 0;
+            z_length = 0.0;
+            z_bridging_count = 0;
             z_str = (string)GetText(text_z_input);
             z_str = z_str.Replace(",", " ");
             if (z_str == "")
@@ -538,58 +554,6 @@ namespace MidasHelper_CS
         private void msgFunction_1()//写入mct
         {
 
-
-            //////////////////////////////////////////////写入文件部分////////////////////////////////
-            //创建一个保存文件式的对话框
-            SaveFileDialog sfd = new SaveFileDialog();
-            //设置这个对话框的起始保存路径
-            sfd.InitialDirectory = AppDomain.CurrentDomain.BaseDirectory;
-            //设置保存的文件的类型，注意过滤器的语法
-            sfd.Filter = "mct文件|*.mct";
-            //调用ShowDialog()方法显示该对话框，该方法的返回值代表用户是否点击了确定按钮
-            StreamWriter writer = null;
-            System.IO.FileInfo fileInfo = null;
-
-            string buffer_string = "";
-
-            if (sfd.ShowDialog() == true)
-            {
-                if (sfd.SafeFileName.IndexOf(".mct") > 0)
-                {
-                    fileInfo = new System.IO.FileInfo(sfd.FileName);
-                    if (!fileInfo.Exists)
-                    {
-                        mctfile = fileInfo.Create();
-                        writer = new StreamWriter(mctfile, Encoding.Default);
-                    }
-                    else
-                    {
-                        mctfile = fileInfo.Open(FileMode.Create, FileAccess.Write);
-                        writer = new StreamWriter(mctfile, Encoding.Default);
-                    }
-                }
-                else
-                {
-                    fileInfo = new System.IO.FileInfo(sfd.FileName + ".mct");
-                    if (!fileInfo.Exists)
-                    {
-                        mctfile = fileInfo.Create();
-                        writer = new StreamWriter(mctfile, Encoding.Default);
-                    }
-                    else
-                    {
-                        mctfile = fileInfo.Open(FileMode.Create, FileAccess.Write);
-                        writer = new StreamWriter(mctfile, Encoding.Default);
-                    }
-                }
-                SetText("创建成功", this.status_bar_text);
-            }
-            else
-            {
-                SetText("取消创建", this.status_bar_text);
-                return;
-            }
-
             #region 判断参数是否有效
             if (Math.Abs(h0) < 0.005)
             {
@@ -687,14 +651,24 @@ namespace MidasHelper_CS
                 MessageBox.Show("第三次预压荷载系数输入格式不对或输入值过小");
                 return;
             }
-            if (Math.Abs(J1) < 0.005)
+            if (J1 < 0.005)
             {
                 MessageBox.Show("第一次浇筑荷载系数输入格式不对或输入值过小");
                 return;
             }
-            if (Math.Abs(J2) < 0.005)
+            if (J1 > 1)
+            {
+                MessageBox.Show("第一次浇筑荷载系数输入不能大于1");
+                return;
+            }
+            if (J2 < 0.005)
             {
                 MessageBox.Show("第二次浇筑荷载系数输入格式不对或输入值过小");
+                return;
+            }
+            if (J2 > 1)
+            {
+                MessageBox.Show("第二次浇筑荷载系数输入不能大于1");
                 return;
             }
             if (J1 + J2 > 1.0)
@@ -712,6 +686,58 @@ namespace MidasHelper_CS
                 MessageBox.Show("支架参数获取不足");
                 return;
             }
+
+            //////////////////////////////////////////////写入文件部分////////////////////////////////
+            //创建一个保存文件式的对话框
+            SaveFileDialog sfd = new SaveFileDialog();
+            //设置这个对话框的起始保存路径
+            sfd.InitialDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            //设置保存的文件的类型，注意过滤器的语法
+            sfd.Filter = "mct文件|*.mct";
+            //调用ShowDialog()方法显示该对话框，该方法的返回值代表用户是否点击了确定按钮
+            StreamWriter writer = null;
+            System.IO.FileInfo fileInfo = null;
+
+            string buffer_string = "";
+
+            if (sfd.ShowDialog() == true)
+            {
+                if (sfd.SafeFileName.IndexOf(".mct") > 0)
+                {
+                    fileInfo = new System.IO.FileInfo(sfd.FileName);
+                    if (!fileInfo.Exists)
+                    {
+                        mctfile = fileInfo.Create();
+                        writer = new StreamWriter(mctfile, Encoding.Default);
+                    }
+                    else
+                    {
+                        mctfile = fileInfo.Open(FileMode.Create, FileAccess.Write);
+                        writer = new StreamWriter(mctfile, Encoding.Default);
+                    }
+                }
+                else
+                {
+                    fileInfo = new System.IO.FileInfo(sfd.FileName + ".mct");
+                    if (!fileInfo.Exists)
+                    {
+                        mctfile = fileInfo.Create();
+                        writer = new StreamWriter(mctfile, Encoding.Default);
+                    }
+                    else
+                    {
+                        mctfile = fileInfo.Open(FileMode.Create, FileAccess.Write);
+                        writer = new StreamWriter(mctfile, Encoding.Default);
+                    }
+                }
+                SetText("创建成功", this.status_bar_text);
+            }
+            else
+            {
+                SetText("取消创建", this.status_bar_text);
+                return;
+            }
+
             //MidasNode node = new MidasNode();
             MidasNode[] all_normal_nodes = new MidasNode[20000];//未计入底层扫地杆节点
             int regular_nodes_start = 1;
@@ -1448,6 +1474,7 @@ namespace MidasHelper_CS
                 j = j + y_input_count - 1;
             }
             SetProcess(81);
+            int bottom_elements_end = all_elements_count;
 
             MidasElement[] xy_bridging_elements = new MidasElement[5000];
             int xy_bridging_elements_count = 0;
@@ -1897,6 +1924,916 @@ namespace MidasHelper_CS
             writer.WriteLine(buffer_string);
             buffer_string = String.Format("YZ剪刀单元,,{0}to{1},0\r\n", yz_bridging_elements_start, yz_bridging_elements_end);
             writer.WriteLine(buffer_string);
+
+            //'±ß½ç×é¡¢ºÉÔØ×é¶¨Òå
+            //************* Lines = Lines & readFile("d:\²ÎÊý»¯½¨Ä£\Ö§¼ÜÎÄ¼þ\BNDR-GROUP.mct") ************
+
+            buffer_string = "\r\n*BNDR-GROUP    ; Boundary Group";
+            writer.WriteLine(buffer_string);
+            buffer_string = "; NAME";
+            writer.WriteLine(buffer_string);
+            buffer_string = "地基支撑\r\n铰接\r\n横杆-立杆\r\n剪刀撑-立杆\r\n剪刀撑-横杆";
+            writer.WriteLine(buffer_string);
+            buffer_string = "\r\n*LOAD-GROUP    ; Load Group";
+            writer.WriteLine(buffer_string);
+            buffer_string = "; NAME";
+            writer.WriteLine(buffer_string);
+            buffer_string = "预压第一次";
+            writer.WriteLine(buffer_string);
+            buffer_string = "预压第二次";
+            writer.WriteLine(buffer_string);
+            buffer_string = "预压第三次";
+            writer.WriteLine(buffer_string);
+            buffer_string = "浇筑第一次-腹板";
+            writer.WriteLine(buffer_string);
+            buffer_string = "浇筑第一次-底板";
+            writer.WriteLine(buffer_string);
+            buffer_string = "浇筑第二次";
+            writer.WriteLine(buffer_string);
+            buffer_string = "风荷载";
+            writer.WriteLine(buffer_string);
+            buffer_string = "支架自重";
+            writer.WriteLine(buffer_string);
+            buffer_string = "模板方楞等";
+            writer.WriteLine(buffer_string);
+            buffer_string = "附加构件";
+            writer.WriteLine(buffer_string);
+            buffer_string = "施工人员机械";
+            writer.WriteLine(buffer_string);
+            buffer_string = "浇筑及振捣";
+            writer.WriteLine(buffer_string);
+
+
+            buffer_string = @"
+*MATERIAL    ; Material
+; iMAT, TYPE, MNAME, SPHEAT, HEATCO, PLAST, TUNIT, bMASS, DAMPRATIO, [DATA1]          ; STEEL, CONC, USER
+; iMAT, TYPE, MNAME, SPHEAT, HEATCO, PLAST, TUNIT, bMASS, DAMPRATIO, [DATA2], [DATA2] ; SRC
+; [DATA1] : 1, DB, NAME, CODE 
+; [DATA1] : 2, ELAST, POISN, THERMAL, DEN, MASS
+; [DATA1] : 3, Ex, Ey, Ez, Tx, Ty, Tz, Sxy, Sxz, Syz, Pxy, Pxz, Pyz, DEN, MASS   ; Orthotropic
+; [DATA2] : 1, DB, NAME, CODE or 2, ELAST, POISN, THERMAL, DEN, MASS
+    1, STEEL, Q235              , 0, 0, , C, NO, 0.02, 1, GB03(S)    ,            , Q235  
+
+*MATL-COLOR
+; iMAT, W_R, W_G, W_B, HF_R, HF_G, HF_B, HE_R, HE_G, HE_B, bBLEND, FACT
+    1, 255,   0,   0,    0, 255,   0,    0,   0, 255,  NO, 0.5
+
+
+*SECTION    ; Section
+; iSEC, TYPE, SNAME, [OFFSET], bSD, SHAPE, [DATA1], [DATA2]                    ; 1st line - DB/USER
+; iSEC, TYPE, SNAME, [OFFSET], bSD, SHAPE, BLT, D1, ..., D8, iCEL              ; 1st line - VALUE
+;       AREA, ASy, ASz, Ixx, Iyy, Izz                                          ; 2nd line
+;       CyP, CyM, CzP, CzM, QyB, QzB, PERI_OUT, PERI_IN, Cy, Cz                ; 3rd line
+;       Y1, Y2, Y3, Y4, Z1, Z2, Z3, Z4, Zyy, Zzz                               ; 4th line
+; iSEC, TYPE, SNAME, [OFFSET], bSD, SHAPE, ELAST, DEN, POIS, POIC, SF          ; 1st line - SRC
+;       D1, D2, [SRC]                                                          ; 2nd line
+; iSEC, TYPE, SNAME, [OFFSET], bSD, SHAPE, 1, DB, NAME1, NAME2, D1, D2         ; 1st line - COMBINED
+; iSEC, TYPE, SNAME, [OFFSET], bSD, SHAPE, 2, D11, D12, D13, D14, D15, D21, D22, D23, D24
+; iSEC, TYPE, SNAME, [OFFSET2], bSD, SHAPE, iyVAR, izVAR, STYPE                ; 1st line - TAPERED
+;       DB, NAME1, NAME2                                                       ; 2nd line(STYPE=DB)
+;       [DIM1], [DIM2]                                                         ; 2nd line(STYPE=USER)
+;       D11, D12, D13, D14, D15, D16, D17, D18                                 ; 2nd line(STYPE=VALUE)
+;       AREA1, ASy1, ASz1, Ixx1, Iyy1, Izz1                                    ; 3rd line(STYPE=VALUE)
+;       CyP1, CyM1, CzP1, CzM1, QyB1, QzB1, PERI_OUT1, PERI_IN1, Cy1, Cz1      ; 4th line(STYPE=VALUE)
+;       Y11, Y12, Y13, Y14, Z11, Z12, Z13, Z14, Zyy1, Zyy2                     ; 5th line(STYPE=VALUE)
+;       D21, D22, D23, D24, D25, D26, D27, D28                                 ; 6th line(STYPE=VALUE)
+;       AREA2, ASy2, ASz2, Ixx2, Iyy2, Izz2                                    ; 7th line(STYPE=VALUE)
+;       CyP2, CyM2, CzP2, CzM2, QyB2, QzB2, PERI_OUT2, PERI_IN2, Cy2, Cz2      ; 8th line(STYPE=VALUE)
+;       Y21, Y22, Y23, Y24, Z21, Z22, Z23, Z24, Zyy2, Zzz2                     ; 9th line(STYPE=VALUE)
+;       OPT1, OPT2, [JOINT]                                                    ; 2nd line(STYPE=PSC)
+;       ELAST, DEN, POIS, POIC                                                 ; 2nd line(STYPE=PSC-CMPW)
+;       bSHEARCHK, [SCHK-I], [SCHK-J], [WT-I], [WT-J], WI, WJ, bSYM, bSIDEHOLE ; 3rd line(STYPE=PSC)
+;       bSHEARCHK, bSYM, bHUNCH, [CMPWEB-I], [CMPWEB-J]                        ; 3rd line(STYPE=PSC-CMPW)
+;       bUSERDEFMESHSIZE, MESHSIZE, bUSERINPSTIFF, [STIFF-I], [STIFF-J]        ; 4th line(STYPE=PSC)
+;       [SIZE-A]-i                                                             ; 5th line(STYPE=PSC)
+;       [SIZE-B]-i                                                             ; 6th line(STYPE=PSC)
+;       [SIZE-C]-i                                                             ; 7th line(STYPE=PSC)
+;       [SIZE-D]-i                                                             ; 8th line(STYPE=PSC)
+;       [SIZE-A]-j                                                             ; 9th line(STYPE=PSC)
+;       [SIZE-B]-j                                                             ; 10th line(STYPE=PSC)
+;       [SIZE-C]-j                                                             ; 11th line(STYPE=PSC)
+;       [SIZE-D]-j                                                             ; 12th line(STYPE=PSC)
+;       GN, CTC, Bc, Tc, Hh, EsEc, DsDc, Ps, Pc, bMULTI, EsEc-L, EsEc-S        ; 2nd line(STYPE=CMP-B/I)
+;       SW_i, Hw_i, tw_i, B_i, Bf1_i, tf1_i, B2_i, Bf2_i, tf2_i                ; 3rd line(STYPE=CMP-B/I)
+;       SW_j, Hw_j, tw_j, B_j, Bf1_j, tf1_j, B2_j, Bf2_j, tf2_j                ; 4th line(STYPE=CMP-B/I)
+;       N1, N2, Hr, Hr2, tr1, tr2                                              ; 5th line(STYPE=CMP-B)
+;       GN, CTC, Bc, Tc, Hh, EgdEsb, DgdDsb, Pgd, Psb, bSYM, SW_i, SW_j        ; 2nd line(STYPE=CMP-CI/CT)
+;       OPT1, OPT2, [JOINT]                                                    ; 3rd line(STYPE=CMP-CI/CT)
+;       [SIZE-A]-i                                                             ; 4th line(STYPE=CMP-CI/CT)
+;       [SIZE-B]-i                                                             ; 5th line(STYPE=CMP-CI/CT)
+;       [SIZE-C]-i                                                             ; 6th line(STYPE=CMP-CI/CT)
+;       [SIZE-D]-i                                                             ; 7th line(STYPE=CMP-CI/CT)
+;       [SIZE-A]-j                                                             ; 8th line(STYPE=CMP-CI/CT)
+;       [SIZE-B]-j                                                             ; 9th line(STYPE=CMP-CI/CT)
+;       [SIZE-C]-j                                                             ; 10th line(STYPE=CMP-CI/CT)
+;       [SIZE-D]-j                                                             ; 11th line(STYPE=CMP-CI/CT)
+; iSEC, TYPE, SNAME, [OFFSET], bSD, STYPE1, STYPE2                             ; 1st line - CONSTRUCT
+;       SHAPE, ...(same with other type data from shape)                       ; Before (STYPE1)
+;       SHAPE, ...(same with other type data from shape)                       ; After  (STYPE2)
+; iSEC, TYPE, SNAME, [OFFSET], bSD, SHAPE                                      ; 1st line - COMPOSITE-SB
+;       Hw, tw, B, Bf1, tf1, B2, Bf2, tf2                                      ; 2nd line
+;       N1, N2, Hr, Hr2, tr1, tr2                                              ; 3rd line
+;       SW, GN, CTC, Bc, Tc, Hh, EsEc, DsDc, Ps, Pc, bMulti, Elong, Esh        ; 4th line
+; iSEC, TYPE, SNAME, [OFFSET], bSD, SHAPE                                      ; 1st line - COMPOSITE-SI
+;       Hw, tw, B, tf1, B2, tf2                                                ; 2nd line
+;       SW, GN, CTC, Bc, Tc, Hh, EsEc, DsDc, Ps, Pc, bMulti, Elong, Esh        ; 3rd line
+; iSEC, TYPE, SNAME, [OFFSET], bSD, SHAPE                                      ; 1st line - COMPOSITE-CI/CT
+;       OPT1, OPT2, [JOINT]                                                    ; 2nd line
+;       [SIZE-A]                                                               ; 3rd line
+;       [SIZE-B]                                                               ; 4th line
+;       [SIZE-C]                                                               ; 5th line
+;       [SIZE-D]                                                               ; 6th line
+;       SW, GN, CTC, Bc, Tc, Hh, EgdEsb, DgdDsb, Pgd, Psb                      ; 7th line
+; iSEC, TYPE, SNAME, [OFFSET], bSD, SHAPE                                      ; 1st line - PSC
+;       OPT1, OPT2, [JOINT]                                                    ; 2nd line
+;       bSHEARCHK, [SCHK], [WT], WIDTH, bSYM, bSIDEHOLE                        ; 3rd line
+;       bUSERDEFMESHSIZE, MESHSIZE, bUSERINPSTIFF, [STIFF]                     ; 4th line
+;       [SIZE-A]                                                               ; 5th line
+;       [SIZE-B]                                                               ; 6th line
+;       [SIZE-C]                                                               ; 7th line
+;       [SIZE-D]                                                               ; 8th line
+; [DATA1] : 1, DB, NAME or 2, D1, D2, D3, D4, D5, D6, D7, D8, D9, D10
+; [DATA2] : CCSHAPE or iCEL or iN1, iN2
+; [SRC]  : 1, DB, NAME1, NAME2 or 2, D1, D2, D3, D4, D5, D6, D7, D8, D9, D10, iN1, iN2
+; [DIM1], [DIM2] : D1, D2, D3, D4, D5, D6, D7, D8
+; [OFFSET] : OFFSET, iCENT, iREF, iHORZ, HUSER, iVERT, VUSER
+; [OFFSET2]: OFFSET, iCENT, iREF, iHORZ, HUSERI, HUSERJ, iVERT, VUSERI, VUSERJ
+; [JOINT]  :  8(1CELL, 2CELL), 13(3CELL),  9(PSCM),  8(PSCH), 9(PSCT),  2(PSCB), 0(nCELL),  2(nCEL2)
+; [SIZE-A] :  6(1CELL, 2CELL), 10(3CELL), 10(PSCM),  6(PSCH), 8(PSCT), 10(PSCB), 5(nCELL), 11(nCEL2)
+; [SIZE-B] :  6(1CELL, 2CELL), 12(3CELL),  6(PSCM),  6(PSCH), 8(PSCT),  6(PSCB), 8(nCELL), 18(nCEL2)
+; [SIZE-C] : 10(1CELL, 2CELL), 13(3CELL),  9(PSCM), 10(PSCH), 7(PSCT),  8(PSCB), 0(nCELL), 11(nCEL2)
+; [SIZE-D] :  8(1CELL, 2CELL), 13(3CELL),  6(PSCM),  7(PSCH), 8(PSCT),  5(PSCB), 0(nCELL), 18(nCEL2)
+; [STIFF]  : AREA, ASy, ASz, Ixx, Iyy, Izz
+; [SCHK]   : bAUTO_Z1, Z1, bAUTO_Z3, Z3
+; [WT]     : bAUTO_TOR, TOR, bAUTO_SHR1, SHR1, bAUTO_SHR2, SHR2, bAUTO_SHR3, SHR3
+; [CMPWEB] : EFD, LRF, A, B, H, T";
+            writer.WriteLine(buffer_string);
+            buffer_string = "    1, DBUSER    , 钢管截面          , CC, 0, 0, 0, 0, 0, 0, YES, P  , 2, 0.048, 0.0035, 0, 0, 0, 0, 0, 0, 0, 0";
+            writer.WriteLine(buffer_string);
+            buffer_string = @"
+*SECT-COLOR
+; iSEC, W_R, W_G, W_B, HF_R, HF_G, HF_B, HE_R, HE_G, HE_B, bBLEND, FACT
+    1, 255,   0,   0,    0, 255,   0,    0,   0, 255,  NO, 0.5
+
+*DGN-SECT
+; iSEC, TYPE, SNAME, [OFFSET], bSD, SHAPE, [DATA1], [DATA2]                    ; 1st line - DB/USER
+; iSEC, TYPE, SNAME, [OFFSET], bSD, SHAPE, BLT, D1, ..., D8, iCEL              ; 1st line - VALUE
+;       AREA, ASy, ASz, Ixx, Iyy, Izz                                          ; 2nd line
+;       CyP, CyM, CzP, CzM, QyB, QzB, PERI_OUT, PERI_IN, Cy, Cz                ; 3rd line
+;       Y1, Y2, Y3, Y4, Z1, Z2, Z3, Z4, Zyy, Zzz                               ; 4th line
+; iSEC, TYPE, SNAME, [OFFSET], bSD, SHAPE, ELAST, DEN, POIS, POIC, SF          ; 1st line - SRC
+;       D1, D2, [SRC]                                                          ; 2nd line
+; iSEC, TYPE, SNAME, [OFFSET], bSD, SHAPE, 1, DB, NAME1, NAME2, D1, D2         ; 1st line - COMBINED
+; iSEC, TYPE, SNAME, [OFFSET], bSD, SHAPE, 2, D11, D12, D13, D14, D15, D21, D22, D23, D24
+; iSEC, TYPE, SNAME, [OFFSET2], bSD, SHAPE, iyVAR, izVAR, STYPE                ; 1st line - TAPERED
+;       DB, NAME1, NAME2                                                       ; 2nd line(STYPE=DB)
+;       [DIM1], [DIM2]                                                         ; 2nd line(STYPE=USER)
+;       D11, D12, D13, D14, D15, D16, D17, D18                                 ; 2nd line(STYPE=VALUE)
+;       AREA1, ASy1, ASz1, Ixx1, Iyy1, Izz1                                    ; 3rd line(STYPE=VALUE)
+;       CyP1, CyM1, CzP1, CzM1, QyB1, QzB1, PERI_OUT1, PERI_IN1, Cy1, Cz1      ; 4th line(STYPE=VALUE)
+;       Y11, Y12, Y13, Y14, Z11, Z12, Z13, Z14, Zyy1, Zyy2                     ; 5th line(STYPE=VALUE)
+;       D21, D22, D23, D24, D25, D26, D27, D28                                 ; 6th line(STYPE=VALUE)
+;       AREA2, ASy2, ASz2, Ixx2, Iyy2, Izz2                                    ; 7th line(STYPE=VALUE)
+;       CyP2, CyM2, CzP2, CzM2, QyB2, QzB2, PERI_OUT2, PERI_IN2, Cy2, Cz2      ; 8th line(STYPE=VALUE)
+;       Y21, Y22, Y23, Y24, Z21, Z22, Z23, Z24, Zyy2, Zzz2                     ; 9th line(STYPE=VALUE)
+;       OPT1, OPT2, [JOINT]                                                    ; 2nd line(STYPE=PSC)
+;       ELAST, DEN, POIS, POIC                                                 ; 2nd line(STYPE=PSC-CMPW)
+;       bSHEARCHK, [SCHK-I], [SCHK-J], [WT-I], [WT-J], WI, WJ, bSYM, bSIDEHOLE ; 3rd line(STYPE=PSC)
+;       bSHEARCHK, bSYM, bHUNCH, [CMPWEB-I], [CMPWEB-J]                        ; 3rd line(STYPE=PSC-CMPW)
+;       bUSERDEFMESHSIZE, MESHSIZE, bUSERINPSTIFF, [STIFF-I], [STIFF-J]        ; 4th line(STYPE=PSC)
+;       [SIZE-A]-i                                                             ; 5th line(STYPE=PSC)
+;       [SIZE-B]-i                                                             ; 6th line(STYPE=PSC)
+;       [SIZE-C]-i                                                             ; 7th line(STYPE=PSC)
+;       [SIZE-D]-i                                                             ; 8th line(STYPE=PSC)
+;       [SIZE-A]-j                                                             ; 9th line(STYPE=PSC)
+;       [SIZE-B]-j                                                             ; 10th line(STYPE=PSC)
+;       [SIZE-C]-j                                                             ; 11th line(STYPE=PSC)
+;       [SIZE-D]-j                                                             ; 12th line(STYPE=PSC)
+;       GN, CTC, Bc, Tc, Hh, EsEc, DsDc, Ps, Pc, bMULTI, EsEc-L, EsEc-S        ; 2nd line(STYPE=CMP-B/I)
+;       SW_i, Hw_i, tw_i, B_i, Bf1_i, tf1_i, B2_i, Bf2_i, tf2_i                ; 3rd line(STYPE=CMP-B/I)
+;       SW_j, Hw_j, tw_j, B_j, Bf1_j, tf1_j, B2_j, Bf2_j, tf2_j                ; 4th line(STYPE=CMP-B/I)
+;       N1, N2, Hr, Hr2, tr1, tr2                                              ; 5th line(STYPE=CMP-B)
+;       GN, CTC, Bc, Tc, Hh, EgdEsb, DgdDsb, Pgd, Psb, bSYM, SW_i, SW_j        ; 2nd line(STYPE=CMP-CI/CT)
+;       OPT1, OPT2, [JOINT]                                                    ; 3rd line(STYPE=CMP-CI/CT)
+;       [SIZE-A]-i                                                             ; 4th line(STYPE=CMP-CI/CT)
+;       [SIZE-B]-i                                                             ; 5th line(STYPE=CMP-CI/CT)
+;       [SIZE-C]-i                                                             ; 6th line(STYPE=CMP-CI/CT)
+;       [SIZE-D]-i                                                             ; 7th line(STYPE=CMP-CI/CT)
+;       [SIZE-A]-j                                                             ; 8th line(STYPE=CMP-CI/CT)
+;       [SIZE-B]-j                                                             ; 9th line(STYPE=CMP-CI/CT)
+;       [SIZE-C]-j                                                             ; 10th line(STYPE=CMP-CI/CT)
+;       [SIZE-D]-j                                                             ; 11th line(STYPE=CMP-CI/CT)
+; iSEC, TYPE, SNAME, [OFFSET], bSD, STYPE1, STYPE2                             ; 1st line - CONSTRUCT
+;       SHAPE, ...(same with other type data from shape)                       ; Before (STYPE1)
+;       SHAPE, ...(same with other type data from shape)                       ; After  (STYPE2)
+; iSEC, TYPE, SNAME, [OFFSET], bSD, SHAPE                                      ; 1st line - COMPOSITE-SB
+;       Hw, tw, B, Bf1, tf1, B2, Bf2, tf2                                      ; 2nd line
+;       N1, N2, Hr, Hr2, tr1, tr2                                              ; 3rd line
+;       SW, GN, CTC, Bc, Tc, Hh, EsEc, DsDc, Ps, Pc, bMulti, Elong, Esh        ; 4th line
+; iSEC, TYPE, SNAME, [OFFSET], bSD, SHAPE                                      ; 1st line - COMPOSITE-SI
+;       Hw, tw, B, tf1, B2, tf2                                                ; 2nd line
+;       SW, GN, CTC, Bc, Tc, Hh, EsEc, DsDc, Ps, Pc, bMulti, Elong, Esh        ; 3rd line
+; iSEC, TYPE, SNAME, [OFFSET], bSD, SHAPE                                      ; 1st line - COMPOSITE-CI/CT
+;       OPT1, OPT2, [JOINT]                                                    ; 2nd line
+;       [SIZE-A]                                                               ; 3rd line
+;       [SIZE-B]                                                               ; 4th line
+;       [SIZE-C]                                                               ; 5th line
+;       [SIZE-D]                                                               ; 6th line
+;       SW, GN, CTC, Bc, Tc, Hh, EgdEsb, DgdDsb, Pgd, Psb                      ; 7th line
+; iSEC, TYPE, SNAME, [OFFSET], bSD, SHAPE                                      ; 1st line - PSC
+;       OPT1, OPT2, [JOINT]                                                    ; 2nd line
+;       bSHEARCHK, [SCHK], [WT], WIDTH, bSYM, bSIDEHOLE                        ; 3rd line
+;       bUSERDEFMESHSIZE, MESHSIZE, bUSERINPSTIFF, [STIFF]                     ; 4th line
+;       [SIZE-A]                                                               ; 5th line
+;       [SIZE-B]                                                               ; 6th line
+;       [SIZE-C]                                                               ; 7th line
+;       [SIZE-D]                                                               ; 8th line
+; [DATA1] : 1, DB, NAME or 2, D1, D2, D3, D4, D5, D6, D7, D8, D9, D10
+; [DATA2] : CCSHAPE or iCEL or iN1, iN2
+; [SRC]  : 1, DB, NAME1, NAME2 or 2, D1, D2, D3, D4, D5, D6, D7, D8, D9, D10, iN1, iN2
+; [DIM1], [DIM2] : D1, D2, D3, D4, D5, D6, D7, D8
+; [OFFSET] : OFFSET, iCENT, iREF, iHORZ, HUSER, iVERT, VUSER
+; [OFFSET2]: OFFSET, iCENT, iREF, iHORZ, HUSERI, HUSERJ, iVERT, VUSERI, VUSERJ
+; [JOINT]  :  8(1CELL, 2CELL), 13(3CELL),  9(PSCM),  8(PSCH), 9(PSCT),  2(PSCB), 0(nCELL),  2(nCEL2)
+; [SIZE-A] :  6(1CELL, 2CELL), 10(3CELL), 10(PSCM),  6(PSCH), 8(PSCT), 10(PSCB), 5(nCELL), 11(nCEL2)
+; [SIZE-B] :  6(1CELL, 2CELL), 12(3CELL),  6(PSCM),  6(PSCH), 8(PSCT),  6(PSCB), 8(nCELL), 18(nCEL2)
+; [SIZE-C] : 10(1CELL, 2CELL), 13(3CELL),  9(PSCM), 10(PSCH), 7(PSCT),  8(PSCB), 0(nCELL), 11(nCEL2)
+; [SIZE-D] :  8(1CELL, 2CELL), 13(3CELL),  6(PSCM),  7(PSCH), 8(PSCT),  5(PSCB), 0(nCELL), 18(nCEL2)
+; [STIFF]  : AREA, ASy, ASz, Ixx, Iyy, Izz
+; [SCHK]   : bAUTO_Z1, Z1, bAUTO_Z3, Z3
+; [WT]     : bAUTO_TOR, TOR, bAUTO_SHR1, SHR1, bAUTO_SHR2, SHR2, bAUTO_SHR3, SHR3
+; [CMPWEB] : EFD, LRF, A, B, H, T";
+            writer.WriteLine(buffer_string);
+            buffer_string = "\r\n    1, DBUSER    , 钢管截面          , CC, 0, 0, 0, 0, 0, 0, YES, P  , 2, 0.048, 0.0035, 0, 0, 0, 0, 0, 0, 0, 0";
+            writer.WriteLine(buffer_string);
+            buffer_string = @"
+
+
+*STLDCASE    ; Static Load Cases
+; LCNAME, LCTYPE, DESC
+   杆系自重, D , 
+   浇筑和振捣混凝土, D , 
+   施工人员、材料、设备, D , 
+   预压荷载1, D , 
+   预压荷载2, D , 
+   预压荷载3, D , 
+   第一次浇筑, D , 
+   第二次浇筑, D , 
+   模板、支撑梁, D , 
+   防护设施、附加构件, D , 
+   风荷载, D , 
+
+
+*CONSTRAINT    ; Supports
+; NODE_LIST, CONSt(Dx,Dy,Dz,Rx,Ry,Rz),GROUP";
+            writer.WriteLine(buffer_string);
+            buffer_string = string.Format("{0} to  {1}  , 111000,地基支撑", 1, 465);
+            writer.WriteLine(buffer_string);
+            buffer_string = @"
+*FRAME-RLS    ; Beam End Release
+; ELEM_LIST, bVALUE, FLAG-i, Fxi, Fyi, Fzi, Mxi, Myi, Mzi        ; 1st line
+;                    FLAG-j, Fxj, Fyj, Fzj, Mxj, Myj, Mzj, GROUP ; 2nd line";
+            writer.WriteLine(buffer_string);
+            string fnode_rel = "";
+            string bnode_rel = "";
+            for (int i = 0; i < y_elements_count; i++)
+            {
+                if (y_elements[i].fNode.num > bottom_nodes_end)
+                    fnode_rel = "000000, 0, 0, 0, 0, 0, 0";
+                else
+                    fnode_rel = string.Format("000110, 0, 0, 0, {0}, {1}, 0", 40.0, 40.0);
+                if (y_elements[i].bNode.num > bottom_nodes_end)
+                    bnode_rel = "           000000, 0, 0, 0, 0, 0, 0";
+                else
+                    bnode_rel = string.Format("         000110, 0, 0, 0, {0}, {1}, 0", 40.0, 40.0);
+                buffer_string = string.Format("{0,-5},  YES,{1}\n{2},{3}", y_elements[i].num, fnode_rel, bnode_rel, "横杆-立杆");
+                writer.WriteLine(buffer_string);
+            }
+            for (int i = 0; i < x_elements_count; i++)
+            {
+                if (x_elements[i].fNode.num > bottom_nodes_end)
+                    fnode_rel = "000000, 0, 0, 0, 0, 0, 0";
+                else
+                    fnode_rel = string.Format("000110, 0, 0, 0, {0}, {1}, 0", 40.0, 40.0);
+                if (x_elements[i].bNode.num > bottom_nodes_end)
+                    bnode_rel = "           000000, 0, 0, 0, 0, 0, 0";
+                else
+                    bnode_rel = string.Format("         000110, 0, 0, 0, {0}, {1}, 0", 40.0, 40.0);
+                buffer_string = string.Format("{0,-5},  YES,{1}\n{2},{3}", x_elements[i].num, fnode_rel, bnode_rel, "横杆-立杆");
+                writer.WriteLine(buffer_string);
+            }
+            for (int i = 0; i < z_elements_count; i++)
+            {
+                if (z_elements[i].fNode.num > bottom_nodes_end)
+                    fnode_rel = "000000, 0, 0, 0, 0, 0, 0";
+                else
+                    fnode_rel = string.Format("000110, 0, 0, 0, {0}, {1}, 0", 40.0, 40.0);
+                if (z_elements[i].bNode.num > bottom_nodes_end)
+                    bnode_rel = "           000000, 0, 0, 0, 0, 0, 0";
+                else
+                    bnode_rel = string.Format("         000110, 0, 0, 0, {0}, {1}, 0", 40.0, 40.0);
+                buffer_string = string.Format("{0,-5},  YES,{1}\n{2},{3}", z_elements[i].num, fnode_rel, bnode_rel, "横杆-立杆");
+                writer.WriteLine(buffer_string);
+            }
+            for (int i = 0; i < bottom_elements_count; i++)
+            {
+                if (bottom_elements[i].fNode.num > bottom_nodes_end)
+                    fnode_rel = "000000, 0, 0, 0, 0, 0, 0";
+                else
+                    fnode_rel = string.Format("000110, 0, 0, 0, {0}, {1}, 0", 40.0, 40.0);
+                if (bottom_elements[i].bNode.num > bottom_nodes_end)
+                    bnode_rel = "           000000, 0, 0, 0, 0, 0, 0";
+                else
+                    bnode_rel = string.Format("         000110, 0, 0, 0, {0}, {1}, 0", 40.0, 40.0);
+                buffer_string = string.Format("{0,-5},  YES,{1}\n{2},{3}", bottom_elements[i].num, fnode_rel, bnode_rel, "横杆-立杆");
+                writer.WriteLine(buffer_string);
+            }
+
+
+
+            for (int i = 0; i < xy_bridging_elements_count; i++)
+            {
+                fnode_rel = string.Format("000110, 0, 0, 0, {0}, {1}, 0", 35.0, 35.0);
+                bnode_rel = string.Format("         000110, 0, 0, 0, {0}, {1}, 0", 35.0, 35.0);
+                buffer_string = string.Format("{0,-5},  YES,{1}\n{2},{3}", xy_bridging_elements[i].num, fnode_rel, bnode_rel, "剪刀撑-横杆");
+                writer.WriteLine(buffer_string);
+            }
+
+            for (int i = 0; i < xz_bridging_elements_count; i++)
+            {
+                fnode_rel = string.Format("000110, 0, 0, 0, {0}, {1}, 0", 35.0, 35.0);
+                bnode_rel = string.Format("         000110, 0, 0, 0, {0}, {1}, 0", 35.0, 35.0);
+                buffer_string = string.Format("{0,-5},  YES,{1}\n{2},{3}", xz_bridging_elements[i].num, fnode_rel, bnode_rel, "剪刀撑-立杆");
+                writer.WriteLine(buffer_string);
+            }
+
+            for (int i = 0; i < yz_bridging_elements_count; i++)
+            {
+                fnode_rel = string.Format("000110, 0, 0, 0, {0}, {1}, 0", 35.0, 35.0);
+                bnode_rel = string.Format("         000110, 0, 0, 0, {0}, {1}, 0", 35.0, 35.0);
+                buffer_string = string.Format("{0,-5},  YES,{1}\n{2},{3}", yz_bridging_elements[i].num, fnode_rel, bnode_rel, "剪刀撑-立杆");
+                writer.WriteLine(buffer_string);
+            }
+
+            buffer_string = @"
+*USE-STLD, 杆系自重
+; *SELFWEIGHT, X, Y, Z, GROUP
+*SELFWEIGHT, 0, 0, -1, 支架自重
+; End of data for load case [杆系自重] -------------------------
+*USE-STLD, 浇筑和振捣混凝土
+";
+            writer.WriteLine(buffer_string);
+
+            buffer_string = @"
+*CONLOAD    ; Nodal Loads
+; NODE_LIST, FX, FY, FZ, MX, MY, MZ, GROUP";
+            writer.WriteLine(buffer_string);
+            int P2_nodes_count = 0;
+            for (int i = 0; i < bottom_nodes_end; i++)
+            {
+                if (Math.Abs(all_normal_nodes[i].z - z_length) < 0.005)
+                {
+                    P2_nodes_count++;
+                }
+            }
+
+            for (int i = 0; i < bottom_nodes_end; i++)
+            {
+                if (Math.Abs(all_normal_nodes[i].z - z_length) < 0.005)
+                {
+                    buffer_string = string.Format("{0,-5},  0.00 , 0.00 , -{1:0.00} , 0.00 , 0.00 , 0.00 , {2}", all_normal_nodes[i].num, P2 / P2_nodes_count, "浇筑及振捣");
+                    writer.WriteLine(buffer_string);
+                }
+            }
+            buffer_string = @"
+; End of data for load case [浇筑和振捣混凝土] -------------------------
+";
+            writer.WriteLine(buffer_string);
+
+            buffer_string = @"
+*USE-STLD, 施工人员、材料、设备
+
+*CONLOAD    ; Nodal Loads
+; NODE_LIST, FX, FY, FZ, MX, MY, MZ, GROUP
+";
+            writer.WriteLine(buffer_string);
+            int P1_nodes_count = P2_nodes_count;
+            for (int i = 0; i < bottom_nodes_end; i++)
+            {
+                if (Math.Abs(all_normal_nodes[i].z - z_length) < 0.005)
+                {
+                    buffer_string = string.Format("{0,-5},  0.00 , 0.00 , -{1:0.00} , 0.00 , 0.00 , 0.00 , {2}", all_normal_nodes[i].num, P1 / P1_nodes_count, "施工人员机械");
+                    writer.WriteLine(buffer_string);
+                }
+            }
+            buffer_string = @"
+; End of data for load case [施工人员、材料、设备] -------------------------
+";
+            writer.WriteLine(buffer_string);
+
+            int section_width = 0;
+            switch (selected_section)
+            {
+                case 0:
+                    {
+                        section_width = 2 * B01 + 2 * B02 + B03;
+                    } break;
+                case 1:
+                    {
+                        section_width = 2 * B01 + 2 * B02 + 2 * B03 + B04;
+                    } break;
+                case 2:
+                    {
+                        section_width = 2 * B01 + 2 * B02 + 2 * B03 + 2 * B04 + B05;
+                    } break;
+                case 3:
+                    {
+                        section_width = 2 * B01 + 2 * B02 + 2 * B03 + 2 * B04 + 2 * B05 + B06;
+                    } break;
+                default:
+                    break;
+            }
+
+            buffer_string = @"
+*USE-STLD,预压荷载1
+
+*CONLOAD    ; Nodal Loads
+; NODE_LIST, FX, FY, FZ, MX, MY, MZ, GROUP";
+            writer.WriteLine(buffer_string);
+            int Y1_nodes_count = 0;
+            for (int i = 0; i < bottom_nodes_end; i++)
+            {
+                if (Math.Abs(all_normal_nodes[i].z - z_length) < 0.005 && (all_normal_nodes[i].y - B01 / 100.0) > -0.005 && (all_normal_nodes[i].y - (section_width / 100.0 - B01 / 100.0)) < 0.005)
+                {
+                    Y1_nodes_count++;
+                }
+            }
+            for (int i = 0; i < bottom_nodes_end; i++)
+            {
+                if (Math.Abs(all_normal_nodes[i].z - z_length) < 0.005 && (all_normal_nodes[i].y - B01 / 100.0) > -0.005 && (all_normal_nodes[i].y - (section_width / 100.0 - B01 / 100.0)) < 0.005)
+                {
+                    buffer_string = string.Format("{0,-5},  0.00 , 0.00 , -{1:0.00} , 0.00 , 0.00 , 0.00 , {2}", all_normal_nodes[i].num, Y1 * 1.1 * (G1 + G2) / Y1_nodes_count, "预压第一次");
+                    writer.WriteLine(buffer_string);
+                }
+            }
+            buffer_string = @"
+; End of data for load case [预压荷载1] -------------------------
+";
+            writer.WriteLine(buffer_string);
+
+            buffer_string = @"
+*USE-STLD,预压荷载2
+
+*CONLOAD    ; Nodal Loads
+; NODE_LIST, FX, FY, FZ, MX, MY, MZ, GROUP";
+            writer.WriteLine(buffer_string);
+            int Y2_nodes_count = Y1_nodes_count;
+            for (int i = 0; i < bottom_nodes_end; i++)
+            {
+                if (Math.Abs(all_normal_nodes[i].z - z_length) < 0.005 && (all_normal_nodes[i].y - B01 / 100.0) > -0.005 && (all_normal_nodes[i].y - (section_width / 100.0 - B01 / 100.0)) < 0.005)
+                {
+                    buffer_string = string.Format("{0,-5},  0.00 , 0.00 , -{1:0.00} , 0.00 , 0.00 , 0.00 , {2}", all_normal_nodes[i].num, Y2 * 1.1 * (G1 + G2) / Y2_nodes_count, "预压第二次");
+                    writer.WriteLine(buffer_string);
+                }
+            }
+            buffer_string = @"
+; End of data for load case [预压荷载2] -------------------------
+";
+            writer.WriteLine(buffer_string);
+
+            buffer_string = @"
+*USE-STLD,预压荷载3
+
+*CONLOAD    ; Nodal Loads
+; NODE_LIST, FX, FY, FZ, MX, MY, MZ, GROUP";
+            writer.WriteLine(buffer_string);
+            int Y3_nodes_count = Y1_nodes_count;
+            for (int i = 0; i < bottom_nodes_end; i++)
+            {
+                if (Math.Abs(all_normal_nodes[i].z - z_length) < 0.005 && (all_normal_nodes[i].y - B01 / 100.0) > -0.005 && (all_normal_nodes[i].y - (section_width / 100.0 - B01 / 100.0)) < 0.005)
+                {
+                    buffer_string = string.Format("{0,-5},  0.00 , 0.00 , -{1:0.00} , 0.00 , 0.00 , 0.00 , {2}", all_normal_nodes[i].num, Y3 * 1.1 * (G1 + G2) / Y3_nodes_count, "预压第三次");
+                    writer.WriteLine(buffer_string);
+                }
+            }
+            buffer_string = @"
+; End of data for load case [预压荷载3] -------------------------
+";
+            writer.WriteLine(buffer_string);
+
+
+            buffer_string = @"
+*USE-STLD,第一次浇筑
+
+*CONLOAD    ; Nodal Loads
+; NODE_LIST, FX, FY, FZ, MX, MY, MZ, GROUP";
+            writer.WriteLine(buffer_string);
+            int J1_web_nodes_count = 0;
+            int J1_bottom_nodes_count = 0;
+            switch (selected_section)
+            {
+                case 0:
+                    {
+                        for (int i = 0; i < bottom_nodes_end; i++)
+                        {
+                            if (Math.Abs(all_normal_nodes[i].z - z_length) < 0.005 &&
+                                all_normal_nodes[i].y > B01 / 100.0 - 0.005 &&
+                                all_normal_nodes[i].y < (section_width - B01) / 100.0 + 0.005)
+                            {
+                                if ((all_normal_nodes[i].y > B01 / 100.0 - 0.005 &&
+                                    all_normal_nodes[i].y < (B01 + B02) / 100.0 + 0.005) ||
+                                    (all_normal_nodes[i].y > (B01 + B02 + B03) / 100.0 - 0.005 &&
+                                    all_normal_nodes[i].y < (B01 + 2 * B02 + B03) / 100.0 + 0.005))
+                                {
+                                    J1_web_nodes_count++;
+                                }
+                                else
+                                {
+                                    J1_bottom_nodes_count++;
+                                }
+                            }
+                        }
+                    } break;
+                case 1:
+                    {
+                        for (int i = 0; i < bottom_nodes_end; i++)
+                        {
+                            if (Math.Abs(all_normal_nodes[i].z - z_length) < 0.005 &&
+                                all_normal_nodes[i].y > B01 / 100.0 - 0.005 &&
+                                all_normal_nodes[i].y < (section_width - B01) / 100.0 + 0.005)
+                            {
+                                if ((all_normal_nodes[i].y > B01 / 100.0 - 0.005 &&
+                                    all_normal_nodes[i].y < (B01 + B02) / 100.0 + 0.005) ||
+                                    (all_normal_nodes[i].y > (B01 + B02 + B03) / 100.0 - 0.005 &&
+                                    all_normal_nodes[i].y < (B01 + B02 + B03 + B04) / 100.0 + 0.005) ||
+                                    (all_normal_nodes[i].y > (B01 + B02 + 2 * B03 + B04) / 100.0 - 0.005 &&
+                                    all_normal_nodes[i].y < (section_width - B01) / 100.0 + 0.005))
+                                {
+                                    J1_web_nodes_count++;
+                                }
+                                else
+                                {
+                                    J1_bottom_nodes_count++;
+                                }
+                            }
+                        }
+                    } break;
+                case 2:
+                    {
+                        for (int i = 0; i < bottom_nodes_end; i++)
+                        {
+                            if (Math.Abs(all_normal_nodes[i].z - z_length) < 0.005 &&
+                                all_normal_nodes[i].y > B01 / 100.0 - 0.005 &&
+                                all_normal_nodes[i].y < (section_width - B01) / 100.0 + 0.005)
+                            {
+                                if ((all_normal_nodes[i].y > B01 / 100.0 - 0.005 &&
+                                    all_normal_nodes[i].y < (B01 + B02) / 100.0 + 0.005) ||
+                                    (all_normal_nodes[i].y > (B01 + B02 + B03) / 100.0 - 0.005 &&
+                                    all_normal_nodes[i].y < (B01 + B02 + B03 + B04) / 100.0 + 0.005) ||
+                                    (all_normal_nodes[i].y > (B01 + B02 + B03 + B04 + B05) / 100.0 - 0.005 &&
+                                    all_normal_nodes[i].y < (B01 + B02 + B03 + 2 * B04 + B05) / 100.0 + 0.005) ||
+                                    (all_normal_nodes[i].y > (B01 + B02 + 2 * B03 + 2 * B04 + B05) / 100.0 - 0.005 &&
+                                    all_normal_nodes[i].y < (section_width - B01) / 100.0 + 0.005))
+                                {
+                                    J1_web_nodes_count++;
+                                }
+                                else
+                                {
+                                    J1_bottom_nodes_count++;
+                                }
+                            }
+                        }
+                    } break;
+                case 3:
+                    {
+                        for (int i = 0; i < bottom_nodes_end; i++)
+                        {
+                            if (Math.Abs(all_normal_nodes[i].z - z_length) < 0.005 &&
+                                all_normal_nodes[i].y > B01 / 100.0 - 0.005 &&
+                                all_normal_nodes[i].y < (section_width - B01) / 100.0 + 0.005)
+                            {
+                                if ((all_normal_nodes[i].y > B01 / 100.0 - 0.005 &&
+                                    all_normal_nodes[i].y < (B01 + B02) / 100.0 + 0.005) ||
+                                    (all_normal_nodes[i].y > (B01 + B02 + B03) / 100.0 - 0.005 &&
+                                    all_normal_nodes[i].y < (B01 + B02 + B03 + B04) / 100.0 + 0.005) ||
+                                    (all_normal_nodes[i].y > (B01 + B02 + B03 + B04 + B05) / 100.0 - 0.005 &&
+                                    all_normal_nodes[i].y < (B01 + B02 + B03 + B04 + B05 + B06) / 100.0 + 0.005) ||
+                                    (all_normal_nodes[i].y > (B01 + B02 + B03 + B04 + 2 * B05 + B06) / 100.0 - 0.005 &&
+                                    all_normal_nodes[i].y < (B01 + B02 + B03 + 2 * B04 + 2 * B05 + B06) / 100.0 + 0.005) ||
+                                    (all_normal_nodes[i].y > (B01 + B02 + 2 * B03 + 2 * B04 + 2 * B05 + B06) / 100.0 - 0.005 &&
+                                    all_normal_nodes[i].y < (section_width - B01) / 100.0 + 0.005))
+                                {
+                                    J1_web_nodes_count++;
+                                }
+                                else
+                                {
+                                    J1_bottom_nodes_count++;
+                                }
+                            }
+                        }
+                    } break;
+                default: break;
+            }
+
+            switch (selected_section)
+            {
+                case 0:
+                    {
+                        for (int i = 0; i < bottom_nodes_end; i++)
+                        {
+                            if (Math.Abs(all_normal_nodes[i].z - z_length) < 0.005 &&
+                                all_normal_nodes[i].y > B01 / 100.0 - 0.005 &&
+                                all_normal_nodes[i].y < (section_width - B01) / 100.0 + 0.005)
+                            {
+                                if ((all_normal_nodes[i].y > B01 / 100.0 - 0.005 &&
+                                    all_normal_nodes[i].y < (B01 + B02) / 100.0 + 0.005) ||
+                                    (all_normal_nodes[i].y > (B01 + B02 + B03) / 100.0 - 0.005 &&
+                                    all_normal_nodes[i].y < (B01 + 2 * B02 + B03) / 100.0 + 0.005))
+                                {
+                                    buffer_string = string.Format("{0,-5},  0.00 , 0.00 , -{1:0.00} , 0.00 , 0.00 , 0.00 , {2}", all_normal_nodes[i].num, J1 * G1 / (J1_bottom_nodes_count + J1_web_nodes_count), "浇筑第一次-腹板");
+                                    writer.WriteLine(buffer_string);
+                                }
+                                else
+                                {
+                                    buffer_string = string.Format("{0,-5},  0.00 , 0.00 , -{1:0.00} , 0.00 , 0.00 , 0.00 , {2}", all_normal_nodes[i].num, J1 * G1 / (J1_bottom_nodes_count + J1_web_nodes_count), "浇筑第一次-底板");
+                                    writer.WriteLine(buffer_string);
+                                }
+                            }
+                        }
+                    } break;
+                case 1:
+                    {
+                        for (int i = 0; i < bottom_nodes_end; i++)
+                        {
+                            if (Math.Abs(all_normal_nodes[i].z - z_length) < 0.005 &&
+                                all_normal_nodes[i].y > B01 / 100.0 - 0.005 &&
+                                all_normal_nodes[i].y < (section_width - B01) / 100.0 + 0.005)
+                            {
+                                if ((all_normal_nodes[i].y > B01 / 100.0 - 0.005 &&
+                                    all_normal_nodes[i].y < (B01 + B02) / 100.0 + 0.005) ||
+                                    (all_normal_nodes[i].y > (B01 + B02 + B03) / 100.0 - 0.005 &&
+                                    all_normal_nodes[i].y < (B01 + B02 + B03 + B04) / 100.0 + 0.005) ||
+                                    (all_normal_nodes[i].y > (B01 + B02 + 2 * B03 + B04) / 100.0 - 0.005 &&
+                                    all_normal_nodes[i].y < (section_width - B01) / 100.0 + 0.005))
+                                {
+                                    buffer_string = string.Format("{0,-5},  0.00 , 0.00 , -{1:0.00} , 0.00 , 0.00 , 0.00 , {2}", all_normal_nodes[i].num, J1 * G1 / (J1_bottom_nodes_count + J1_web_nodes_count), "浇筑第一次-腹板");
+                                    writer.WriteLine(buffer_string);
+                                }
+                                else
+                                {
+                                    buffer_string = string.Format("{0,-5},  0.00 , 0.00 , -{1:0.00} , 0.00 , 0.00 , 0.00 , {2}", all_normal_nodes[i].num, J1 * G1 / (J1_bottom_nodes_count + J1_web_nodes_count), "浇筑第一次-底板");
+                                    writer.WriteLine(buffer_string);
+                                }
+                            }
+                        }
+                    } break;
+                case 2:
+                    {
+                        for (int i = 0; i < bottom_nodes_end; i++)
+                        {
+                            if (Math.Abs(all_normal_nodes[i].z - z_length) < 0.005 &&
+                                all_normal_nodes[i].y > B01 / 100.0 - 0.005 &&
+                                all_normal_nodes[i].y < (section_width - B01) / 100.0 + 0.005)
+                            {
+                                if ((all_normal_nodes[i].y > B01 / 100.0 - 0.005 &&
+                                    all_normal_nodes[i].y < (B01 + B02) / 100.0 + 0.005) ||
+                                    (all_normal_nodes[i].y > (B01 + B02 + B03) / 100.0 - 0.005 &&
+                                    all_normal_nodes[i].y < (B01 + B02 + B03 + B04) / 100.0 + 0.005) ||
+                                    (all_normal_nodes[i].y > (B01 + B02 + B03 + B04 + B05) / 100.0 - 0.005 &&
+                                    all_normal_nodes[i].y < (B01 + B02 + B03 + 2 * B04 + B05) / 100.0 + 0.005) ||
+                                    (all_normal_nodes[i].y > (B01 + B02 + 2 * B03 + 2 * B04 + B05) / 100.0 - 0.005 &&
+                                    all_normal_nodes[i].y < (section_width - B01) / 100.0 + 0.005))
+                                {
+                                    buffer_string = string.Format("{0,-5},  0.00 , 0.00 , -{1:0.00} , 0.00 , 0.00 , 0.00 , {2}", all_normal_nodes[i].num, J1 * G1 / (J1_bottom_nodes_count + J1_web_nodes_count), "浇筑第一次-腹板");
+                                    writer.WriteLine(buffer_string);
+                                }
+                                else
+                                {
+                                    buffer_string = string.Format("{0,-5},  0.00 , 0.00 , -{1:0.00} , 0.00 , 0.00 , 0.00 , {2}", all_normal_nodes[i].num, J1 * G1 / (J1_bottom_nodes_count + J1_web_nodes_count), "浇筑第一次-底板");
+                                    writer.WriteLine(buffer_string);
+                                }
+                            }
+                        }
+                    } break;
+                case 3:
+                    {
+                        for (int i = 0; i < bottom_nodes_end; i++)
+                        {
+                            if (Math.Abs(all_normal_nodes[i].z - z_length) < 0.005 &&
+                                all_normal_nodes[i].y > B01 / 100.0 - 0.005 &&
+                                all_normal_nodes[i].y < (section_width - B01) / 100.0 + 0.005)
+                            {
+                                if ((all_normal_nodes[i].y > B01 / 100.0 - 0.005 &&
+                                    all_normal_nodes[i].y < (B01 + B02) / 100.0 + 0.005) ||
+                                    (all_normal_nodes[i].y > (B01 + B02 + B03) / 100.0 - 0.005 &&
+                                    all_normal_nodes[i].y < (B01 + B02 + B03 + B04) / 100.0 + 0.005) ||
+                                    (all_normal_nodes[i].y > (B01 + B02 + B03 + B04 + B05) / 100.0 - 0.005 &&
+                                    all_normal_nodes[i].y < (B01 + B02 + B03 + B04 + B05 + B06) / 100.0 + 0.005) ||
+                                    (all_normal_nodes[i].y > (B01 + B02 + B03 + B04 + 2 * B05 + B06) / 100.0 - 0.005 &&
+                                    all_normal_nodes[i].y < (B01 + B02 + B03 + 2 * B04 + 2 * B05 + B06) / 100.0 + 0.005) ||
+                                    (all_normal_nodes[i].y > (B01 + B02 + 2 * B03 + 2 * B04 + 2 * B05 + B06) / 100.0 - 0.005 &&
+                                    all_normal_nodes[i].y < (section_width - B01) / 100.0 + 0.005))
+                                {
+                                    buffer_string = string.Format("{0,-5},  0.00 , 0.00 , -{1:0.00} , 0.00 , 0.00 , 0.00 , {2}", all_normal_nodes[i].num, J1 * G1 / (J1_bottom_nodes_count + J1_web_nodes_count), "浇筑第一次-腹板");
+                                    writer.WriteLine(buffer_string);
+                                }
+                                else
+                                {
+                                    buffer_string = string.Format("{0,-5},  0.00 , 0.00 , -{1:0.00} , 0.00 , 0.00 , 0.00 , {2}", all_normal_nodes[i].num, J1 * G1 / (J1_bottom_nodes_count + J1_web_nodes_count), "浇筑第一次-底板");
+                                    writer.WriteLine(buffer_string);
+                                }
+                            }
+                        }
+                    } break;
+                default: break;
+            }
+            buffer_string = @"
+; End of data for load case [第一次浇筑] -------------------------";
+            writer.WriteLine(buffer_string);
+
+            buffer_string = @"
+*USE-STLD,第二次浇筑
+
+*CONLOAD    ; Nodal Loads
+; NODE_LIST, FX, FY, FZ, MX, MY, MZ, GROUP";
+            writer.WriteLine(buffer_string);
+            int J2_nodes_count = 0;
+            for (int i = 0; i < bottom_nodes_end; i++)
+            {
+                if (Math.Abs(all_normal_nodes[i].z - z_length) < 0.005)
+                {
+                    J2_nodes_count++;
+                }
+            }
+            for (int i = 0; i < bottom_nodes_end; i++)
+            {
+                if (Math.Abs(all_normal_nodes[i].z - z_length) < 0.005)
+                {
+                    buffer_string = string.Format("{0,-5},  0.00 , 0.00 , -{1:0.00} , 0.00 , 0.00 , 0.00 , {2}", all_normal_nodes[i].num, J2 * G1 / J2_nodes_count, "浇筑第二次");
+                    writer.WriteLine(buffer_string);
+                }
+            }
+
+            buffer_string = @"
+; End of data for load case [第二次浇筑] -------------------------";
+            writer.WriteLine(buffer_string);
+
+            buffer_string = @"
+*USE-STLD,模板、支撑梁
+
+*CONLOAD    ; Nodal Loads
+; NODE_LIST, FX, FY, FZ, MX, MY, MZ, GROUP";
+            writer.WriteLine(buffer_string);
+            int G2_nodes_count = J2_nodes_count;
+            for (int i = 0; i < bottom_nodes_end; i++)
+            {
+                if (Math.Abs(all_normal_nodes[i].z - z_length) < 0.005)
+                {
+                    buffer_string = string.Format("{0,-5},  0.00 , 0.00 , -{1:0.00} , 0.00 , 0.00 , 0.00 , {2}", all_normal_nodes[i].num, G2 / G2_nodes_count, "模板方楞等");
+                    writer.WriteLine(buffer_string);
+                }
+            }
+
+            buffer_string = @"
+; End of data for load case [模板、支撑梁] -------------------------";
+            writer.WriteLine(buffer_string);
+
+            buffer_string = @"
+*USE-STLD,防护设施、附加构件
+
+*CONLOAD    ; Nodal Loads
+; NODE_LIST, FX, FY, FZ, MX, MY, MZ, GROUP";
+            writer.WriteLine(buffer_string);
+            int G3_nodes_count = J2_nodes_count;
+            for (int i = 0; i < bottom_nodes_end; i++)
+            {
+                if (Math.Abs(all_normal_nodes[i].z - z_length) < 0.005)
+                {
+                    buffer_string = string.Format("{0,-5},  0.00 , 0.00 , -{1:0.00} , 0.00 , 0.00 , 0.00 , {2}", all_normal_nodes[i].num, G3 / G3_nodes_count, "附加构件");
+                    writer.WriteLine(buffer_string);
+                }
+            }
+
+            buffer_string = @"
+; End of data for load case [防护设施、附加构件] -------------------------";
+            writer.WriteLine(buffer_string);
+
+            buffer_string = @"
+*USE-STLD,风荷载
+
+*CONLOAD    ; Nodal Loads
+; NODE_LIST, FX, FY, FZ, MX, MY, MZ, GROUP";
+            writer.WriteLine(buffer_string);
+            //int P3_nodes_count = 0;
+            for (int i = 0; i < bottom_nodes_end; i++)
+            {
+                if (Math.Abs(all_normal_nodes[i].y - y_length) < 0.005)
+                {
+                    //P3_nodes_count++;
+                    buffer_string = string.Format("{0,-5},  0.00 ,-{1:0.00} , 0.00 ,  0.00 , 0.00 , 0.00 , {2}", all_normal_nodes[i].num, P3, "风荷载");
+                    writer.WriteLine(buffer_string);
+                }
+            }
+
+            buffer_string = @"
+; End of data for load case [风荷载] -------------------------";
+            writer.WriteLine(buffer_string);
+
+            buffer_string = @"
+*LOADCOMB    ; Combinations
+; NAME=NAME, KIND, ACTIVE, bES, iTYPE, DESC, iSERV-TYPE, nLCOMTYPE   ; line 1
+;      ANAL1, LCNAME1, FACT1, ...                                    ; from line 2
+   NAME=第一次预压, GEN, ACTIVE, 0, 0, , 0, 0
+        ST,杆系自重, 1, ST, 预压荷载1, 1, ST, 模板、支撑梁, 1
+        ST, 防护设施、附加构件, 1, ST, 风荷载, 1
+   NAME=第二次预压, GEN, ACTIVE, 0, 0, , 0, 0
+        ST,杆系自重, 1, ST, 预压荷载1, 1, ST, 预压荷载2, 1
+        ST,模板、支撑梁, 1, ST, 防护设施、附加构件, 1, ST, 风荷载, 1
+   NAME=第三次预压, GEN, ACTIVE, 0, 0, , 0, 0
+        ST, 杆系自重, 1, ST,预压荷载1, 1, ST,预压荷载2, 1, ST,预压荷载3, 1
+        ST, 模板、支撑梁, 1, ST, 防护设施、附加构件, 1, ST, 风荷载, 1
+   NAME=第一次浇筑, GEN, ACTIVE, 0, 0, , 0, 0
+        ST, 杆系自重, 1, ST, 第一次浇筑, 1, ST, 浇筑和振捣混凝土, 1
+        ST, 施工人员、材料、设备, 1, ST, 模板、支撑梁, 1
+        ST, 防护设施、附加构件, 1, ST, 风荷载, 1
+   NAME=第二次浇筑, GEN, ACTIVE, 0, 0, , 0, 0
+        ST, 杆系自重, 1, ST, 第一次浇筑,1, ST,第二次浇筑, 1
+        ST, 浇筑和振捣混凝土, 1, ST, 施工人员、材料、设备, 1
+        ST, 模板、支撑梁, 1, ST, 防护设施、附加构件, 1, ST, 风荷载, 1
+
+*LC-COLOR    ; Diagram Color for Load Case
+; ANAL, LCNAME, iR1(ALL), iG1(ALL), iB1(ALL), iR2(MIN), iG2(MIN), iB2(MIN), iR3(MAX), iG2(MAX), iB2(MAX)
+ ST, 预压荷载1, 0, 192, 192, 0, 128, 57, 255, 255, 87
+ ST, 预压荷载2, 163, 255, 160, 210, 210, 210, 0, 128, 192
+ ST, 预压荷载3, 93, 255, 87, 0, 128, 192, 0, 192, 192
+ ST, 杆系自重, 160, 192, 255, 148, 87, 255, 0, 192, 128
+ ST, 模板、支撑梁, 255, 160, 255, 146, 0, 255, 163, 255, 160
+ ST, 浇筑和振捣混凝土, 0, 192, 128, 0, 128, 192, 0, 192, 128
+ ST, 施工人员、材料、设备, 148, 87, 255, 192, 128, 0, 192, 128, 0
+ CB, 第一次预压, 192, 192, 0, 0, 192, 192, 192, 192, 192
+ CB, 第二次预压, 78, 0, 255, 0, 157, 192, 160, 255, 255
+ CB, 第三次预压, 192, 0, 128, 192, 0, 128, 93, 255, 87
+ CB, 第一次浇筑, 255, 160, 255, 210, 210, 210, 255, 0, 128
+ ST, 第一次浇筑, 163, 160, 255, 93, 255, 87, 192, 192, 192
+ CB, 第二次浇筑, 192, 72, 0, 148, 87, 255, 192, 0, 192
+ ST, 第二次浇筑, 192, 0, 192, 0, 128, 255, 212, 160, 255
+ ST, 防护设施、附加构件, 0, 128, 57, 0, 192, 128, 0, 192, 128
+ ST, 风荷载, 255, 128, 0, 192, 0, 192, 85, 0, 192
+
+*DGN-MATL    ; Modify Steel(Concrete) Material
+; iMAT, TYPE, MNAME, [DATA1]                                    ; STEEL
+; iMAT, TYPE, MNAME, [DATA2], [R-DATA], FCI, bSERV, SHORT, LONG ; CONC
+; iMAT, TYPE, MNAME, [DATA3], [DATA2], [R-DATA]                 ; SRC
+; iMAT, TYPE, MNAME, [DATA5]                                    ; STEEL(None) & KSCE-ASD05
+; [DATA1] : 1, DB, CODE, NAME or 2, ELAST, POISN, FU, FY1, FY2, FY3, FY4
+;           FY5, FY6, AFT, AFT2, AFT3, FY, AFV, AFV2, AFV3
+; [DATA2] : 1, DB, CODE, NAME or 2, FC
+; [DATA3] : 1, DB, CODE, NAME or 2, ELAST, FU, FY1, FY2, FY3, FY4
+;              FY5, FY6, AFT, AFT2, AFT3, FY, AFV, AFV2, AFV3
+; [DATA4] : 1, DB, CODE, NAME or 2, FC
+; [DATA5] : 3, ELAST, POISN, AL1, AL2, AL3, AL4, AL5, AL6, AL7, AL8, AL9, AL10
+;              MIN1, MIN2, MIN3
+; [R-DATA]: RBCODE, RBMAIN, RBSUB, FY(R), FYS
+    1, STEEL, Q235              , 1, GB03(S)    ,            ,Q235
+";
+            writer.WriteLine(buffer_string);
+
+            if (buckle_analyse)
+            {
+                buffer_string = "*BUCK-CTRL    ; Buckling Analysis Control";
+                writer.WriteLine(buffer_string);
+                buffer_string = "; iMODENUM, bPOSITIVE, bAXIALONLY, RNG1, RNG2, bSTURM    ; line 1";
+                writer.WriteLine(buffer_string);
+                buffer_string = "; LCNAME1, FACT1, iLTYPE1, LCNAME2, FACT2, iLTYPE2, ...  ; from line 2";
+                writer.WriteLine(buffer_string);
+                buffer_string = "5, NO, NO, 0, 0, NO";
+                writer.WriteLine(buffer_string);
+                buffer_string = "杆系自重, 1, 1, 第二次浇筑, 1.4, 0";
+                writer.WriteLine(buffer_string);
+            }
+            if (nolinear_analyse)
+            {
+                buffer_string = "*NONL-CTRL    ; Non-linear Analysis Control";
+                writer.WriteLine(buffer_string);
+                buffer_string = "; TYPE, ITER, LSTEP, MAX, [CONV_CRITERIA]                      ; ITER=NEWTON";
+                writer.WriteLine(buffer_string);
+                buffer_string = "; STLD, LSTEP, MITER, FACT1, FACT2, ...                        ; from line 2";
+                writer.WriteLine(buffer_string);
+                buffer_string = "; TYPE, ITER, IFR, NINC, MITER, MDISP, [CONV_CRITERIA]         ; ITER=ARC";
+                writer.WriteLine(buffer_string);
+                buffer_string = "; LCNAME, NINC, MITER, MDISP                                   ; from line 2";
+                writer.WriteLine(buffer_string);
+                buffer_string = "; TYPE, ITER, DSTEP, MITER, MNODE, DIR, MDISP, [CONV_CRITERIA] ; ITER=DISP";
+                writer.WriteLine(buffer_string);
+                buffer_string = "; LCNAME, DSTEP, MITER, MNODE, DIR, MDISP                      ; from line 2";
+                writer.WriteLine(buffer_string);
+                buffer_string = "; [CONV_CRITERIA] : bENGR, EV, bDISP, DV, bFORC, FV";
+                writer.WriteLine(buffer_string);
+                buffer_string = "   GEOM, NEWTON, 1, 30, NO, 0.001, YES, 0.001, NO, 0.001";
+                writer.WriteLine(buffer_string);
+                buffer_string = "     第二次浇筑, 1, 30, 1";
+                writer.WriteLine(buffer_string);
+            }
             //buffer_string = String.Format("\r\n;XY剪刀线 ");
             //writer.WriteLine(buffer_string);
             //for (int i = 0; i < xy_bridging_lines_count; i++)
@@ -2252,6 +3189,26 @@ namespace MidasHelper_CS
             catch (Exception)
             {
                 J2 = 0.0;
+            }
+        }
+
+        private void check_buckle_Checked(object sender, RoutedEventArgs e)
+        {
+            buckle_analyse = (bool)check_buckle.IsChecked;
+            if (buckle_analyse && nolinear_analyse)
+            {
+                check_nolinear.IsChecked = false;
+                nolinear_analyse = false;
+            }
+        }
+
+        private void check_nolinear_Checked(object sender, RoutedEventArgs e)
+        {
+            nolinear_analyse = (bool)check_nolinear.IsChecked;
+            if (nolinear_analyse && buckle_analyse)
+            {
+                check_buckle.IsChecked = false;
+                buckle_analyse = false;
             }
         }
 

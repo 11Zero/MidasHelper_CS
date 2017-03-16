@@ -39,7 +39,7 @@
                    Height="501" Name="Center_dockPanel" Width="850"
                    Background="AntiqueWhite">
             <Grid Height="500" Name="Center_grid" Width="849">
-                <Button Content="梁截面参数" Height="23" HorizontalAlignment="Left" Margin="478,267,0,0" Name="btn_section" VerticalAlignment="Top" Width="75" Click="btn_section_Click" />
+                <Button Content="梁截面参数" Height="23" HorizontalAlignment="Left" Margin="470,447,0,0" Name="btn_section" VerticalAlignment="Top" Width="75" Click="btn_section_Click" />
                 <!--<Label MaxWidth="550" Height="35" HorizontalAlignment="Left" Margin="26,134,0,0" Name="label4" VerticalAlignment="Top" Width="176"-->
                 <GroupBox Header="支架参数" Name="groupBox1" Margin="18,16,0,246" HorizontalAlignment="Left" Width="406">
                     <Grid Height="210" Width="390">
@@ -94,7 +94,7 @@
                         <TextBox Height="20" HorizontalAlignment="Left" Margin="81,154,0,0" Name="text_P3" VerticalAlignment="Top" Width="164" TextChanged="text_P3_TextChanged" />
                     </Grid>
                 </GroupBox>
-                <GroupBox Header="测点布置方案" Height="173" HorizontalAlignment="Left" Margin="478,309,0,0" Name="groupBox4" VerticalAlignment="Top" Width="365">
+                <GroupBox Header="测点布置方案" Height="173" HorizontalAlignment="Left" Margin="458,256,0,0" Name="groupBox4" VerticalAlignment="Top" Width="365">
                     <Grid Height="136" Width="340">
                         <RadioButton Content="一级方案" Height="16" HorizontalAlignment="Left" Margin="34,29,0,0" Name="radio_btn_rank1" VerticalAlignment="Top" />
                         <RadioButton Content="二级方案" Height="16" HorizontalAlignment="Left" Margin="137,29,0,0" Name="radio_btn_rank2" VerticalAlignment="Top" />
@@ -105,10 +105,12 @@
                         <ProgressBar Height="15" HorizontalAlignment="Left" Margin="34,107,0,0" Name="progressBar1" VerticalAlignment="Top" Width="276" />
                     </Grid>
                 </GroupBox>
-                <Button Content="生成MCT" Height="23" HorizontalAlignment="Left" Margin="565,267,0,0" Name="btn_export_mct" VerticalAlignment="Top" Width="75" Click="btn_export_mct_Click" />
-                <Button Content="清空" Height="23" HorizontalAlignment="Left" Margin="654,267,0,0" Name="btn_clear" VerticalAlignment="Top" Width="75" />
-                <Button Content="承载力计算器" Height="23" HorizontalAlignment="Left" Margin="744,267,0,0" Name="btn_cacul" VerticalAlignment="Top" Width="86" />
-                <Button Content="测试" Height="23" HorizontalAlignment="Left" Margin="384,451,0,0" Name="button1" VerticalAlignment="Top" Width="75" Click="button1_Click" />
+                <Button Content="生成MCT" Height="23" HorizontalAlignment="Left" Margin="558,447,0,0" Name="btn_export_mct" VerticalAlignment="Top" Width="75" Click="btn_export_mct_Click" />
+                <Button Content="清空" Height="23" HorizontalAlignment="Left" Margin="646,447,0,0" Name="btn_clear" VerticalAlignment="Top" Width="75" />
+                <Button Content="承载力计算器" Height="23" HorizontalAlignment="Left" Margin="736,447,0,0" Name="btn_cacul" VerticalAlignment="Top" Width="86" />
+                <Button Content="测试" Height="23" HorizontalAlignment="Left" Margin="377,256,0,0" Name="button1" VerticalAlignment="Top" Width="75" Click="button1_Click" />
+                <CheckBox Content="屈曲分析" Height="16" HorizontalAlignment="Left" Margin="153,450,0,0" Name="check_buckle" VerticalAlignment="Top" Checked="check_buckle_Checked" />
+                <CheckBox Content="非线性分析" Height="16" HorizontalAlignment="Left" Margin="240,450,0,0" Name="check_nolinear" VerticalAlignment="Top" Checked="check_nolinear_Checked" />
             </Grid>
         </DockPanel>
     </DockPanel>

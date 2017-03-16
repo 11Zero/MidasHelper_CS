@@ -35,8 +35,8 @@ namespace MidasHelper_CS
         private double ScralSize = 1.0;//鼠标缩放因数
         public double bridgeLength = 0.0;
         public double sectionArea = 0.0;
-        public int H01 = 0, H02 = 0, H03 = 0;
 
+        public int H01 = 0, H02 = 0, H03 = 0;
         public int B01 = 0, B02 = 0, B03 = 0, B04 = 0, B05 = 0, B06 = 0;
         public int H11 = 0, H12 = 0, H21 = 0, H22 = 0, H31 = 0, H32 = 0, H41 = 0;
         public int h11 = 0, h12 = 0, h21 = 0, h22 = 0, h31 = 0, h32 = 0, h41 = 0, h42 = 0;
@@ -223,6 +223,7 @@ namespace MidasHelper_CS
             getXmlValue();
             drawSection(combo_select.SelectedIndex);
             this.parentWin.text_G1.Text = (26*sectionArea*bridgeLength).ToString();
+            this.parentWin.selected_section = combo_select.SelectedIndex;
             this.Close();
             //setXmlValue();
             //getXmlValue();
@@ -294,70 +295,70 @@ namespace MidasHelper_CS
             string xmlpath = AppDomain.CurrentDomain.BaseDirectory + "sectionconfig.xml";
             //MessageBox.Show(XmlHelper.getXmlElementValue(xmlpath, "内部轮廓", "h11"));
             text_H01.Text = XmlHelper.getXmlElementValue(xmlpath, "外部轮廓", "H01");
-            H01 = int.Parse(text_H01.Text);
+            H01 = int.Parse(text_H01.Text); this.parentWin.H01 = H01;
             text_H02.Text = XmlHelper.getXmlElementValue(xmlpath, "外部轮廓", "H02");
-            H02 = int.Parse(text_H02.Text);
+            H02 = int.Parse(text_H02.Text); this.parentWin.H02 = H02;
             text_H03.Text = XmlHelper.getXmlElementValue(xmlpath, "外部轮廓", "H03");
-            H03 = int.Parse(text_H03.Text);
+            H03 = int.Parse(text_H03.Text); this.parentWin.H03 = H03;
 
             text_B01.Text = XmlHelper.getXmlElementValue(xmlpath, "外部轮廓", "B01");
-            B01 = int.Parse(text_B01.Text);
+            B01 = int.Parse(text_B01.Text); this.parentWin.B01 = B01;
             text_B02.Text = XmlHelper.getXmlElementValue(xmlpath, "外部轮廓", "B02");
-            B02 = int.Parse(text_B02.Text);
+            B02 = int.Parse(text_B02.Text); this.parentWin.B02 = B02;
             text_B03.Text = XmlHelper.getXmlElementValue(xmlpath, "外部轮廓", "B03");
-            B03 = int.Parse(text_B03.Text);
+            B03 = int.Parse(text_B03.Text); this.parentWin.B03 = B03;
             text_B04.Text = XmlHelper.getXmlElementValue(xmlpath, "外部轮廓", "B04");
-            B04 = int.Parse(text_B04.Text);
+            B04 = int.Parse(text_B04.Text); this.parentWin.B04 = B04;
             text_B05.Text = XmlHelper.getXmlElementValue(xmlpath, "外部轮廓", "B05");
-            B05 = int.Parse(text_B05.Text);
+            B05 = int.Parse(text_B05.Text); this.parentWin.B05 = B05;
             text_B06.Text = XmlHelper.getXmlElementValue(xmlpath, "外部轮廓", "B06");
-            B06 = int.Parse(text_B06.Text);
+            B06 = int.Parse(text_B06.Text); this.parentWin.B06 = B06;
 
             text_H11.Text = XmlHelper.getXmlElementValue(xmlpath, "上下板厚", "H11");
-            H11 = int.Parse(text_H11.Text);
+            H11 = int.Parse(text_H11.Text); this.parentWin.H11 = H11;
             text_H12.Text = XmlHelper.getXmlElementValue(xmlpath, "上下板厚", "H12");
-            H12 = int.Parse(text_H12.Text);
+            H12 = int.Parse(text_H12.Text); this.parentWin.H12 = H12;
             text_H21.Text = XmlHelper.getXmlElementValue(xmlpath, "上下板厚", "H21");
-            H21 = int.Parse(text_H21.Text);
+            H21 = int.Parse(text_H21.Text); this.parentWin.H21 = H21;
             text_H22.Text = XmlHelper.getXmlElementValue(xmlpath, "上下板厚", "H22");
-            H22 = int.Parse(text_H22.Text);
+            H22 = int.Parse(text_H22.Text); this.parentWin.H22 = H22;
 
             text_h11.Text = XmlHelper.getXmlElementValue(xmlpath, "斜角尺寸", "h11");
-            h11 = int.Parse(text_h11.Text);
+            h11 = int.Parse(text_h11.Text); this.parentWin.h11 = h11;
             text_b11.Text = XmlHelper.getXmlElementValue(xmlpath, "斜角尺寸", "b11");
-            b11 = int.Parse(text_b11.Text);
+            b11 = int.Parse(text_b11.Text); this.parentWin.b11 = b11;
             text_h12.Text = XmlHelper.getXmlElementValue(xmlpath, "斜角尺寸", "h12");
-            h12 = int.Parse(text_h12.Text);
+            h12 = int.Parse(text_h12.Text); this.parentWin.h12 = h12;
             text_b12.Text = XmlHelper.getXmlElementValue(xmlpath, "斜角尺寸", "b12");
-            b12 = int.Parse(text_b12.Text);
+            b12 = int.Parse(text_b12.Text); this.parentWin.b12 = b12;
             text_h21.Text = XmlHelper.getXmlElementValue(xmlpath, "斜角尺寸", "h21");
-            h21 = int.Parse(text_h21.Text);
+            h21 = int.Parse(text_h21.Text); this.parentWin.h21 = h21;
             text_b21.Text = XmlHelper.getXmlElementValue(xmlpath, "斜角尺寸", "b21");
-            b21 = int.Parse(text_b21.Text);
+            b21 = int.Parse(text_b21.Text); this.parentWin.b21 = b21;
             text_h22.Text = XmlHelper.getXmlElementValue(xmlpath, "斜角尺寸", "h22");
-            h22 = int.Parse(text_h22.Text);
+            h22 = int.Parse(text_h22.Text); this.parentWin.h22 = h22;
             text_b22.Text = XmlHelper.getXmlElementValue(xmlpath, "斜角尺寸", "b22");
-            b22 = int.Parse(text_b22.Text);
+            b22 = int.Parse(text_b22.Text); this.parentWin.b22 = b22;
             text_h31.Text = XmlHelper.getXmlElementValue(xmlpath, "斜角尺寸", "h31");
-            h31 = int.Parse(text_h31.Text);
+            h31 = int.Parse(text_h31.Text); this.parentWin.h31 = h31;
             text_b31.Text = XmlHelper.getXmlElementValue(xmlpath, "斜角尺寸", "b31");
-            b31 = int.Parse(text_b31.Text);
+            b31 = int.Parse(text_b31.Text); this.parentWin.b31 = b31;
             text_h32.Text = XmlHelper.getXmlElementValue(xmlpath, "斜角尺寸", "h32");
-            h32 = int.Parse(text_h32.Text);
+            h32 = int.Parse(text_h32.Text); this.parentWin.h32 = h32;
             text_b32.Text = XmlHelper.getXmlElementValue(xmlpath, "斜角尺寸", "b32");
-            b32= int.Parse(text_b32.Text);
+            b32 = int.Parse(text_b32.Text); this.parentWin.b32 = b32;
             text_h41.Text = XmlHelper.getXmlElementValue(xmlpath, "斜角尺寸", "h41");
-            h41 = int.Parse(text_h41.Text);
+            h41 = int.Parse(text_h41.Text); this.parentWin.h41 = h41;
             text_b41.Text = XmlHelper.getXmlElementValue(xmlpath, "斜角尺寸", "b41");
-            b41 = int.Parse(text_b41.Text);
+            b41 = int.Parse(text_b41.Text); this.parentWin.b41 = b41;
             text_h42.Text = XmlHelper.getXmlElementValue(xmlpath, "斜角尺寸", "h42");
-            h42 = int.Parse(text_h42.Text);
-            text_b42.Text = XmlHelper.getXmlElementValue(xmlpath, "斜角尺寸", "b42"); 
-            b42 = int.Parse(text_b42.Text);
+            h42 = int.Parse(text_h42.Text); this.parentWin.h42 = h42;
+            text_b42.Text = XmlHelper.getXmlElementValue(xmlpath, "斜角尺寸", "b42");
+            b42 = int.Parse(text_b42.Text); this.parentWin.b42 = b42;
 
             text_bridge_length.Text = XmlHelper.getXmlElementValue(xmlpath, "顺桥向桥长", "bridge_length");
             bridgeLength = double.Parse(text_bridge_length.Text);
-
+            this.parentWin.bridge_length = bridgeLength;
             xmlLoaded = true;
 
             
