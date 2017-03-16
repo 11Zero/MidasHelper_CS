@@ -4,16 +4,16 @@
 winexe
 C#
 .cs
-D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\obj\x86\Debug\
+D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\obj\x86\Release\
 MidasHelper_CS
 none
 false
-DEBUG;TRACE
+TRACE
 D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\App.xaml
 21044290475
 
-8-1927431819
-22-280100437
+11-36885073
+20-650521229
 MainWindow.xaml;SectionForm.xaml;
 splashscreen1.png
 False

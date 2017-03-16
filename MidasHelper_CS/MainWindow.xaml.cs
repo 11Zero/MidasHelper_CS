@@ -16,6 +16,10 @@ using System.Windows.Threading;
 using System.Threading;
 using Microsoft.Win32;
 using System.IO;
+using Midas;
+using XMLoperator;
+using MathNet.Numerics.Random;
+using MathNet.Numerics.Distributions;
 //using System.Windows.Forms;
 
 
@@ -26,7 +30,7 @@ namespace MidasHelper_CS
     /// </summary>
     public partial class MainWindow : Window
     {
-        private BackThreader threader = null;
+        //private BackThreader threader = null;
         private Queue<int> msgQueue = null;
         //public TextBlock status_bar_text = null;
         private BackgroundWorker backThreader = null;
@@ -54,13 +58,14 @@ namespace MidasHelper_CS
         private FileStream mctfile = null;
         public delegate object delegateGetTextCallBack(object text);
         public delegate void delegateSetTextCallBack(string str, object object_id);
+        public delegate void delegateSetProcessCallBack(object value);
         private SectionForm section_form = null;
         public bool section_from_closed = true;
         private double h0, h1, h2, h3, l1, l2, G1, G2, G3, P1, P2, P3, Y1, Y2, Y3, J1, J2;
         public MainWindow()
         {
             InitializeComponent();
-            threader = new BackThreader(this);
+            //threader = new BackThreader(this);
             backThreader = new BackgroundWorker();
         }
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -205,6 +210,20 @@ namespace MidasHelper_CS
                 ((TextBox)object_id).Text = str;
             if (object_id is TextBlock)
                 ((TextBlock)object_id).Text = str;
+        }
+
+        private void SetProcessCallBack(object value)
+        {
+            status_bar_progress.Value = (int)value;
+        }
+
+        private void SetProcess(int value)
+        {
+            if (!Dispatcher.CheckAccess())
+            {
+                Dispatcher.Invoke(DispatcherPriority.Normal, new delegateSetProcessCallBack(SetProcessCallBack),value);
+                return;
+            }
         }
         /// <summary>
         /// 获取x输入框数组
@@ -500,11 +519,77 @@ namespace MidasHelper_CS
             return result;
         }
 
+
+        private bool judge_node_inline(MidasNode node, MidasElement line)
+        {
+            bool judge1 = Math.Abs((node.x - line.fNode.x) * (node.y - line.bNode.y) - (node.x - line.bNode.x) * (node.y - line.fNode.y)) < 0.005;
+            bool judge2 = Math.Abs((node.z - line.fNode.z) * (node.y - line.bNode.y) - (node.z - line.bNode.z) * (node.y - line.fNode.y)) < 0.005;
+            bool judge3 = Math.Abs((node.z - line.fNode.z) * (node.x - line.bNode.x) - (node.z - line.bNode.z) * (node.x - line.fNode.x)) < 0.005;
+            if (judge1 && judge2 && judge3)
+            {
+                return true;
+            }
+            else
+                return false;
+        }
         /// <summary>
         /// 存储文件对话框
         /// </summary>
         private void msgFunction_1()//写入mct
         {
+
+
+            //////////////////////////////////////////////写入文件部分////////////////////////////////
+            //创建一个保存文件式的对话框
+            SaveFileDialog sfd = new SaveFileDialog();
+            //设置这个对话框的起始保存路径
+            sfd.InitialDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            //设置保存的文件的类型，注意过滤器的语法
+            sfd.Filter = "mct文件|*.mct";
+            //调用ShowDialog()方法显示该对话框，该方法的返回值代表用户是否点击了确定按钮
+            StreamWriter writer = null;
+            System.IO.FileInfo fileInfo = null;
+
+            string buffer_string = "";
+
+            if (sfd.ShowDialog() == true)
+            {
+                if (sfd.SafeFileName.IndexOf(".mct") > 0)
+                {
+                    fileInfo = new System.IO.FileInfo(sfd.FileName);
+                    if (!fileInfo.Exists)
+                    {
+                        mctfile = fileInfo.Create();
+                        writer = new StreamWriter(mctfile, Encoding.Default);
+                    }
+                    else
+                    {
+                        mctfile = fileInfo.Open(FileMode.Create, FileAccess.Write);
+                        writer = new StreamWriter(mctfile, Encoding.Default);
+                    }
+                }
+                else
+                {
+                    fileInfo = new System.IO.FileInfo(sfd.FileName + ".mct");
+                    if (!fileInfo.Exists)
+                    {
+                        mctfile = fileInfo.Create();
+                        writer = new StreamWriter(mctfile, Encoding.Default);
+                    }
+                    else
+                    {
+                        mctfile = fileInfo.Open(FileMode.Create, FileAccess.Write);
+                        writer = new StreamWriter(mctfile, Encoding.Default);
+                    }
+                }
+                SetText("创建成功", this.status_bar_text);
+            }
+            else
+            {
+                SetText("取消创建", this.status_bar_text);
+                return;
+            }
+
             #region 判断参数是否有效
             if (Math.Abs(h0) < 0.005)
             {
@@ -618,7 +703,7 @@ namespace MidasHelper_CS
                 return;
             }
             #endregion
-
+            SetProcess(0);
             get_x_info();//生成x间距数组和点坐标数组
             get_y_info();//生成y间距数组和点坐标数组
             get_z_info();//生成z间距数组和点坐标数组
@@ -628,7 +713,7 @@ namespace MidasHelper_CS
                 return;
             }
             //MidasNode node = new MidasNode();
-            MidasNode[] all_normal_nodes = new MidasNode[10000];//未计入底层扫地杆节点
+            MidasNode[] all_normal_nodes = new MidasNode[20000];//未计入底层扫地杆节点
             int regular_nodes_start = 1;
             for (int i = 0; i < all_normal_nodes.Length; i++)
             {
@@ -648,9 +733,11 @@ namespace MidasHelper_CS
                     }
                 }
             }
+            SetProcess(5);
+            SetText("计算中...", this.status_bar_text);
             int regular_nodes_end = normal_nodes_count;
 
-            MidasNode[] bottom_nodes = new MidasNode[500];//扫地杆节点
+            MidasNode[] bottom_nodes = new MidasNode[1000];//扫地杆节点
             int bottom_nodes_start = normal_nodes_count + 1;
             for (int i = 0; i < bottom_nodes.Length; i++)
             {
@@ -675,7 +762,7 @@ namespace MidasHelper_CS
                 all_normal_nodes[normal_nodes_count++] = bottom_nodes[bottom_nodes_count].Copy();
                 bottom_nodes_count++;
             }
-            for (int i = 0; i < y_points.Length; i++)//沿y方向x=0扫地杆节点
+            for (int i = 1; i < y_points.Length - 1; i++)//沿y方向x=0扫地杆节点
             {
                 bottom_nodes[bottom_nodes_count].num = normal_nodes_count + 1;
                 bottom_nodes[bottom_nodes_count].x = 0.0;
@@ -684,7 +771,7 @@ namespace MidasHelper_CS
                 all_normal_nodes[normal_nodes_count++] = bottom_nodes[bottom_nodes_count].Copy();
                 bottom_nodes_count++;
             }
-            for (int i = 0; i < y_points.Length; i++)//沿y方向x=max扫地杆节点
+            for (int i = 1; i < y_points.Length - 1; i++)//沿y方向x=max扫地杆节点
             {
                 bottom_nodes[bottom_nodes_count].num = normal_nodes_count + 1;
                 bottom_nodes[bottom_nodes_count].x = x_length;
@@ -693,47 +780,47 @@ namespace MidasHelper_CS
                 all_normal_nodes[normal_nodes_count++] = bottom_nodes[bottom_nodes_count].Copy();
                 bottom_nodes_count++;
             }
-            bottom_nodes_start = bottom_nodes_start<normal_nodes_count?bottom_nodes_start:normal_nodes_count;
+            bottom_nodes_start = bottom_nodes_start < normal_nodes_count ? bottom_nodes_start : normal_nodes_count;
             int bottom_nodes_end = normal_nodes_count;
-
+            SetProcess(10);
 
             int all_elements_count = 0;//单元号计数器
 
-            MidasElement[] y_elements = new MidasElement[10000];
+            MidasElement[] y_elements = new MidasElement[20000];
             for (int i = 0; i < y_elements.Length; i++)
             {
                 y_elements[i] = new MidasElement();
             }
             int y_elements_count = 0;
-            for (int i = 2; i < z_input_count - 1; i++)
-            {
-                for (int j = 0; j < x_input_count + 1; j++)
-                {
-                    for (int k = 0; k < y_input_count + 1; k++)
-                    {
-                        for (int l = 0; l < normal_nodes_count; l++)
-                        {
-                            if (Math.Abs(all_normal_nodes[l].z - z_points[i]) < 0.005 && Math.Abs(all_normal_nodes[l].x - x_points[j]) < 0.005 && Math.Abs(all_normal_nodes[l].y - y_points[k]) < 0.005)
-                            {
-                                if (k == 0)
-                                {
-                                    y_elements[y_elements_count].fNode = all_normal_nodes[l].Copy();
-                                }
-                                else
-                                {
-                                    all_elements_count++;
-                                    y_elements[y_elements_count].num = all_elements_count;
-                                    y_elements[y_elements_count++].bNode = all_normal_nodes[l].Copy();
-                                    y_elements[y_elements_count].fNode = all_normal_nodes[l].Copy();
-                                }
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
+            //for (int i = 2; i < z_input_count - 1; i++)
+            //{
+            //    for (int j = 0; j < x_input_count + 1; j++)
+            //    {
+            //        for (int k = 0; k < y_input_count + 1; k++)
+            //        {
+            //            for (int l = 0; l < normal_nodes_count; l++)
+            //            {
+            //                if (Math.Abs(all_normal_nodes[l].z - z_points[i]) < 0.005 && Math.Abs(all_normal_nodes[l].x - x_points[j]) < 0.005 && Math.Abs(all_normal_nodes[l].y - y_points[k]) < 0.005)
+            //                {
+            //                    if (k == 0)
+            //                    {
+            //                        y_elements[y_elements_count].fNode = all_normal_nodes[l].Copy();
+            //                    }
+            //                    else
+            //                    {
+            //                        all_elements_count++;
+            //                        y_elements[y_elements_count].num = all_elements_count;
+            //                        y_elements[y_elements_count++].bNode = all_normal_nodes[l].Copy();
+            //                        y_elements[y_elements_count].fNode = all_normal_nodes[l].Copy();
+            //                    }
+            //                    break;
+            //                }
+            //            }
+            //        }
+            //    }
+            //}
 
-            MidasElement[] x_elements = new MidasElement[10000];
+            MidasElement[] x_elements = new MidasElement[20000];
             for (int i = 0; i < x_elements.Length; i++)
             {
                 x_elements[i] = new MidasElement();
@@ -766,9 +853,9 @@ namespace MidasHelper_CS
                     }
                 }
             }
+            SetProcess(15);
 
-
-            MidasElement[] z_elements = new MidasElement[10000];
+            MidasElement[] z_elements = new MidasElement[20000];
             for (int i = 0; i < z_elements.Length; i++)
             {
                 z_elements[i] = new MidasElement();
@@ -825,8 +912,8 @@ namespace MidasHelper_CS
                     }
                 }
             }
-
-            MidasElement[] bottom_elements = new MidasElement[300];
+            SetProcess(20);
+            MidasElement[] bottom_elements = new MidasElement[1000];
             for (int i = 0; i < bottom_elements.Length; i++)
             {
                 bottom_elements[i] = new MidasElement();
@@ -883,8 +970,9 @@ namespace MidasHelper_CS
                 }
                 j = j + y_input_count - 1;
             }
+            SetProcess(21);
 
-            MidasElement[] xy_bridging_lines = new MidasElement[300];//单层xy剪刀线
+            MidasElement[] xy_bridging_lines = new MidasElement[500];//单层xy剪刀线
             int xy_bridging_lines_count = 0;
             for (int i = 0; i < xy_bridging_lines.Length; i++)
             {
@@ -914,8 +1002,9 @@ namespace MidasHelper_CS
                 xy_bridging_lines[xy_bridging_lines_count + i].fNode.x = x_length - xy_bridging_lines[i].fNode.x;
             }
             xy_bridging_lines_count = 2 * xy_bridging_lines_count;
+            SetProcess(25);
 
-            MidasElement[] xz_bridging_lines = new MidasElement[300];//单层xz剪刀线
+            MidasElement[] xz_bridging_lines = new MidasElement[500];//单层xz剪刀线
             int xz_bridging_lines_count = 0;
             for (int i = 0; i < xz_bridging_lines.Length; i++)
             {
@@ -946,8 +1035,9 @@ namespace MidasHelper_CS
                 xz_bridging_lines[xz_bridging_lines_count + i].fNode.x = x_length - xz_bridging_lines[i].fNode.x;
             }
             xz_bridging_lines_count = 2 * xz_bridging_lines_count;
+            SetProcess(30);
 
-            MidasElement[] yz_bridging_lines = new MidasElement[300];//单层yz剪刀线
+            MidasElement[] yz_bridging_lines = new MidasElement[500];//单层yz剪刀线
             int yz_bridging_lines_count = 0;
             for (int i = 0; i < yz_bridging_lines.Length; i++)
             {
@@ -978,9 +1068,10 @@ namespace MidasHelper_CS
                 yz_bridging_lines[yz_bridging_lines_count + i].fNode.y = y_length - yz_bridging_lines[i].fNode.y;
             }
             yz_bridging_lines_count = 2 * yz_bridging_lines_count;
+            SetProcess(35);
 
             //MidasNode[] xy_bridging_nodes = new MidasNode[5000];//xy面剪刀撑节点，包含与前部分节点重复的节点
-            int[] xy_bridging_repeat_nodenum = new int[5000];//xy面剪刀撑节点号与前部分节点重复的节点号码
+            int[] xy_bridging_repeat_nodenum = new int[2000];//xy面剪刀撑节点号与前部分节点重复的节点号码
             int xy_bridging_nodes_start = normal_nodes_count + 1;
             int xy_bridging_repeat_nodenum_count = 0;
             //for (int i = 0; i < xy_bridging_nodes.Length; i++)
@@ -1029,12 +1120,13 @@ namespace MidasHelper_CS
                     }
                 }
             }
-            xy_bridging_nodes_start = xy_bridging_nodes_start<normal_nodes_count?xy_bridging_nodes_start:normal_nodes_count;
+            xy_bridging_nodes_start = xy_bridging_nodes_start < normal_nodes_count ? xy_bridging_nodes_start : normal_nodes_count;
             int xy_bridging_nodes_end = normal_nodes_count;
+            SetProcess(40);
 
             //MidasNode[] xz_bridging_nodes = new MidasNode[5000];//xz面剪刀撑节点
             //int xz_bridging_nodes_count = 0;
-            int[] xz_bridging_repeat_nodenum = new int[5000];//xz面剪刀撑节点号与前部分节点重复的节点号码
+            int[] xz_bridging_repeat_nodenum = new int[2000];//xz面剪刀撑节点号与前部分节点重复的节点号码
             int xz_bridging_nodes_start = normal_nodes_count + 1;
             int xz_bridging_repeat_nodenum_count = 0;
             //for (int i = 0; i < xz_bridging_nodes.Length; i++)
@@ -1060,7 +1152,7 @@ namespace MidasHelper_CS
                                     bool inner_flag = false;
                                     for (int m = 0; m < xz_bridging_repeat_nodenum_count; m++)
                                     {
-                                        if (xz_bridging_repeat_nodenum[m]==all_normal_nodes[l].num)
+                                        if (xz_bridging_repeat_nodenum[m] == all_normal_nodes[l].num)
                                         {
                                             inner_flag = true;
                                             break;
@@ -1085,10 +1177,11 @@ namespace MidasHelper_CS
             }
             xz_bridging_nodes_start = xz_bridging_nodes_start < normal_nodes_count ? xz_bridging_nodes_start : normal_nodes_count;
             int xz_bridging_nodes_end = normal_nodes_count;
+            SetProcess(45);
 
             //MidasNode[] yz_bridging_nodes = new MidasNode[5000];//yz面剪刀撑节点
             //int yz_bridging_nodes_count = 0;
-            int[] yz_bridging_repeat_nodenum = new int[5000];//yz面剪刀撑节点号与前部分节点重复的节点号码
+            int[] yz_bridging_repeat_nodenum = new int[2000];//yz面剪刀撑节点号与前部分节点重复的节点号码
             int yz_bridging_nodes_start = normal_nodes_count + 1;
             int yz_bridging_repeat_nodenum_count = 0;
             //for (int i = 0; i < yz_bridging_nodes.Length; i++)
@@ -1139,74 +1232,489 @@ namespace MidasHelper_CS
             }
             yz_bridging_nodes_start = yz_bridging_nodes_start < normal_nodes_count ? yz_bridging_nodes_start : normal_nodes_count;
             int yz_bridging_nodes_end = normal_nodes_count;
-            // for (int i = 0; i <= (int)(x_length / l2 - 0.3); i++)//xy面反向中线下
-            //{
-            //    xy_bridging_lines[xy_bridging_lines_count].fNode.x = x_length - i * l2;
-            //    xy_bridging_lines[xy_bridging_lines_count].fNode.y = 0.0;
-            //    xy_bridging_lines[xy_bridging_lines_count].bNode.x = x_length - (xy_bridging_lines[xy_bridging_lines_count].fNode.x + (y_length / tan_alpha < x_length - xy_bridging_lines[xy_bridging_lines_count].fNode.x ? y_length / tan_alpha : x_length - xy_bridging_lines[xy_bridging_lines_count].fNode.x));
-            //    xy_bridging_lines[xy_bridging_lines_count].bNode.y = y_length < (x_length - xy_bridging_lines[xy_bridging_lines_count].fNode.x) * tan_alpha ? y_length : (x_length - xy_bridging_lines[xy_bridging_lines_count].fNode.x) * tan_alpha;
-            //    xy_bridging_lines_count++;
-            //}
-            //for (int i = 1; i <= (int)(y_length / l2 - 0.3); i++)//xy面反向中线上
-            //{
-            //    xy_bridging_lines[xy_bridging_lines_count].fNode.x = x_length - 0.0;
-            //    xy_bridging_lines[xy_bridging_lines_count].fNode.y = i * l2;
-            //    xy_bridging_lines[xy_bridging_lines_count].bNode.x = x_length - ((x_length < (y_length - xy_bridging_lines[xy_bridging_lines_count].fNode.y) / tan_alpha) ? x_length : (y_length - xy_bridging_lines[xy_bridging_lines_count].fNode.y) / tan_alpha);
-            //    xy_bridging_lines[xy_bridging_lines_count].bNode.y = xy_bridging_lines[xy_bridging_lines_count].fNode.y+((y_length - xy_bridging_lines[xy_bridging_lines_count].fNode.y) < x_length * tan_alpha ? (y_length - xy_bridging_lines[xy_bridging_lines_count].fNode.y) : x_length * tan_alpha);
-            //    xy_bridging_lines_count++;
-            //}
-            //////////////////////////////////////////////写入文件部分////////////////////////////////
-            //创建一个保存文件式的对话框
-            SaveFileDialog sfd = new SaveFileDialog();
-            //设置这个对话框的起始保存路径
-            sfd.InitialDirectory = AppDomain.CurrentDomain.BaseDirectory;
-            //设置保存的文件的类型，注意过滤器的语法
-            sfd.Filter = "mct文件|*.mct";
-            //调用ShowDialog()方法显示该对话框，该方法的返回值代表用户是否点击了确定按钮
-            StreamWriter writer = null;
-            System.IO.FileInfo fileInfo = null;
+            SetProcess(50);
 
-            string buffer_string = "";
-
-            if (sfd.ShowDialog() == true)
+            all_elements_count = 0;//单元号计数器
+            for (int i = 0; i < y_elements.Length; i++)
             {
-                if (sfd.SafeFileName.IndexOf(".mct") > 0)
+                y_elements[i] = new MidasElement();
+            }
+            y_elements_count = 0;
+            for (int i = 2; i < z_input_count - 1; i++)
+            {
+                for (int j = 0; j < x_input_count + 1; j++)
                 {
-                    fileInfo = new System.IO.FileInfo(sfd.FileName);
-                    if (!fileInfo.Exists)
+                    MidasNode tempfnode = new MidasNode();
+                    tempfnode.y = 1000;
+                    MidasNode tempbnode = new MidasNode();
+                    tempbnode.y = 1000;
+                    for (int l = 0; l < normal_nodes_count; l++)
                     {
-                        mctfile = fileInfo.Create();
-                        writer = new StreamWriter(mctfile, Encoding.Default);
+                        if (Math.Abs(all_normal_nodes[l].z - z_points[i]) < 0.005 && Math.Abs(all_normal_nodes[l].x - x_points[j]) < 0.005)
+                        {
+                            if (tempfnode.y > all_normal_nodes[l].y)
+                            {
+                                tempfnode = all_normal_nodes[l].Copy();
+                            }
+                        }
                     }
-                    else
+                    while (true)
                     {
-                        mctfile = fileInfo.Open(FileMode.Create, FileAccess.Write);
-                        writer = new StreamWriter(mctfile, Encoding.Default);
+                        tempbnode.y = 1000;
+                        for (int l = 0; l < normal_nodes_count; l++)
+                        {
+                            if (Math.Abs(all_normal_nodes[l].z - z_points[i]) < 0.005 && Math.Abs(all_normal_nodes[l].x - x_points[j]) < 0.005 && all_normal_nodes[l].y - tempfnode.y > 0.005)
+                            {
+                                if (tempbnode.y > all_normal_nodes[l].y)
+                                {
+                                    tempbnode = all_normal_nodes[l].Copy();
+                                }
+                            }
+                        }
+                        if (tempbnode.y - 1000 > -0.005)
+                        {
+                            break;
+                        }
+                        all_elements_count++;
+                        y_elements[y_elements_count].num = all_elements_count;
+                        y_elements[y_elements_count].fNode = tempfnode.Copy();
+                        y_elements[y_elements_count++].bNode = tempbnode.Copy();
+                        tempfnode = tempbnode.Copy();
                     }
                 }
-                else
+            }
+            SetProcess(60);
+
+            //MidasElement[] x_elements = new MidasElement[20000];
+            for (int i = 0; i < x_elements.Length; i++)
+            {
+                x_elements[i] = new MidasElement();
+            }
+            x_elements_count = 0;
+            for (int i = 2; i < z_input_count - 1; i++)
+            {
+                for (int j = 0; j < y_input_count + 1; j++)
                 {
-                    fileInfo = new System.IO.FileInfo(sfd.FileName + ".mct");
-                    if (!fileInfo.Exists)
+
+
+                    MidasNode tempfnode = new MidasNode();
+                    tempfnode.x = 1000;
+                    MidasNode tempbnode = new MidasNode();
+                    tempbnode.x = 1000;
+                    for (int l = 0; l < normal_nodes_count; l++)
                     {
-                        mctfile = fileInfo.Create();
-                        writer = new StreamWriter(mctfile, Encoding.Default);
+                        if (Math.Abs(all_normal_nodes[l].z - z_points[i]) < 0.005 && Math.Abs(all_normal_nodes[l].y - y_points[j]) < 0.005)
+                        {
+                            if (tempfnode.x > all_normal_nodes[l].x)
+                            {
+                                tempfnode = all_normal_nodes[l].Copy();
+                            }
+                        }
                     }
-                    else
+                    while (true)
                     {
-                        mctfile = fileInfo.Open(FileMode.Create, FileAccess.Write);
-                        writer = new StreamWriter(mctfile, Encoding.Default);
+                        tempbnode.x = 1000;
+                        for (int l = 0; l < normal_nodes_count; l++)
+                        {
+                            if (Math.Abs(all_normal_nodes[l].z - z_points[i]) < 0.005 && Math.Abs(all_normal_nodes[l].y - y_points[j]) < 0.005 && all_normal_nodes[l].x - tempfnode.x > 0.005)
+                            {
+                                if (tempbnode.x > all_normal_nodes[l].x)
+                                {
+                                    tempbnode = all_normal_nodes[l].Copy();
+                                }
+                            }
+                        }
+                        if (tempbnode.x - 1000 > -0.005)
+                        {
+                            break;
+                        }
+                        all_elements_count++;
+                        x_elements[x_elements_count].num = all_elements_count;
+                        x_elements[x_elements_count].fNode = tempfnode.Copy();
+                        x_elements[x_elements_count++].bNode = tempbnode.Copy();
+                        tempfnode = tempbnode.Copy();
                     }
                 }
-                SetText("创建成功", this.status_bar_text);
             }
-            else
-            {
-                SetText("取消创建", this.status_bar_text);
-                return;
-            }
+            SetProcess(70);
 
-            SetText("正在写入", this.status_bar_text);
+            //MidasElement[] z_elements = new MidasElement[20000];
+            for (int i = 0; i < z_elements.Length; i++)
+            {
+                z_elements[i] = new MidasElement();
+            }
+            z_elements_count = 0;
+            for (int i = 0; i < x_input_count + 1; i++)
+            {
+                for (int j = 0; j < y_input_count + 1; j++)
+                {
+                    MidasNode tempfnode = new MidasNode();
+                    tempfnode.z = 1000;
+                    MidasNode tempbnode = new MidasNode();
+                    tempbnode.z = 1000;
+                    for (int l = 0; l < normal_nodes_count; l++)
+                    {
+                        if (Math.Abs(all_normal_nodes[l].x - x_points[i]) < 0.005 && Math.Abs(all_normal_nodes[l].y - y_points[j]) < 0.005)
+                        {
+                            if (tempfnode.z > all_normal_nodes[l].z)
+                            {
+                                tempfnode = all_normal_nodes[l].Copy();
+                            }
+                        }
+                    }
+                    while (true)
+                    {
+                        tempbnode.z = 1000;
+                        for (int l = 0; l < normal_nodes_count; l++)
+                        {
+                            if (Math.Abs(all_normal_nodes[l].x - x_points[i]) < 0.005 && Math.Abs(all_normal_nodes[l].y - y_points[j]) < 0.005 && all_normal_nodes[l].z - tempfnode.z > 0.005)
+                            {
+                                if (tempbnode.z > all_normal_nodes[l].z)
+                                {
+                                    tempbnode = all_normal_nodes[l].Copy();
+                                }
+                            }
+                        }
+                        if (tempbnode.z - 1000 > -0.005)
+                        {
+                            break;
+                        }
+                        all_elements_count++;
+                        z_elements[z_elements_count].num = all_elements_count;
+                        z_elements[z_elements_count].fNode = tempfnode.Copy();
+                        z_elements[z_elements_count++].bNode = tempbnode.Copy();
+                        tempfnode = tempbnode.Copy();
+                    }
+                }
+            }
+            SetProcess(80);
+
+
+            //MidasElement[] bottom_elements = new MidasElement[1000];
+            for (int i = 0; i < bottom_elements.Length; i++)
+            {
+                bottom_elements[i] = new MidasElement();
+            }
+            bottom_elements_count = 0;
+
+            for (int j = 0; j < x_input_count + 1; j++)
+            {
+                for (int k = 0; k < y_input_count + 1; k++)
+                {
+                    for (int l = 0; l < bottom_nodes_count; l++)
+                    {
+                        if (Math.Abs(bottom_nodes[l].z - h2) < 0.005 && Math.Abs(bottom_nodes[l].x - x_points[j]) < 0.005 && Math.Abs(bottom_nodes[l].y - y_points[k]) < 0.005)
+                        {
+                            if (k == 0)
+                            {
+                                bottom_elements[bottom_elements_count].fNode = bottom_nodes[l].Copy();
+                            }
+                            else
+                            {
+                                all_elements_count++;
+                                bottom_elements[bottom_elements_count].num = all_elements_count;
+                                bottom_elements[bottom_elements_count++].bNode = bottom_nodes[l].Copy();
+                                bottom_elements[bottom_elements_count].fNode = bottom_nodes[l].Copy();
+                            }
+                            break;
+                        }
+                    }
+                }
+                j = j + x_input_count - 1;
+            }
+            for (int j = 0; j < y_input_count + 1; j++)
+            {
+                for (int k = 0; k < x_input_count + 1; k++)
+                {
+                    for (int l = 0; l < bottom_nodes_count; l++)
+                    {
+                        if (Math.Abs(bottom_nodes[l].z - h2) < 0.005 && Math.Abs(bottom_nodes[l].x - x_points[k]) < 0.005 && Math.Abs(bottom_nodes[l].y - y_points[j]) < 0.005)
+                        {
+                            if (k == 0)
+                            {
+                                bottom_elements[bottom_elements_count].fNode = bottom_nodes[l].Copy();
+                            }
+                            else
+                            {
+                                all_elements_count++;
+                                bottom_elements[bottom_elements_count].num = all_elements_count;
+                                bottom_elements[bottom_elements_count++].bNode = bottom_nodes[l].Copy();
+                                bottom_elements[bottom_elements_count].fNode = bottom_nodes[l].Copy();
+                            }
+                            break;
+                        }
+                    }
+                }
+                j = j + y_input_count - 1;
+            }
+            SetProcess(81);
+
+            MidasElement[] xy_bridging_elements = new MidasElement[5000];
+            int xy_bridging_elements_count = 0;
+            int xy_bridging_elements_start = all_elements_count + 1;
+            for (int i = 0; i < xy_bridging_elements.Length; i++)
+            {
+                xy_bridging_elements[i] = new MidasElement();
+            }
+            for (int k = 0; k < z_bridging_count; k++)
+            {
+                for (int i = 0; i < xy_bridging_lines_count; i++)
+                {
+                    xy_bridging_lines[i].fNode.z = z_bridging_points[k];
+                    xy_bridging_lines[i].bNode.z = z_bridging_points[k];
+                    //算法从xy剪刀节点中找出在这条线上的点，并按先后生成单元
+                    MidasNode[] xy_bridgingline_nodes = new MidasNode[100];
+                    int xy_bridgingline_nodes_count = 0;
+                    for (int j = 0; j < xy_bridgingline_nodes.Length; j++)
+                    {
+                        xy_bridgingline_nodes[j] = new MidasNode();
+                        xy_bridgingline_nodes[j].y = 1000;
+                    }
+                    //xy_bridgingline_nodes[xy_bridgingline_nodes_count] = xy_bridging_lines[i].fNode.Copy();
+                    for (int j = xy_bridging_nodes_start - 1; j <= xy_bridging_nodes_end - 1; j++)
+                    {
+                        if (true == judge_node_inline(all_normal_nodes[j], xy_bridging_lines[i]))
+                        {
+                            if (xy_bridgingline_nodes[xy_bridgingline_nodes_count].y - all_normal_nodes[j].y > 0.005)
+                                xy_bridgingline_nodes[xy_bridgingline_nodes_count] = all_normal_nodes[j].Copy();
+                        }
+                    }
+                    for (int j = 0; j < xy_bridging_repeat_nodenum_count; j++)
+                    {
+                        if (true == judge_node_inline(all_normal_nodes[xy_bridging_repeat_nodenum[j] - 1], xy_bridging_lines[i]))
+                        {
+                            if (xy_bridgingline_nodes[xy_bridgingline_nodes_count].y - all_normal_nodes[xy_bridging_repeat_nodenum[j] - 1].y > 0.005)
+                                xy_bridgingline_nodes[xy_bridgingline_nodes_count] = all_normal_nodes[xy_bridging_repeat_nodenum[j] - 1].Copy();
+                        }
+                    }
+                    xy_bridgingline_nodes_count++;
+                    while (true)
+                    {
+                        for (int j = xy_bridging_nodes_start - 1; j <= xy_bridging_nodes_end - 1; j++)
+                        {
+                            if (true == judge_node_inline(all_normal_nodes[j], xy_bridging_lines[i]))
+                            {
+                                if (all_normal_nodes[j].y - xy_bridgingline_nodes[xy_bridgingline_nodes_count - 1].y > 0.005)
+                                {
+                                    if (all_normal_nodes[j].y - xy_bridgingline_nodes[xy_bridgingline_nodes_count].y < -0.005)
+                                    {
+                                        xy_bridgingline_nodes[xy_bridgingline_nodes_count] = all_normal_nodes[j].Copy();
+                                    }
+                                }
+
+                            }
+                        }
+                        for (int j = 0; j < xy_bridging_repeat_nodenum_count; j++)
+                        {
+                            if (true == judge_node_inline(all_normal_nodes[xy_bridging_repeat_nodenum[j] - 1], xy_bridging_lines[i]))
+                            {
+                                if (all_normal_nodes[xy_bridging_repeat_nodenum[j] - 1].y - xy_bridgingline_nodes[xy_bridgingline_nodes_count - 1].y > 0.005)
+                                {
+                                    if (all_normal_nodes[xy_bridging_repeat_nodenum[j] - 1].y - xy_bridgingline_nodes[xy_bridgingline_nodes_count].y < -0.005)
+                                    {
+                                        xy_bridgingline_nodes[xy_bridgingline_nodes_count] = all_normal_nodes[xy_bridging_repeat_nodenum[j] - 1].Copy();
+                                    }
+                                }
+                            }
+                        }
+                        if (xy_bridgingline_nodes[xy_bridgingline_nodes_count].y - 1000 > -0.005)
+                        {
+                            break;
+                        }
+                        xy_bridgingline_nodes_count++;
+                    }
+                    for (int j = 1; j < xy_bridgingline_nodes_count; j++)
+                    {
+                        all_elements_count++;
+                        xy_bridging_elements[xy_bridging_elements_count].num = all_elements_count;
+                        xy_bridging_elements[xy_bridging_elements_count].fNode = xy_bridgingline_nodes[j - 1].Copy();
+                        xy_bridging_elements[xy_bridging_elements_count++].bNode = xy_bridgingline_nodes[j].Copy();
+                    }
+                }
+            }
+            xy_bridging_elements_start = xy_bridging_elements_start < all_elements_count ? xy_bridging_elements_start : all_elements_count;
+            int xy_bridging_elements_end = all_elements_count;
+            SetProcess(85);
+
+
+
+            MidasElement[] xz_bridging_elements = new MidasElement[5000];
+            int xz_bridging_elements_count = 0;
+            int xz_bridging_elements_start = all_elements_count + 1;
+            for (int i = 0; i < xz_bridging_elements.Length; i++)
+            {
+                xz_bridging_elements[i] = new MidasElement();
+            }
+            for (int k = 0; k < y_bridging_count; k++)
+            {
+                for (int i = 0; i < xz_bridging_lines_count; i++)
+                {
+                    xz_bridging_lines[i].fNode.y = y_bridging_points[k];
+                    xz_bridging_lines[i].bNode.y = y_bridging_points[k];
+                    //算法从xy剪刀节点中找出在这条线上的点，并按先后生成单元
+                    MidasNode[] xz_bridgingline_nodes = new MidasNode[100];
+                    int xz_bridgingline_nodes_count = 0;
+                    for (int j = 0; j < xz_bridgingline_nodes.Length; j++)
+                    {
+                        xz_bridgingline_nodes[j] = new MidasNode();
+                        xz_bridgingline_nodes[j].z = 1000;
+                    }
+                    //xz_bridgingline_nodes[xz_bridgingline_nodes_count] = xz_bridging_lines[i].fNode.Copy();
+                    for (int j = xz_bridging_nodes_start - 1; j <= xz_bridging_nodes_end - 1; j++)
+                    {
+                        if (true == judge_node_inline(all_normal_nodes[j], xz_bridging_lines[i]))
+                        {
+                            if (xz_bridgingline_nodes[xz_bridgingline_nodes_count].z - all_normal_nodes[j].z > 0.005)
+                                xz_bridgingline_nodes[xz_bridgingline_nodes_count] = all_normal_nodes[j].Copy();
+                        }
+                    }
+                    for (int j = 0; j < xz_bridging_repeat_nodenum_count; j++)
+                    {
+                        if (true == judge_node_inline(all_normal_nodes[xz_bridging_repeat_nodenum[j] - 1], xz_bridging_lines[i]))
+                        {
+                            if (xz_bridgingline_nodes[xz_bridgingline_nodes_count].z - all_normal_nodes[xz_bridging_repeat_nodenum[j] - 1].z > 0.005)
+                                xz_bridgingline_nodes[xz_bridgingline_nodes_count] = all_normal_nodes[xz_bridging_repeat_nodenum[j] - 1].Copy();
+                        }
+                    }
+                    xz_bridgingline_nodes_count++;
+                    while (true)
+                    {
+                        for (int j = xz_bridging_nodes_start - 1; j <= xz_bridging_nodes_end - 1; j++)
+                        {
+                            if (true == judge_node_inline(all_normal_nodes[j], xz_bridging_lines[i]))
+                            {
+                                if (all_normal_nodes[j].z - xz_bridgingline_nodes[xz_bridgingline_nodes_count - 1].z > 0.005)
+                                {
+                                    if (all_normal_nodes[j].z - xz_bridgingline_nodes[xz_bridgingline_nodes_count].z < -0.005)
+                                    {
+                                        xz_bridgingline_nodes[xz_bridgingline_nodes_count] = all_normal_nodes[j].Copy();
+                                    }
+                                }
+
+                            }
+                        }
+                        for (int j = 0; j < xz_bridging_repeat_nodenum_count; j++)
+                        {
+                            if (true == judge_node_inline(all_normal_nodes[xz_bridging_repeat_nodenum[j] - 1], xz_bridging_lines[i]))
+                            {
+                                if (all_normal_nodes[xz_bridging_repeat_nodenum[j] - 1].z - xz_bridgingline_nodes[xz_bridgingline_nodes_count - 1].z > 0.005)
+                                {
+                                    if (all_normal_nodes[xz_bridging_repeat_nodenum[j] - 1].z - xz_bridgingline_nodes[xz_bridgingline_nodes_count].z < -0.005)
+                                    {
+                                        xz_bridgingline_nodes[xz_bridgingline_nodes_count] = all_normal_nodes[xz_bridging_repeat_nodenum[j] - 1].Copy();
+                                    }
+                                }
+                            }
+                        }
+                        if (xz_bridgingline_nodes[xz_bridgingline_nodes_count].z - 1000 > -0.005)
+                        {
+                            break;
+                        }
+                        xz_bridgingline_nodes_count++;
+                    }
+                    for (int j = 1; j < xz_bridgingline_nodes_count; j++)
+                    {
+                        all_elements_count++;
+                        xz_bridging_elements[xz_bridging_elements_count].num = all_elements_count;
+                        xz_bridging_elements[xz_bridging_elements_count].fNode = xz_bridgingline_nodes[j - 1].Copy();
+                        xz_bridging_elements[xz_bridging_elements_count++].bNode = xz_bridgingline_nodes[j].Copy();
+                    }
+                }
+            }
+            xz_bridging_elements_start = xz_bridging_elements_start < all_elements_count ? xz_bridging_elements_start : all_elements_count;
+            int xz_bridging_elements_end = all_elements_count;
+            SetProcess(90);
+
+            MidasElement[] yz_bridging_elements = new MidasElement[5000];
+            int yz_bridging_elements_count = 0;
+            int yz_bridging_elements_start = all_elements_count + 1;
+            for (int i = 0; i < yz_bridging_elements.Length; i++)
+            {
+                yz_bridging_elements[i] = new MidasElement();
+            }
+            for (int k = 0; k < x_bridging_count; k++)
+            {
+                for (int i = 0; i < yz_bridging_lines_count; i++)
+                {
+                    yz_bridging_lines[i].fNode.x = x_bridging_points[k];
+                    yz_bridging_lines[i].bNode.x = x_bridging_points[k];
+                    //算法从xy剪刀节点中找出在这条线上的点，并按先后生成单元
+                    MidasNode[] yz_bridgingline_nodes = new MidasNode[100];
+                    int yz_bridgingline_nodes_count = 0;
+                    for (int j = 0; j < yz_bridgingline_nodes.Length; j++)
+                    {
+                        yz_bridgingline_nodes[j] = new MidasNode();
+                        yz_bridgingline_nodes[j].z = 1000;
+                    }
+                    //yz_bridgingline_nodes[yz_bridgingline_nodes_count] = yz_bridging_lines[i].fNode.Copy();
+                    for (int j = yz_bridging_nodes_start - 1; j <= yz_bridging_nodes_end - 1; j++)
+                    {
+                        if (true == judge_node_inline(all_normal_nodes[j], yz_bridging_lines[i]))
+                        {
+                            if (yz_bridgingline_nodes[yz_bridgingline_nodes_count].z - all_normal_nodes[j].z > 0.005)
+                                yz_bridgingline_nodes[yz_bridgingline_nodes_count] = all_normal_nodes[j].Copy();
+                        }
+                    }
+                    for (int j = 0; j < yz_bridging_repeat_nodenum_count; j++)
+                    {
+                        if (true == judge_node_inline(all_normal_nodes[yz_bridging_repeat_nodenum[j] - 1], yz_bridging_lines[i]))
+                        {
+                            if (yz_bridgingline_nodes[yz_bridgingline_nodes_count].z - all_normal_nodes[yz_bridging_repeat_nodenum[j] - 1].z > 0.005)
+                                yz_bridgingline_nodes[yz_bridgingline_nodes_count] = all_normal_nodes[yz_bridging_repeat_nodenum[j] - 1].Copy();
+                        }
+                    }
+                    yz_bridgingline_nodes_count++;
+                    while (true)
+                    {
+                        for (int j = yz_bridging_nodes_start - 1; j <= yz_bridging_nodes_end - 1; j++)
+                        {
+                            if (true == judge_node_inline(all_normal_nodes[j], yz_bridging_lines[i]))
+                            {
+                                if (all_normal_nodes[j].z - yz_bridgingline_nodes[yz_bridgingline_nodes_count - 1].z > 0.005)
+                                {
+                                    if (all_normal_nodes[j].z - yz_bridgingline_nodes[yz_bridgingline_nodes_count].z < -0.005)
+                                    {
+                                        yz_bridgingline_nodes[yz_bridgingline_nodes_count] = all_normal_nodes[j].Copy();
+                                    }
+                                }
+
+                            }
+                        }
+                        for (int j = 0; j < yz_bridging_repeat_nodenum_count; j++)
+                        {
+                            if (true == judge_node_inline(all_normal_nodes[yz_bridging_repeat_nodenum[j] - 1], yz_bridging_lines[i]))
+                            {
+                                if (all_normal_nodes[yz_bridging_repeat_nodenum[j] - 1].z - yz_bridgingline_nodes[yz_bridgingline_nodes_count - 1].z > 0.005)
+                                {
+                                    if (all_normal_nodes[yz_bridging_repeat_nodenum[j] - 1].z - yz_bridgingline_nodes[yz_bridgingline_nodes_count].z < -0.005)
+                                    {
+                                        yz_bridgingline_nodes[yz_bridgingline_nodes_count] = all_normal_nodes[yz_bridging_repeat_nodenum[j] - 1].Copy();
+                                    }
+                                }
+                            }
+                        }
+                        if (yz_bridgingline_nodes[yz_bridgingline_nodes_count].z - 1000 > -0.005)
+                        {
+                            break;
+                        }
+                        yz_bridgingline_nodes_count++;
+                    }
+                    for (int j = 1; j < yz_bridgingline_nodes_count; j++)
+                    {
+                        all_elements_count++;
+                        yz_bridging_elements[yz_bridging_elements_count].num = all_elements_count;
+                        yz_bridging_elements[yz_bridging_elements_count].fNode = yz_bridgingline_nodes[j - 1].Copy();
+                        yz_bridging_elements[yz_bridging_elements_count++].bNode = yz_bridgingline_nodes[j].Copy();
+                    }
+                }
+            }
+            yz_bridging_elements_start = yz_bridging_elements_start < all_elements_count ? yz_bridging_elements_start : all_elements_count;
+            int yz_bridging_elements_end = all_elements_count;
+            SetProcess(95);
+
+
+
+            SetText("写入中...", this.status_bar_text);
             buffer_string = String.Format(";---------------------------------------------------------------------------");
             writer.WriteLine(buffer_string);
             //        str.Format();
@@ -1245,7 +1753,7 @@ namespace MidasHelper_CS
             writer.WriteLine(buffer_string);
             buffer_string = String.Format(";Normal节点");
             writer.WriteLine(buffer_string);
-            for (int i = regular_nodes_start-1; i <= regular_nodes_end-1; i++)
+            for (int i = regular_nodes_start - 1; i <= regular_nodes_end - 1; i++)
             {
                 buffer_string = string.Format("{0,-5},{1:0.00},{2:0.00},{3:0.00}", all_normal_nodes[i].num,
                     all_normal_nodes[i].x, all_normal_nodes[i].y, all_normal_nodes[i].z);
@@ -1254,7 +1762,7 @@ namespace MidasHelper_CS
 
             buffer_string = String.Format("\r\n;扫地杆节点");
             writer.WriteLine(buffer_string);
-            for (int i = bottom_nodes_start-1; i <= bottom_nodes_end-1; i++)
+            for (int i = bottom_nodes_start - 1; i <= bottom_nodes_end - 1; i++)
             {
                 buffer_string = string.Format("{0,-5},{1:0.00},{2:0.00},{3:0.00}", all_normal_nodes[i].num,
                     all_normal_nodes[i].x, all_normal_nodes[i].y, all_normal_nodes[i].z);
@@ -1263,7 +1771,7 @@ namespace MidasHelper_CS
 
             buffer_string = String.Format("\r\n;XY剪刀撑节点");
             writer.WriteLine(buffer_string);
-            for (int i = xy_bridging_nodes_start-1; i <= xy_bridging_nodes_end-1; i++)
+            for (int i = xy_bridging_nodes_start - 1; i <= xy_bridging_nodes_end - 1; i++)
             {
                 buffer_string = string.Format("{0,-5},{1:0.00},{2:0.00},{3:0.00}", all_normal_nodes[i].num,
                     all_normal_nodes[i].x, all_normal_nodes[i].y, all_normal_nodes[i].z);
@@ -1286,7 +1794,8 @@ namespace MidasHelper_CS
                 buffer_string = string.Format("{0,-5},{1:0.00},{2:0.00},{3:0.00}", all_normal_nodes[i].num,
                     all_normal_nodes[i].x, all_normal_nodes[i].y, all_normal_nodes[i].z);
                 writer.WriteLine(buffer_string);
-            } 
+            }
+
 
             buffer_string = String.Format("\r\n*ELEMENT ");
             writer.WriteLine(buffer_string);
@@ -1319,6 +1828,30 @@ namespace MidasHelper_CS
                 writer.WriteLine(buffer_string);
             }
 
+            buffer_string = String.Format("\r\n;XY剪刀单元 ");
+            writer.WriteLine(buffer_string);
+            for (int i = 0; i < xy_bridging_elements_count; i++)
+            {//%d , %s ,    %d,    %d,    %d,    %d,    %d\n",dy+tempcount,"BEAM",1,1,Yelement[i].qd,Yelement[i].zd,0
+                buffer_string = string.Format("{0,-5},BEAM,{1},{2},{3},{4},{5}", xy_bridging_elements[i].num, 1, 1, xy_bridging_elements[i].fNode.num, xy_bridging_elements[i].bNode.num, 0);
+                writer.WriteLine(buffer_string);
+            }
+
+            buffer_string = String.Format("\r\n;XZ剪刀单元 ");
+            writer.WriteLine(buffer_string);
+            for (int i = 0; i < xz_bridging_elements_count; i++)
+            {//%d , %s ,    %d,    %d,    %d,    %d,    %d\n",dy+tempcount,"BEAM",1,1,Yelement[i].qd,Yelement[i].zd,0
+                buffer_string = string.Format("{0,-5},BEAM,{1},{2},{3},{4},{5}", xz_bridging_elements[i].num, 1, 1, xz_bridging_elements[i].fNode.num, xz_bridging_elements[i].bNode.num, 0);
+                writer.WriteLine(buffer_string);
+            }
+
+            buffer_string = String.Format("\r\n;YZ剪刀单元 ");
+            writer.WriteLine(buffer_string);
+            for (int i = 0; i < yz_bridging_elements_count; i++)
+            {//%d , %s ,    %d,    %d,    %d,    %d,    %d\n",dy+tempcount,"BEAM",1,1,Yelement[i].qd,Yelement[i].zd,0
+                buffer_string = string.Format("{0,-5},BEAM,{1},{2},{3},{4},{5}", yz_bridging_elements[i].num, 1, 1, yz_bridging_elements[i].fNode.num, yz_bridging_elements[i].bNode.num, 0);
+                writer.WriteLine(buffer_string);
+            }
+
             buffer_string = String.Format("\r\n;分组信息 ");
             writer.WriteLine(buffer_string);
             buffer_string = String.Format("\r\n*GROUP    ; Group\n; NAME, NODE_LIST, ELEM_LIST, PLANE_TYPE");
@@ -1331,7 +1864,7 @@ namespace MidasHelper_CS
             string bridging_nodesnum_repeat = "";
             for (int i = 0; i < xy_bridging_repeat_nodenum_count; i++)
             {
-                bridging_nodesnum_repeat = bridging_nodesnum_repeat + " "+ xy_bridging_repeat_nodenum[i].ToString();
+                bridging_nodesnum_repeat = bridging_nodesnum_repeat + " " + xy_bridging_repeat_nodenum[i].ToString();
             }
             buffer_string = String.Format("XY剪刀撑节点,{0}to{1}{2},,0\r\n", xy_bridging_nodes_start, xy_bridging_nodes_end, bridging_nodesnum_repeat);
             writer.WriteLine(buffer_string);
@@ -1358,7 +1891,12 @@ namespace MidasHelper_CS
             writer.WriteLine(buffer_string);
             buffer_string = String.Format("扫地杆单元,,{0}to{1},0\r\n", bottom_elements[0].num, bottom_elements[bottom_elements_count - 1].num);
             writer.WriteLine(buffer_string);
-
+            buffer_string = String.Format("XY剪刀单元,,{0}to{1},0\r\n", xy_bridging_elements_start, xy_bridging_elements_end);
+            writer.WriteLine(buffer_string);
+            buffer_string = String.Format("XZ剪刀单元,,{0}to{1},0\r\n", xz_bridging_elements_start, xz_bridging_elements_end);
+            writer.WriteLine(buffer_string);
+            buffer_string = String.Format("YZ剪刀单元,,{0}to{1},0\r\n", yz_bridging_elements_start, yz_bridging_elements_end);
+            writer.WriteLine(buffer_string);
             //buffer_string = String.Format("\r\n;XY剪刀线 ");
             //writer.WriteLine(buffer_string);
             //for (int i = 0; i < xy_bridging_lines_count; i++)
@@ -1396,6 +1934,7 @@ namespace MidasHelper_CS
                 mctfile.Close();
                 mctfile.Dispose();
             }
+            SetProcess(100);
             SetText("写入完成", this.status_bar_text);
         }
         private void btn_section_Click(object sender, RoutedEventArgs e)
@@ -1475,8 +2014,15 @@ namespace MidasHelper_CS
 
         private void button1_Click(object sender, RoutedEventArgs e)
         {
-
-
+            Random ran = new Random();
+            Normal nor = new Normal(0, 1);
+            double[] sample = new double[1000];
+            nor.Samples(sample);
+            double sum = 0.0;
+            for (int i = 0; i < sample.Length; i++)
+            {
+                sum = sum + sample[i];
+            }
         }
         private void btn_export_mct_Click(object sender, RoutedEventArgs e)
         {

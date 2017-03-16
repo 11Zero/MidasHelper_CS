@@ -12,6 +12,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using SharpGL.SceneGraph;
 using SharpGL;
+using XMLoperator;
 namespace MidasHelper_CS
 {
     /// <summary>
@@ -33,6 +34,7 @@ namespace MidasHelper_CS
         private double yRange = 0;///y方向图形尺寸
         private double ScralSize = 1.0;//鼠标缩放因数
         public double bridgeLength = 0.0;
+        public double sectionArea = 0.0;
         public int H01 = 0, H02 = 0, H03 = 0;
 
         public int B01 = 0, B02 = 0, B03 = 0, B04 = 0, B05 = 0, B06 = 0;
@@ -57,7 +59,9 @@ namespace MidasHelper_CS
             combo_select.Items.Add("单箱多室");
             combo_select.SelectedIndex = 0;
             getXmlValue();
-            drawSection(0);
+            //drawSection(0);
+            check_textview.IsChecked = true;
+            //check_textview.
             //gl = openGLControl.OpenGL;
             //gl.Clear(OpenGL.GL_COLOR_BUFFER_BIT | OpenGL.GL_DEPTH_BUFFER_BIT);
             //gl.LoadIdentity();
@@ -215,9 +219,14 @@ namespace MidasHelper_CS
 
         private void btn_test_Click(object sender, RoutedEventArgs e)
         {
+            setXmlValue();
+            getXmlValue();
+            drawSection(combo_select.SelectedIndex);
+            this.parentWin.text_G1.Text = (26*sectionArea*bridgeLength).ToString();
+            this.Close();
             //setXmlValue();
             //getXmlValue();
-            getXmlValue();
+            //getXmlValue();
             //drawSection(0, 0);
             //OpenGL gl = openGLControl.OpenGL;
             //gl.Translate(-xTimes / 2, yTimes / 2, 0);
@@ -243,38 +252,40 @@ namespace MidasHelper_CS
         {
             string xmlpath = AppDomain.CurrentDomain.BaseDirectory + "sectionconfig.xml";
             //MessageBox.Show(XmlHelper.getXmlElementValue(xmlpath, "内部轮廓", "h11"));
-            XmlHelper.setXmlElementValue(xmlpath, "外部轮廓", "H01", "20");
-            XmlHelper.setXmlElementValue(xmlpath, "外部轮廓", "H02", "20");
-            XmlHelper.setXmlElementValue(xmlpath, "外部轮廓", "H03", "110");
+            XmlHelper.setXmlElementValue(xmlpath, "外部轮廓", "H01", text_H01.Text);
+            XmlHelper.setXmlElementValue(xmlpath, "外部轮廓", "H02", text_H02.Text);
+            XmlHelper.setXmlElementValue(xmlpath, "外部轮廓", "H03", text_H03.Text);
 
-            XmlHelper.setXmlElementValue(xmlpath, "外部轮廓", "B01", "200");
-            XmlHelper.setXmlElementValue(xmlpath, "外部轮廓", "B02", "50");
-            XmlHelper.setXmlElementValue(xmlpath, "外部轮廓", "B03", "250");
-            XmlHelper.setXmlElementValue(xmlpath, "外部轮廓", "B04", "50");
-            XmlHelper.setXmlElementValue(xmlpath, "外部轮廓", "B05", "250");
-            XmlHelper.setXmlElementValue(xmlpath, "外部轮廓", "B06", "50");
+            XmlHelper.setXmlElementValue(xmlpath, "外部轮廓", "B01", text_B01.Text);
+            XmlHelper.setXmlElementValue(xmlpath, "外部轮廓", "B02", text_B02.Text);
+            XmlHelper.setXmlElementValue(xmlpath, "外部轮廓", "B03", text_B03.Text);
+            XmlHelper.setXmlElementValue(xmlpath, "外部轮廓", "B04", text_B04.Text);
+            XmlHelper.setXmlElementValue(xmlpath, "外部轮廓", "B05", text_B05.Text);
+            XmlHelper.setXmlElementValue(xmlpath, "外部轮廓", "B06", text_B06.Text);
 
-            XmlHelper.setXmlElementValue(xmlpath, "上下板厚", "H11", "30");
-            XmlHelper.setXmlElementValue(xmlpath, "上下板厚", "H12", "30");
-            XmlHelper.setXmlElementValue(xmlpath, "上下板厚", "H21", "30");
-            XmlHelper.setXmlElementValue(xmlpath, "上下板厚", "H22", "30");
+            XmlHelper.setXmlElementValue(xmlpath, "上下板厚", "H11", text_H11.Text);
+            XmlHelper.setXmlElementValue(xmlpath, "上下板厚", "H12", text_H12.Text);
+            XmlHelper.setXmlElementValue(xmlpath, "上下板厚", "H21", text_H21.Text);
+            XmlHelper.setXmlElementValue(xmlpath, "上下板厚", "H22", text_H22.Text);
 
-            XmlHelper.setXmlElementValue(xmlpath, "斜角尺寸", "h11", "30");
-            XmlHelper.setXmlElementValue(xmlpath, "斜角尺寸", "b11", "30");
-            XmlHelper.setXmlElementValue(xmlpath, "斜角尺寸", "h12", "30");
-            XmlHelper.setXmlElementValue(xmlpath, "斜角尺寸", "b12", "30");
-            XmlHelper.setXmlElementValue(xmlpath, "斜角尺寸", "h21", "30");
-            XmlHelper.setXmlElementValue(xmlpath, "斜角尺寸", "b21", "30");
-            XmlHelper.setXmlElementValue(xmlpath, "斜角尺寸", "h22", "30");
-            XmlHelper.setXmlElementValue(xmlpath, "斜角尺寸", "b22", "30");
-            XmlHelper.setXmlElementValue(xmlpath, "斜角尺寸", "h31", "30");
-            XmlHelper.setXmlElementValue(xmlpath, "斜角尺寸", "b31", "30");
-            XmlHelper.setXmlElementValue(xmlpath, "斜角尺寸", "h32", "30");
-            XmlHelper.setXmlElementValue(xmlpath, "斜角尺寸", "b32", "30");
-            XmlHelper.setXmlElementValue(xmlpath, "斜角尺寸", "h41", "30");
-            XmlHelper.setXmlElementValue(xmlpath, "斜角尺寸", "b41", "30");
-            XmlHelper.setXmlElementValue(xmlpath, "斜角尺寸", "h42", "30");
-            XmlHelper.setXmlElementValue(xmlpath, "斜角尺寸", "b42", "30");
+            XmlHelper.setXmlElementValue(xmlpath, "斜角尺寸", "h11", text_h11.Text);
+            XmlHelper.setXmlElementValue(xmlpath, "斜角尺寸", "b11", text_b11.Text);
+            XmlHelper.setXmlElementValue(xmlpath, "斜角尺寸", "h12", text_h12.Text);
+            XmlHelper.setXmlElementValue(xmlpath, "斜角尺寸", "b12", text_b12.Text);
+            XmlHelper.setXmlElementValue(xmlpath, "斜角尺寸", "h21", text_h21.Text);
+            XmlHelper.setXmlElementValue(xmlpath, "斜角尺寸", "b21", text_b21.Text);
+            XmlHelper.setXmlElementValue(xmlpath, "斜角尺寸", "h22", text_h22.Text);
+            XmlHelper.setXmlElementValue(xmlpath, "斜角尺寸", "b22", text_b22.Text);
+            XmlHelper.setXmlElementValue(xmlpath, "斜角尺寸", "h31", text_h31.Text);
+            XmlHelper.setXmlElementValue(xmlpath, "斜角尺寸", "b31", text_b31.Text);
+            XmlHelper.setXmlElementValue(xmlpath, "斜角尺寸", "h32", text_h32.Text);
+            XmlHelper.setXmlElementValue(xmlpath, "斜角尺寸", "b32", text_b32.Text);
+            XmlHelper.setXmlElementValue(xmlpath, "斜角尺寸", "h41", text_h41.Text);
+            XmlHelper.setXmlElementValue(xmlpath, "斜角尺寸", "b41", text_b41.Text);
+            XmlHelper.setXmlElementValue(xmlpath, "斜角尺寸", "h42", text_h42.Text);
+            XmlHelper.setXmlElementValue(xmlpath, "斜角尺寸", "b42", text_b42.Text);
+
+            XmlHelper.setXmlElementValue(xmlpath, "顺桥向桥长", "bridge_length", text_bridge_length.Text);
 
         }
 
@@ -343,6 +354,10 @@ namespace MidasHelper_CS
             h42 = int.Parse(text_h42.Text);
             text_b42.Text = XmlHelper.getXmlElementValue(xmlpath, "斜角尺寸", "b42"); 
             b42 = int.Parse(text_b42.Text);
+
+            text_bridge_length.Text = XmlHelper.getXmlElementValue(xmlpath, "顺桥向桥长", "bridge_length");
+            bridgeLength = double.Parse(text_bridge_length.Text);
+
             xmlLoaded = true;
 
             
@@ -386,7 +401,7 @@ namespace MidasHelper_CS
             double hh = gl_grid.Height;
             int w = Convert.ToInt32(ww * (x *xRange+1-xTimes/2)/2);//)
             int h = Convert.ToInt32(hh * (y * yRange + 1+yTimes/2)/2);//) 
-            gl.DrawText(w, h, 0, 255, 0, "宋体", 10, info);
+            gl.DrawText(w, h, 0, 255, 0, "Calibri", 15, info);
             //gl.Translate(-xTimes / 2, yTimes / 2, 0);
           
         }
@@ -402,18 +417,91 @@ namespace MidasHelper_CS
                 case 0:
                     {
                         xLength = 2 * B01 + 2 * B02 + B03;
+                        text_h21.IsEnabled = false;
+                        text_b21.IsEnabled = false;
+                        text_h22.IsEnabled = false;
+                        text_b22.IsEnabled = false;
+                        text_h31.IsEnabled = false;
+                        text_b31.IsEnabled = false;
+                        text_h32.IsEnabled = false;
+                        text_b32.IsEnabled = false;
+                        text_h41.IsEnabled = false;
+                        text_b41.IsEnabled = false;
+                        text_h42.IsEnabled = false;
+                        text_b42.IsEnabled = false;
+                        
+                        text_B04.IsEnabled = false;
+                        text_B05.IsEnabled = false;
+                        text_B06.IsEnabled = false;
+                        text_H21.IsEnabled = false;
+                        text_H22.IsEnabled = false;
+
                     } break;
                 case 1:
                     {
                         xLength = 2 * B01 + 2 * B02 + 2 * B03 + B04;
+                        text_h21.IsEnabled = true;
+                        text_b21.IsEnabled = true;
+                        text_h22.IsEnabled = true;
+                        text_b22.IsEnabled = true;
+                        text_h31.IsEnabled = false;
+                        text_b31.IsEnabled = false;
+                        text_h32.IsEnabled = false;
+                        text_b32.IsEnabled = false;
+                        text_h41.IsEnabled = false;
+                        text_b41.IsEnabled = false;
+                        text_h42.IsEnabled = false;
+                        text_b42.IsEnabled = false;
+
+                        text_B04.IsEnabled = true;
+                        text_B05.IsEnabled = false;
+                        text_B06.IsEnabled = false;
+                        text_H21.IsEnabled = false;
+                        text_H22.IsEnabled = false;
                     } break;
                 case 2:
                     {
                         xLength = 2 * B01 + 2 * B02 + 2 * B03 + 2 * B04 + B05;
+                        text_h21.IsEnabled = true;
+                        text_b21.IsEnabled = true;
+                        text_h22.IsEnabled = true;
+                        text_b22.IsEnabled = true;
+                        text_h31.IsEnabled = true;
+                        text_b31.IsEnabled = true;
+                        text_h32.IsEnabled = true;
+                        text_b32.IsEnabled = true;
+                        text_h41.IsEnabled = false;
+                        text_b41.IsEnabled = false;
+                        text_h42.IsEnabled = false;
+                        text_b42.IsEnabled = false;
+
+                        text_B04.IsEnabled = true;
+                        text_B05.IsEnabled = true;
+                        text_B06.IsEnabled = false;
+                        text_H21.IsEnabled = true;
+                        text_H22.IsEnabled = true;
                     } break;
                 case 3:
                     {
                         xLength = 2 * B01 + 2 * B02 + 2 * B03 + 2 * B04 + 2 * B05 + B06;
+                        text_h21.IsEnabled = true;
+                        text_b21.IsEnabled = true;
+                        text_h22.IsEnabled = true;
+                        text_b22.IsEnabled = true;
+                        text_h31.IsEnabled = true;
+                        text_b31.IsEnabled = true;
+                        text_h32.IsEnabled = true;
+                        text_b32.IsEnabled = true;
+                        text_h41.IsEnabled = true;
+                        text_b41.IsEnabled = true;
+                        text_h42.IsEnabled = true;
+                        text_b42.IsEnabled = true;
+
+                        text_B04.IsEnabled = true;
+                        text_B05.IsEnabled = true;
+                        text_B06.IsEnabled = true;
+                        text_H21.IsEnabled = true;
+                        text_H22.IsEnabled = true;
                     } break;
             }
 
@@ -521,6 +609,8 @@ namespace MidasHelper_CS
                         tempX = B01 + B02 + b12 * 2 / 3; tempY = -(H01 + H02 + H03 - H12 - h12 / 2);
                         drawString("(1,2)", tempX, tempY);
 
+                        sectionArea = (2 * B01 + 2 * B02 + B03) * (H01 + H02 + H03) - H02 * B01 - 2 * H03 * B01 - (H01 + H02 + H03 - H11 - H12) * B03 + h11 * b11 + h12 * b12;
+                        sectionArea = sectionArea / 10000.0;
                     } break;
                 case 1:
                     {
@@ -648,6 +738,9 @@ namespace MidasHelper_CS
                         drawString("(2,1)", tempX, tempY);
                         tempX = B01 + B02 + B03 + b22 * 2 / 3 - 80 * xTimes; tempY = -(H01 + H02 + H03 - H12 - h22 / 2);
                         drawString("(2,2)", tempX, tempY);
+
+                        sectionArea = (2 * B01 + 2 * B02 + 2*B03+B04) * (H01 + H02 + H03) - H02 * B01 - 2 * H03 * B01 - 2*(H01 + H02 + H03 - H11 - H12) * B03 + h11 * b11 + h12 * b12+h21*b21+h22*b22;
+                        sectionArea = sectionArea / 10000.0;
                     } break;
                 case 2:
                     {
@@ -816,6 +909,10 @@ namespace MidasHelper_CS
                         drawString("(3,1)", tempX, tempY);
                         tempX = B01 + B02 + B03 + B04 + b32 * 2 / 3; tempY = -(H01 + H02 + H03 - H22 - h32 / 2);
                         drawString("(3,2)", tempX, tempY);
+
+                        sectionArea = (2 * B01 + 2 * B02 + 2 * B03 + 2 * B04 + B05) * (H01 + H02 + H03) - H02 * B01 - 2 * H03 * B01 - 2 * (H01 + H02 + H03 - H11 - H12) * B03 + h11 * b11 + h12 * b12 + h21 * b21 + h22 * b22 - (H01 + H02 + H03 - H21 - H22) * B05+h31*b31+h32*b32;
+                        sectionArea = sectionArea / 10000.0;
+
                     } break;
                 case 3:
                     {
@@ -1018,6 +1115,10 @@ namespace MidasHelper_CS
                         drawString("(4,1)", tempX, tempY);
                         tempX = B01 + B02 + B03 + B04 + B05 + b42 * 2 / 3 - 80 * xTimes; tempY = -(H01 + H02 + H03 - H22 - h42 / 2);
                         drawString("(4,2)", tempX, tempY);
+
+                        sectionArea = (2 * B01 + 2 * B02 + 2 * B03 + 2 * B04 + 2*B05+B06) * (H01 + H02 + H03) - H02 * B01 - 2 * H03 * B01 - 2 * (H01 + H02 + H03 - H11 - H12) * B03 + h11 * b11 + h12 * b12 + h21 * b21 + h22 * b22 - 2*(H01 + H02 + H03 - H21 - H22) * B05 + h31 * b31 + h32 * b32+h41*b41+h42*b42;
+                        sectionArea = sectionArea / 10000.0;
+
                     } break;
             }
 
@@ -1025,6 +1126,13 @@ namespace MidasHelper_CS
         private void Window_Closed(object sender, EventArgs e)
         {
             this.parentWin.section_from_closed = true;
+            
+        }
+
+        private void check_textview_Clicked(object sender, RoutedEventArgs e)
+        {
+            charFlag = !charFlag;
+            drawSection(combo_select.SelectedIndex);
         }
 
     }
