@@ -148,7 +148,7 @@ namespace MidasHelper_CS
             gl.Vertex(eX * xRange + 1 - xTimes, eY * yRange + 1 - yTimes);
             gl.End();
             //gl.Color(0.0f, 1.0f, 0.0f);
-            
+
         }
         /// <summary>
         /// Handles the OpenGLInitialized event of the openGLControl1 control.
@@ -217,31 +217,57 @@ namespace MidasHelper_CS
             gl.End();
         }
 
-        private void btn_test_Click(object sender, RoutedEventArgs e)
+        private void btn_ok_Click(object sender, RoutedEventArgs e)
         {
             setXmlValue();
             getXmlValue();
             drawSection(combo_select.SelectedIndex);
-            this.parentWin.text_G1.Text = (26*sectionArea*bridgeLength).ToString();
+            this.parentWin.text_G1.Text = (26 * sectionArea * bridgeLength).ToString();
             this.parentWin.selected_section = combo_select.SelectedIndex;
+            int big_step = 90;
+            int little_step = 60;
+            switch (combo_select.SelectedIndex)
+            {
+                case 0:
+                    {
+                        int nStep_B03 = (int)Math.Floor((double)B03 / big_step);
+                        int nStep_B02 = (int)Math.Ceiling((double)((B03 - nStep_B03 * big_step) / 2.0 + B02) / little_step);
+                        int nStep_B01 = (int)Math.Ceiling((double)(B01 * 2 + B02 * 2 + B03 - 2 * nStep_B02 * little_step - nStep_B03 * big_step) / 2.0 / big_step);
+                        this.parentWin.text_x_input.Text = string.Format("{0}@{4:0.0} {1}@{3:0.0} {2}@{4:0.0} {1}@{3:0.0} {0}@{4:0.0}", nStep_B01, nStep_B02, nStep_B03, little_step / 100.0, big_step / 100.0);
+                    } break;
+                case 1:
+                    {
+                        int nStep_B04 = (int)Math.Ceiling((double)B04 / little_step);
+                        int nStep_B03 = (int)Math.Floor((double)(2 * B03 + B04 - nStep_B04 * little_step) / 2.0 / big_step);
+                        int nStep_B02 = (int)Math.Ceiling((double)(2 * B02 + B04 + 2 * B03 - nStep_B04 * little_step - 2 * nStep_B03 * big_step) / 2.0 / little_step);
+                        int nStep_B01 = (int)Math.Ceiling((double)(2 * B01 + 2 * B02 + 2 * B03 + B04 - nStep_B04 * little_step - 2 * nStep_B03 * big_step - 2 * nStep_B02 * little_step) / 2.0 / big_step);
+                        this.parentWin.text_x_input.Text = string.Format("{0}@{5:0.0} {1}@{4:0.0} {2}@{5:0.0} {3}@{4:0.0} {2}@{5:0.0} {1}@{4:0.0} {0}@{5:0.0}", nStep_B01, nStep_B02, nStep_B03, nStep_B04, little_step / 100.0, big_step / 100.0);
+                    } break;
+                case 2:
+                    {
+                        int nStep_B05 = (int)Math.Floor((double)B05 / big_step);
+                        int nStep_B04 = (int)Math.Ceiling((double)(2 * B04 + B05 - nStep_B05 * big_step) / 2.0 / little_step);
+                        int nStep_B03 = (int)Math.Floor((double)(2 * B03 + 2 * B04 + B05 - nStep_B05 * big_step - 2 * nStep_B04 * little_step) / 2.0 / big_step);
+                        int nStep_B02 = (int)Math.Ceiling((double)(2 * B02 + 2 * B03 + 2 * B04 + B05 - nStep_B05 * big_step - 2 * nStep_B04 * little_step - 2 * nStep_B03 * big_step) / 2.0 / little_step);
+                        int nStep_B01 = (int)Math.Ceiling((double)(2 * B01 + 2 * B02 + 2 * B03 + 2 * B04 + B05 - nStep_B05 * big_step - 2 * nStep_B04 * little_step - 2 * nStep_B03 * big_step - 2 * nStep_B02 * little_step) / 2.0 / big_step);
+                        this.parentWin.text_x_input.Text = string.Format("{0}@{6:0.0} {1}@{5:0.0} {2}@{6:0.0} {3}@{5:0.0} {4}@{6:0.0} {3}@{5:0.0} {2}@{6:0.0} {1}@{5:0.0} {0}@{6:0.0}", nStep_B01, nStep_B02, nStep_B03, nStep_B04, nStep_B05, little_step / 100.0, big_step / 100.0);
+                    } break;
+                case 3:
+                    {
+                        int nStep_B06 = (int)Math.Ceiling((double)B06 / little_step);
+                        int nStep_B05 = (int)Math.Floor((double)(2 * B05 + B06 - nStep_B06 * little_step) / 2.0 / big_step);
+                        int nStep_B04 = (int)Math.Ceiling((double)(2 * B04 + 2 * B05 + B06 - nStep_B06 * little_step - 2*nStep_B05 * big_step) / 2.0 / little_step);
+                        int nStep_B03 = (int)Math.Floor((double)(2 * B03 + 2 * B04 + 2 * B05 + B06 - nStep_B06 * little_step - 2 * nStep_B05 * big_step - 2 * nStep_B04 * little_step) / 2.0 / big_step);
+                        int nStep_B02 = (int)Math.Ceiling((double)(2 * B02 + 2 * B03 + 2 * B04 + 2 * B05 + B06 - nStep_B06 * little_step - 2 * nStep_B05 * big_step - 2 * nStep_B04 * little_step - 2 * nStep_B03 * big_step) / 2.0 / little_step);
+                        int nStep_B01 = (int)Math.Ceiling((double)(2 * B01 + 2 * B02 + 2 * B03 + 2 * B04 + 2 * B05 + B06 - nStep_B06 * little_step - 2 * nStep_B05 * big_step - 2 * nStep_B04 * little_step - 2 * nStep_B03 * big_step - 2 * nStep_B02 * little_step) / 2.0 / big_step);
+                        this.parentWin.text_x_input.Text = string.Format("{0}@{7:0.0} {1}@{6:0.0} {2}@{7:0.0} {3}@{6:0.0} {4}@{7:0.0} {5}@{6:0.0} {4}@{7:0.0} {3}@{6:0.0} {2}@{7:0.0} {1}@{6:0.0} {0}@{7:0.0}", nStep_B01, nStep_B02, nStep_B03, nStep_B04, nStep_B05,nStep_B05, little_step / 100.0, big_step / 100.0);
+
+                    } break;
+                default:
+                    break;
+            }
+            this.parentWin.section_selected_flag = true;
             this.Close();
-            //setXmlValue();
-            //getXmlValue();
-            //getXmlValue();
-            //drawSection(0, 0);
-            //OpenGL gl = openGLControl.OpenGL;
-            //gl.Translate(-xTimes / 2, yTimes / 2, 0);
-            
-            //xLength = 1000;
-            //yLength = 500;
-            //xTimes = 0.8;
-            //yTimes = 0.8;
-            //xRange = 2 * xTimes / xLength;
-            //yRange = 2 * yTimes / yLength;
-            //drawLine(0, 0, 1000, 500);
-            //drawString("11", 0, 0);
-            //drawLine(0, 0, -2, 2);
-            //drawOneSection();
         }
 
         private void text_h01_TextChanged(object sender, TextChangedEventArgs e)
@@ -361,7 +387,7 @@ namespace MidasHelper_CS
             this.parentWin.bridge_length = bridgeLength;
             xmlLoaded = true;
 
-            
+
 
         }
 
@@ -400,11 +426,11 @@ namespace MidasHelper_CS
             OpenGL gl = openGLControl.OpenGL;
             double ww = gl_grid.Width;
             double hh = gl_grid.Height;
-            int w = Convert.ToInt32(ww * (x *xRange+1-xTimes/2)/2);//)
-            int h = Convert.ToInt32(hh * (y * yRange + 1+yTimes/2)/2);//) 
+            int w = Convert.ToInt32(ww * (x * xRange + 1 - xTimes / 2) / 2);//)
+            int h = Convert.ToInt32(hh * (y * yRange + 1 + yTimes / 2) / 2);//) 
             gl.DrawText(w, h, 0, 255, 0, "Calibri", 15, info);
             //gl.Translate(-xTimes / 2, yTimes / 2, 0);
-          
+
         }
         private void drawSection(int SelectFlag)
         {
@@ -430,7 +456,7 @@ namespace MidasHelper_CS
                         text_b41.IsEnabled = false;
                         text_h42.IsEnabled = false;
                         text_b42.IsEnabled = false;
-                        
+
                         text_B04.IsEnabled = false;
                         text_B05.IsEnabled = false;
                         text_B06.IsEnabled = false;
@@ -525,7 +551,7 @@ namespace MidasHelper_CS
                         tempY = tempY - H01;
                         gl.Vertex(tempX * xRange, tempY * yRange);
                         gl.Vertex(tempX * xRange, tempY * yRange);
-                        tempX = tempX + B01; 
+                        tempX = tempX + B01;
                         tempY = tempY - H02;
                         gl.Vertex(tempX * xRange, tempY * yRange);
                         gl.Vertex(tempX * xRange, tempY * yRange);
@@ -740,7 +766,7 @@ namespace MidasHelper_CS
                         tempX = B01 + B02 + B03 + b22 * 2 / 3 - 80 * xTimes; tempY = -(H01 + H02 + H03 - H12 - h22 / 2);
                         drawString("(2,2)", tempX, tempY);
 
-                        sectionArea = (2 * B01 + 2 * B02 + 2*B03+B04) * (H01 + H02 + H03) - H02 * B01 - 2 * H03 * B01 - 2*(H01 + H02 + H03 - H11 - H12) * B03 + h11 * b11 + h12 * b12+h21*b21+h22*b22;
+                        sectionArea = (2 * B01 + 2 * B02 + 2 * B03 + B04) * (H01 + H02 + H03) - H02 * B01 - 2 * H03 * B01 - 2 * (H01 + H02 + H03 - H11 - H12) * B03 + h11 * b11 + h12 * b12 + h21 * b21 + h22 * b22;
                         sectionArea = sectionArea / 10000.0;
                     } break;
                 case 2:
@@ -911,7 +937,7 @@ namespace MidasHelper_CS
                         tempX = B01 + B02 + B03 + B04 + b32 * 2 / 3; tempY = -(H01 + H02 + H03 - H22 - h32 / 2);
                         drawString("(3,2)", tempX, tempY);
 
-                        sectionArea = (2 * B01 + 2 * B02 + 2 * B03 + 2 * B04 + B05) * (H01 + H02 + H03) - H02 * B01 - 2 * H03 * B01 - 2 * (H01 + H02 + H03 - H11 - H12) * B03 + h11 * b11 + h12 * b12 + h21 * b21 + h22 * b22 - (H01 + H02 + H03 - H21 - H22) * B05+h31*b31+h32*b32;
+                        sectionArea = (2 * B01 + 2 * B02 + 2 * B03 + 2 * B04 + B05) * (H01 + H02 + H03) - H02 * B01 - 2 * H03 * B01 - 2 * (H01 + H02 + H03 - H11 - H12) * B03 + h11 * b11 + h12 * b12 + h21 * b21 + h22 * b22 - (H01 + H02 + H03 - H21 - H22) * B05 + h31 * b31 + h32 * b32;
                         sectionArea = sectionArea / 10000.0;
 
                     } break;
@@ -1117,7 +1143,7 @@ namespace MidasHelper_CS
                         tempX = B01 + B02 + B03 + B04 + B05 + b42 * 2 / 3 - 80 * xTimes; tempY = -(H01 + H02 + H03 - H22 - h42 / 2);
                         drawString("(4,2)", tempX, tempY);
 
-                        sectionArea = (2 * B01 + 2 * B02 + 2 * B03 + 2 * B04 + 2*B05+B06) * (H01 + H02 + H03) - H02 * B01 - 2 * H03 * B01 - 2 * (H01 + H02 + H03 - H11 - H12) * B03 + h11 * b11 + h12 * b12 + h21 * b21 + h22 * b22 - 2*(H01 + H02 + H03 - H21 - H22) * B05 + h31 * b31 + h32 * b32+h41*b41+h42*b42;
+                        sectionArea = (2 * B01 + 2 * B02 + 2 * B03 + 2 * B04 + 2 * B05 + B06) * (H01 + H02 + H03) - H02 * B01 - 2 * H03 * B01 - 2 * (H01 + H02 + H03 - H11 - H12) * B03 + h11 * b11 + h12 * b12 + h21 * b21 + h22 * b22 - 2 * (H01 + H02 + H03 - H21 - H22) * B05 + h31 * b31 + h32 * b32 + h41 * b41 + h42 * b42;
                         sectionArea = sectionArea / 10000.0;
 
                     } break;
@@ -1126,8 +1152,8 @@ namespace MidasHelper_CS
         }
         private void Window_Closed(object sender, EventArgs e)
         {
-            this.parentWin.section_from_closed = true;
-            
+            this.parentWin.section_form_closed = true;
+
         }
 
         private void check_textview_Clicked(object sender, RoutedEventArgs e)

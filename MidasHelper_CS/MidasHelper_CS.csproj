@@ -102,9 +102,16 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="DefectForm.xaml.cs">
+      <DependentUpon>DefectForm.xaml</DependentUpon>
+    </Compile>
     <Compile Include="SectionForm.xaml.cs">
       <DependentUpon>SectionForm.xaml</DependentUpon>
     </Compile>
+    <Page Include="DefectForm.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

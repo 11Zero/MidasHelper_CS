@@ -16,3 +16,8 @@ D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\obj\x86\R
 D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\obj\x86\Release\MidasHelper_CS.csproj.GenerateResource.Cache
 D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\obj\x86\Release\MidasHelper_CS.exe
 D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\obj\x86\Release\MidasHelper_CS.pdb
+D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\bin\Release\Midas.dll
+D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\bin\Release\XMLoperator.dll
+D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\obj\x86\Release\MidasHelper_CS.csprojResolveAssemblyReference.cache
+D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\obj\x86\Release\DefectForm.baml
+D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\obj\x86\Release\DefectForm.g.cs
