@@ -39,6 +39,7 @@ namespace MidasHelper_CS
             text_sdg.Text = "0.2";
             text_xbg.Text = "0.2";
             text_betaJ.Text = "1.3";
+            textBlock_buttom.Text = "就绪";
         }
 
         private void btn_clear_Click(object sender, RoutedEventArgs e)
@@ -77,6 +78,47 @@ namespace MidasHelper_CS
                 default: 
                     break;
             }
+            if (text_l.Text == "")
+            {
+                textBlock_buttom.Text = "请完善参数";
+                return;
+            }
+            if (text_h.Text == "")
+            {
+                textBlock_buttom.Text = "请完善参数";
+                return;
+            }
+            if (text_L.Text == "")
+            {
+                textBlock_buttom.Text = "请完善参数";
+                return;
+            }
+            if (text_Q.Text == "")
+            {
+                textBlock_buttom.Text = "请完善参数";
+                return;
+            }
+            if (text_EI.Text == "")
+            {
+                textBlock_buttom.Text = "请完善参数";
+                return;
+            }
+            if (text_sdg.Text == "")
+            {
+                textBlock_buttom.Text = "请完善参数";
+                return;
+            }
+            if (text_xbg.Text == "")
+            {
+                textBlock_buttom.Text = "请完善参数";
+                return;
+            }
+            if (text_betaJ.Text == "")
+            {
+                textBlock_buttom.Text = "请完善参数";
+                return;
+            }
+            
             double l = double.Parse(text_l.Text);
             double h = double.Parse(text_h.Text);
             double L = double.Parse(text_L.Text);
@@ -94,6 +136,7 @@ namespace MidasHelper_CS
             double pi = 3.1415926;
             double Pcr = 2 * n * n * pi * pi * EI * beta_J / (beta_alpha * beta_alpha * beta_L * beta_L * L * L);
             text_Pcr.Text = string.Format("{0:0.00}",Pcr);
+            textBlock_buttom.Text = "就绪";
         }
 
     }

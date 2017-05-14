@@ -1,8 +1,8 @@
 ﻿<Window x:Class="MidasHelper_CS.PcrForm"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="立杆临界荷载计算器" Height="432" Width="272" Loaded="Window_Loaded" Background="#FFCBCEAE">
-    <Grid Height="390" Width="249">
+        Title="立杆临界荷载计算器" Height="441" Width="272" Loaded="Window_Loaded" Background="#FFCBCEAE">
+    <Grid Height="402" Width="250">
         <TextBox Height="23" HorizontalAlignment="Left" Margin="113,10,0,0" Name="text_l" VerticalAlignment="Top" Width="120" />
         <TextBlock Height="23" HorizontalAlignment="Left" Margin="20,13,0,0" Name="textBlock_l" Text="立杆间距 l (m):" VerticalAlignment="Top" />
         <TextBox Height="23" HorizontalAlignment="Left" Margin="87,39,0,0" Name="text_h" VerticalAlignment="Top" Width="146" />
@@ -26,5 +26,6 @@
         <TextBlock Height="23" HorizontalAlignment="Left" Margin="20,71,0,0" Name="textBlock1" Text="架体高度 L (m):" VerticalAlignment="Top" />
         <TextBox Height="23" HorizontalAlignment="Left" Margin="130,169,0,0" Name="text_betaJ" VerticalAlignment="Top" Width="103" />
         <TextBlock Height="23" HorizontalAlignment="Left" Margin="20,172,0,0" Name="textBlock_betaJ" Text="剪刀撑修正系数 βJ :" VerticalAlignment="Top" />
+        <TextBlock Name="textBlock_buttom" Text="TextBlock" Margin="0,385,0,0" />
     </Grid>
 </Window>
