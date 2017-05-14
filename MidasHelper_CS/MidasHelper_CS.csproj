@@ -63,6 +63,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>bin\Debug\Midas.dll</HintPath>
     </Reference>
+    <Reference Include="PcrCalcultor">
+      <HintPath>bin\Debug\PcrCalcultor.dll</HintPath>
+    </Reference>
     <Reference Include="SharpGL, Version=2.3.0.1, Culture=neutral, PublicKeyToken=27fc851303210b27, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>bin\Debug\SharpGL.dll</HintPath>
@@ -105,6 +108,9 @@
     <Compile Include="DefectForm.xaml.cs">
       <DependentUpon>DefectForm.xaml</DependentUpon>
     </Compile>
+    <Compile Include="PcrForm.xaml.cs">
+      <DependentUpon>PcrForm.xaml</DependentUpon>
+    </Compile>
     <Compile Include="SectionForm.xaml.cs">
       <DependentUpon>SectionForm.xaml</DependentUpon>
     </Compile>
@@ -125,6 +131,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="PcrForm.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="SectionForm.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

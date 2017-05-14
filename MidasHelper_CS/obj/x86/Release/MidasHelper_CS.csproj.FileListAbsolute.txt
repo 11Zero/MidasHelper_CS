@@ -21,3 +21,6 @@ D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\bin\Relea
 D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\obj\x86\Release\MidasHelper_CS.csprojResolveAssemblyReference.cache
 D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\obj\x86\Release\DefectForm.baml
 D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\obj\x86\Release\DefectForm.g.cs
+D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\bin\Release\PcrCalcultor.dll
+D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\obj\x86\Release\PcrForm.baml
+D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\obj\x86\Release\PcrForm.g.cs

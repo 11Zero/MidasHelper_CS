@@ -1,0 +1,30 @@
+﻿<Window x:Class="MidasHelper_CS.PcrForm"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="立杆临界荷载计算器" Height="432" Width="272" Loaded="Window_Loaded" Background="#FFCBCEAE">
+    <Grid Height="390" Width="249">
+        <TextBox Height="23" HorizontalAlignment="Left" Margin="113,10,0,0" Name="text_l" VerticalAlignment="Top" Width="120" />
+        <TextBlock Height="23" HorizontalAlignment="Left" Margin="20,13,0,0" Name="textBlock_l" Text="立杆间距 l (m):" VerticalAlignment="Top" />
+        <TextBox Height="23" HorizontalAlignment="Left" Margin="87,39,0,0" Name="text_h" VerticalAlignment="Top" Width="146" />
+        <TextBlock Height="23" HorizontalAlignment="Left" Margin="20,42,0,0" Name="textBlock_h" Text="步距 h (m):" VerticalAlignment="Top" />
+        <TextBox Height="23" HorizontalAlignment="Left" Margin="168,210,0,0" Name="text_Q" VerticalAlignment="Top" Width="65" />
+        <TextBlock HorizontalAlignment="Left" TextAlignment="Left" Margin="20,213,0,0" Name="textBlock_Q" Text="下碗扣设计强度 Qb (kN):" Width="142" Height="32" VerticalAlignment="Top" />
+        <TextBox Height="23" HorizontalAlignment="Left" Margin="144,247,0,0" Name="text_EI" VerticalAlignment="Top" Width="89" />
+        <TextBlock Height="23" HorizontalAlignment="Left" Margin="20,250,0,0" Name="textBlock_EI" Text="抗弯刚度 EI (kN·m2):" VerticalAlignment="Top" />
+        <TextBox Height="23" HorizontalAlignment="Left" Margin="113,97,0,0" Name="text_sdg" VerticalAlignment="Top" Width="120" />
+        <TextBlock Height="23" HorizontalAlignment="Left" Margin="20,100,0,0" Name="textBlock_sdg" Text="扫地杆长度(m):" VerticalAlignment="Top" />
+        <TextBox Height="23" HorizontalAlignment="Left" Margin="113,134,0,0" Name="text_xbg" VerticalAlignment="Top" Width="120" />
+        <TextBlock Height="23" HorizontalAlignment="Left" Margin="20,137,0,0" Name="textBlock_xbg" Text="悬臂干长度(m):" VerticalAlignment="Top" />
+        <TextBlock Height="23" HorizontalAlignment="Left" Margin="19,283,0,0" Name="textBlock_nx" Text="薄弱区间支架跨数nx:" VerticalAlignment="Top" />
+        <ComboBox Height="23" HorizontalAlignment="Left" Margin="150,283,0,0" Name="comboBox_nx" VerticalAlignment="Top" Width="83" />
+        <Button Content="默认" Height="23" HorizontalAlignment="Left" Margin="19,318,0,0" Name="btn_clear" VerticalAlignment="Top" Width="75" Click="btn_clear_Click" />
+        <Button Content="计算" Height="23" HorizontalAlignment="Left" Margin="158,318,0,0" Name="btn_ok" VerticalAlignment="Top" Width="75" Click="btn_ok_Click" />
+        <TextBox Height="23" HorizontalAlignment="Left" Margin="103,353,0,0" Name="text_Pcr" VerticalAlignment="Top" Width="91" />
+        <TextBlock Height="23" HorizontalAlignment="Left" Margin="16,356,0,0" Name="textBlock_Pcr" Text="临界承载力Pcr:" VerticalAlignment="Top" />
+        <TextBlock Height="23" HorizontalAlignment="Left" Margin="206,356,0,0" Name="textBlock_unit" Text="kN" VerticalAlignment="Top" Width="27" />
+        <TextBox Height="23" HorizontalAlignment="Left" Margin="113,68,0,0" Name="text_L" VerticalAlignment="Top" Width="120" />
+        <TextBlock Height="23" HorizontalAlignment="Left" Margin="20,71,0,0" Name="textBlock1" Text="架体高度 L (m):" VerticalAlignment="Top" />
+        <TextBox Height="23" HorizontalAlignment="Left" Margin="130,169,0,0" Name="text_betaJ" VerticalAlignment="Top" Width="103" />
+        <TextBlock Height="23" HorizontalAlignment="Left" Margin="20,172,0,0" Name="textBlock_betaJ" Text="剪刀撑修正系数 βJ :" VerticalAlignment="Top" />
+    </Grid>
+</Window>

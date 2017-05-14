@@ -15,3 +15,5 @@ D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\obj\x86\D
 D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\obj\x86\Debug\SectionForm.g.cs
 D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\obj\x86\Debug\DefectForm.baml
 D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\obj\x86\Debug\DefectForm.g.cs
+D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\obj\x86\Debug\PcrForm.baml
+D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\obj\x86\Debug\PcrForm.g.cs

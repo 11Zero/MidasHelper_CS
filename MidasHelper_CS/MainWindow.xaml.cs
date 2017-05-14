@@ -3270,5 +3270,11 @@ namespace MidasHelper_CS
             }
         }
 
+        private void btn_cacul_Click(object sender, RoutedEventArgs e)
+        {
+            PcrForm Cacul_Form = new PcrForm();
+            Cacul_Form.Show();
+        }
+
     }
 }
