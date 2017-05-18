@@ -1004,6 +1004,7 @@ namespace MidasHelper_CS
             int[] yz_bridging_repeat_nodenum = null;
             int yz_bridging_nodes_start = 0;
             int yz_bridging_repeat_nodenum_count = 0;
+
             if (bridging_check)
             {
                 xy_bridging_lines = new MidasElement[500];//单层xy剪刀线
@@ -1170,6 +1171,12 @@ namespace MidasHelper_CS
                 {
                     for (int i = 0; i < xz_bridging_lines_count; i++)
                     {
+                        MidasNode[] singleLineNodes = new MidasNode[100];
+                        int singleLineNodes_count = 0;
+                        for (int j = 0; j < singleLineNodes.Length; j++)
+                        {
+                            singleLineNodes[j] = new MidasNode();
+                        }
                         xz_bridging_lines[i].fNode.y = y_bridging_points[k];
                         xz_bridging_lines[i].bNode.y = y_bridging_points[k];
                         for (int j = 0; j < z_elements_count; j++)
@@ -1182,6 +1189,7 @@ namespace MidasHelper_CS
                                 {
                                     if (Math.Abs(all_normal_nodes[l].x - temp_point.x) < 0.005 && Math.Abs(all_normal_nodes[l].y - temp_point.y) < 0.005 && Math.Abs(all_normal_nodes[l].z - temp_point.z) < 0.005)
                                     {
+                                        singleLineNodes[singleLineNodes_count++] = all_normal_nodes[l].Copy();
                                         bool inner_flag = false;
                                         for (int m = 0; m < xz_bridging_repeat_nodenum_count; m++)
                                         {
@@ -1203,8 +1211,14 @@ namespace MidasHelper_CS
                                 {
                                     temp_point.num = normal_nodes_count + 1;
                                     all_normal_nodes[normal_nodes_count++] = temp_point.Copy();
+                                    singleLineNodes[singleLineNodes_count++] = temp_point.Copy();
                                 }
                             }
+                        }
+                        //至此已找到该线上所有交点，设计算法来找到每间隔H处的点的最近正规节点
+                        for (int j = 0; j < singleLineNodes_count; j++)//此处应当先行排序，以便于后续对比z方向间距集合，睡觉啦先。。
+                        {
+                            //singleLineNodes[singleLineNodes_count++]
                         }
                     }
                 }
