@@ -404,7 +404,7 @@ namespace MidasHelper_CS
                     z_input[z_input_count++] = double.Parse(str_splited[i]);
             }
             z_input[z_input_count++] = h1;
-            if(h0 > 0.005)
+            if (h0 > 0.005)
                 z_input[z_input_count++] = h0;
             z_points = new double[z_input_count + 1];
             z_points[0] = 0.0;
@@ -837,7 +837,10 @@ namespace MidasHelper_CS
                 x_elements[i] = new MidasElement();
             }
             int x_elements_count = 0;
-            for (int i = 2; i < z_input_count - 1; i++)
+            int z_top2_count = 2;
+            if (h0 < 0.005)
+                z_top2_count = 1;
+            for (int i = 2; i < z_input_count + 1 - z_top2_count; i++)
             {
                 for (int j = 0; j < y_input_count + 1; j++)
                 {
@@ -1342,7 +1345,7 @@ namespace MidasHelper_CS
                 SetProcess(65);
 
                 //MidasNode[] xy_bridging_nodes = new MidasNode[5000];//xy面剪刀撑节点，包含与前部分节点重复的节点
-                xy_bridging_elements_start = all_elements_count+1;
+                xy_bridging_elements_start = all_elements_count + 1;
                 xy_bridging_elements_end = all_elements_count;
                 for (int i = 0; i < xy_bridging_elements.Length; i++)
                 {
@@ -1432,6 +1435,7 @@ namespace MidasHelper_CS
                             H_step = line_length;
                         else
                             H_step = line_length / step_count;
+                        int single_elements_count = 0;
                         for (int j = 0; j < singleLineNodes_count; j++)
                         {
 
@@ -1446,6 +1450,8 @@ namespace MidasHelper_CS
                                         fNode.x = Math.Abs(fNode.x - x_points[l]) < Math.Abs(fNode.x - x_points[l + 1]) ? x_points[l] : x_points[l + 1];
                                         //if (l < 2) 
                                         //    fNode.z = z_points[2];
+                                        if (l == 0)
+                                            fNode.x = x_points[0];
                                         break;
                                     }
                                 }
@@ -1469,6 +1475,11 @@ namespace MidasHelper_CS
                                     if (bNode.x >= x_points[l] && bNode.x <= x_points[l + 1])
                                     {
                                         bNode.x = Math.Abs(bNode.x - x_points[l]) < Math.Abs(bNode.x - x_points[l + 1]) ? x_points[l] : x_points[l + 1];
+                                        if (l == x_input_count - 1)
+                                            bNode.x = x_points[x_input_count];
+                                        if (l == 1)
+                                            bNode.x = x_points[0];
+                                        break;
                                     }
                                 }
                                 for (int l = 0; l < normal_nodes_count; l++)
@@ -1479,20 +1490,68 @@ namespace MidasHelper_CS
                                         break;
                                     }
                                 }
-                                Console.WriteLine(String.Format("fnode.x = {0},bnode.x = {1},gap = {2}", fNode.x, bNode.x, bNode.x - fNode.x));
-                                xy_bridging_elements[xy_bridging_elements_count].fNode = fNode.Copy();
-                                xy_bridging_elements[xy_bridging_elements_count].num = ++all_elements_count;
-                                xy_bridging_elements[xy_bridging_elements_count++].bNode = bNode.Copy();
+                                if (Math.Abs(bNode.x - fNode.x) > 2.5)
+                                {
+                                    Console.WriteLine(String.Format("fnode.x = {0},bnode.x = {1},gap = {2}", fNode.x, bNode.x, bNode.x - fNode.x));
+                                    xy_bridging_elements[xy_bridging_elements_count].fNode = fNode.Copy();
+                                    xy_bridging_elements[xy_bridging_elements_count].num = ++all_elements_count;
+                                    xy_bridging_elements[xy_bridging_elements_count++].bNode = bNode.Copy();
+                                    single_elements_count++;
 
-                                fNode = bNode.Copy();
+                                    fNode = bNode.Copy();
+                                }
                             }
 
-                            if (j == singleLineNodes_count - 1)
+                            if (j == singleLineNodes_count - 1 && singleLineNodes_count != 1)
                             {
-                                if (Math.Abs(xy_bridging_elements[xy_bridging_elements_count - 1].bNode.x - singleLineNodes[singleLineNodes_count - 1].x) > 0.005)
+                                if (single_elements_count >= 1)
+                                {
+                                    if (Math.Abs(xy_bridging_elements[xy_bridging_elements_count - 1].bNode.x - singleLineNodes[singleLineNodes_count - 1].x) > 0.005)
+                                    {
+                                        if (bNode.num != 0)
+                                            fNode = bNode.Copy();
+
+                                        bNode = singleLineNodes[singleLineNodes_count - 1].Copy();
+                                        for (int l = 0; l < x_input_count; l++)
+                                        {
+                                            if (bNode.x >= x_points[l] && bNode.x <= x_points[l + 1])
+                                            {
+                                                bNode.x = Math.Abs(bNode.x - x_points[l]) < Math.Abs(bNode.x - x_points[l + 1]) ? x_points[l] : x_points[l + 1];
+                                                //if (l < 2) 
+                                                //    bNode.z = z_points[2];
+                                                if (l == x_input_count - 1)
+                                                    bNode.x = x_points[x_input_count];
+
+                                                break;
+                                            }
+                                        }
+
+                                        for (int l = 0; l < normal_nodes_count; l++)
+                                        {
+                                            if (Math.Abs(all_normal_nodes[l].x - bNode.x) < 0.005 && Math.Abs(all_normal_nodes[l].y - bNode.y) < 0.005 && Math.Abs(all_normal_nodes[l].z - bNode.z) < 0.005)
+                                            {
+                                                bNode.num = all_normal_nodes[l].num;
+                                                break;
+                                            }
+                                        }
+                                        if (Math.Abs(bNode.x - fNode.x) > 2.5)
+                                        {
+                                            xy_bridging_elements[xy_bridging_elements_count].fNode = fNode.Copy();
+                                            xy_bridging_elements[xy_bridging_elements_count].num = ++all_elements_count;
+                                            xy_bridging_elements[xy_bridging_elements_count++].bNode = bNode.Copy();
+
+                                            fNode = bNode.Copy();
+                                        }
+                                        else
+                                        {
+                                            xy_bridging_elements[xy_bridging_elements_count - 1].bNode = bNode.Copy();
+                                        }
+                                    }
+
+                                }
+                                else
                                 {
                                     bNode = singleLineNodes[singleLineNodes_count - 1].Copy();
-
                                     for (int l = 0; l < x_input_count; l++)
                                     {
                                         if (bNode.x >= x_points[l] && bNode.x <= x_points[l + 1])
@@ -1500,6 +1559,9 @@ namespace MidasHelper_CS
                                             bNode.x = Math.Abs(bNode.x - x_points[l]) < Math.Abs(bNode.x - x_points[l + 1]) ? x_points[l] : x_points[l + 1];
                                             //if (l < 2) 
                                             //    bNode.z = z_points[2];
+                                            if (l == x_input_count - 1)
+                                                bNode.x = x_points[x_input_count];
+
                                             break;
                                         }
                                     }
@@ -1512,9 +1574,16 @@ namespace MidasHelper_CS
                                             break;
                                         }
                                     }
-                                    xy_bridging_elements[xy_bridging_elements_count - 1].bNode = bNode.Copy();
-                                }
+                                    if (Math.Abs(bNode.x - fNode.x) > 2.5)
+                                    {
+                                        xy_bridging_elements[xy_bridging_elements_count].fNode = fNode.Copy();
+                                        xy_bridging_elements[xy_bridging_elements_count].num = ++all_elements_count;
+                                        xy_bridging_elements[xy_bridging_elements_count++].bNode = bNode.Copy();
 
+                                        fNode = bNode.Copy();
+                                    }
+                                    //xy_bridging_elements[xy_bridging_elements_count - 1].bNode = bNode.Copy();
+                                }
                             }
                         }
                     }
@@ -1567,7 +1636,7 @@ namespace MidasHelper_CS
                                 {
                                     if (Math.Abs(all_normal_nodes[l].x - temp_point.x) < 0.005 && Math.Abs(all_normal_nodes[l].y - temp_point.y) < 0.005 && Math.Abs(all_normal_nodes[l].z - temp_point.z) < 0.005)
                                     {
-                                        
+
                                         bool inner_flag = false;
                                         for (int m = 0; m < xz_bridging_repeat_nodenum_count; m++)
                                         {
@@ -1595,7 +1664,7 @@ namespace MidasHelper_CS
                             }
                         }
                         //至此已找到该线上所有交点，设计算法来找到每间隔H处的点的最近正规节点
-                        
+
                         for (int j = 0; j < singleLineNodes_count; j++)//此处应当先行排序，以便于后续对比z方向间距集合，睡觉啦先。。
                         {
                             MidasNode midval = new MidasNode();
@@ -1606,7 +1675,7 @@ namespace MidasHelper_CS
                                     midval = singleLineNodes[j].Copy();
                                     singleLineNodes[j] = singleLineNodes[l].Copy();
                                     singleLineNodes[l] = midval.Copy();
-                                }         
+                                }
                             }
 
                         }
@@ -1615,29 +1684,32 @@ namespace MidasHelper_CS
                         double H_step = 4;
                         double line_length = Math.Abs(singleLineNodes[0].z - singleLineNodes[singleLineNodes_count - 1].z);
                         //Console.WriteLine(String.Format("count = {0}", singleLineNodes_count));
-                        int step_count = (int)Math.Round( line_length / H_step);
-                        if(step_count==0)
+                        int step_count = (int)Math.Round(line_length / H_step);
+                        if (step_count == 0)
                             H_step = line_length;
                         else
-                            H_step = line_length/step_count;
+                            H_step = line_length / step_count;
+                        int single_elements_count = 0;
                         for (int j = 0; j < singleLineNodes_count; j++)
                         {
-                            
+
                             if (j == 0)
                             {
                                 fNode = singleLineNodes[0].Copy();
-                                
-                                for(int l=0;l<z_input_count;l++)
+
+                                for (int l = 0; l < z_input_count; l++)
                                 {
-                                    if(fNode.z >= z_points[l] && fNode.z <= z_points[l+1])
+                                    if (fNode.z >= z_points[l] && fNode.z <= z_points[l + 1])
                                     {
                                         fNode.z = Math.Abs(fNode.z - z_points[l]) < Math.Abs(fNode.z - z_points[l + 1]) ? z_points[l] : z_points[l + 1];
-                                        //if (l < 2) 
+                                        //if (l < 2)
                                         //    fNode.z = z_points[2];
+                                        if (l <= 3)
+                                            fNode.z = z_points[2];
                                         break;
                                     }
                                 }
-                                
+
                                 for (int l = 0; l < normal_nodes_count; l++)
                                 {
                                     if (Math.Abs(all_normal_nodes[l].x - fNode.x) < 0.005 && Math.Abs(all_normal_nodes[l].y - fNode.y) < 0.005 && Math.Abs(all_normal_nodes[l].z - fNode.z) < 0.005)
@@ -1648,15 +1720,26 @@ namespace MidasHelper_CS
                                 }
                                 //all_normal_nodes[normal_nodes_count++] = fNode.Copy();
                             }
-                            if (Math.Abs(singleLineNodes[j].z - fNode.z) - H_step >-0.005)
+                            if (Math.Abs(singleLineNodes[j].z - fNode.z) - H_step > -0.005)
                             {
                                 //all_normal_nodes[normal_nodes_count++] = singleLineNodes[j].Copy();
                                 bNode = singleLineNodes[j].Copy();
-                                for(int l=0;l<z_input_count;l++)
+                                for (int l = 0; l < z_input_count; l++)
                                 {
-                                    if(bNode.z >= z_points[l] && bNode.z <= z_points[l+1])
+                                    if (bNode.z >= z_points[l] && bNode.z <= z_points[l + 1])
                                     {
-                                        bNode.z = Math.Abs(bNode.z - z_points[l])<Math.Abs(bNode.z - z_points[l+1])?z_points[l]:z_points[l+1];
+                                        bNode.z = Math.Abs(bNode.z - z_points[l]) < Math.Abs(bNode.z - z_points[l + 1]) ? z_points[l] : z_points[l + 1];
+                                        if (h0 > 0.005)
+                                        {
+                                            if (l >= z_input_count - 3)
+                                                bNode.z = z_points[z_input_count - 2];
+                                        }
+                                        else
+                                        {
+                                            if (l >= z_input_count - 2)
+                                                bNode.z = z_points[z_input_count - 1];
+                                        }
+                                        break;
                                     }
                                 }
                                 for (int l = 0; l < normal_nodes_count; l++)
@@ -1667,29 +1750,49 @@ namespace MidasHelper_CS
                                         break;
                                     }
                                 }
-                                Console.WriteLine(String.Format("fnode.z = {0},bnode.z = {1},gap = {2}",fNode.z,bNode.z,bNode.z-fNode.z));
-                                xz_bridging_elements[xz_bridging_elements_count].fNode = fNode.Copy();
-                                xz_bridging_elements[xz_bridging_elements_count].num = ++all_elements_count;
-                                xz_bridging_elements[xz_bridging_elements_count++].bNode = bNode.Copy();
+                                if (Math.Abs(bNode.z - fNode.z) > 2.5)
+                                {
 
-                                fNode = bNode.Copy();
+                                    //Console.WriteLine(String.Format("fnode.z = {0},bnode.z = {1},gap = {2}", fNode.z, bNode.z, bNode.z - fNode.z));
+                                    xz_bridging_elements[xz_bridging_elements_count].fNode = fNode.Copy();
+                                    xz_bridging_elements[xz_bridging_elements_count].num = ++all_elements_count;
+                                    xz_bridging_elements[xz_bridging_elements_count++].bNode = bNode.Copy();
+
+                                    fNode = bNode.Copy();
+                                }
                             }
 
-                            if (j == singleLineNodes_count-1)
+                            if (j == singleLineNodes_count - 1 && singleLineNodes_count != 1)
                             {
-                                if (Math.Abs(xz_bridging_elements[xz_bridging_elements_count - 1].bNode.z - singleLineNodes[singleLineNodes_count-1].z) > 0.005)
+                                if (single_elements_count >= 1)
                                 {
-                                    if (Math.Abs(xz_bridging_elements[xz_bridging_elements_count - 1].bNode.z - singleLineNodes[singleLineNodes_count - 1].z) > 2.5)
+
+                                    if (Math.Abs(xz_bridging_elements[xz_bridging_elements_count - 1].bNode.z - singleLineNodes[singleLineNodes_count - 1].z) > 0.005)
                                     {
-                                        fNode = bNode.Copy();
+
+                                        if (bNode.num != 0)
+                                            fNode = bNode.Copy();
+                                        //fNode = bNode.Copy();
                                         bNode = singleLineNodes[singleLineNodes_count - 1].Copy();
                                         for (int l = 0; l < z_input_count; l++)
                                         {
                                             if (bNode.z >= z_points[l] && bNode.z <= z_points[l + 1])
                                             {
                                                 bNode.z = Math.Abs(bNode.z - z_points[l]) < Math.Abs(bNode.z - z_points[l + 1]) ? z_points[l] : z_points[l + 1];
-                                                if (l > z_input_count - 2)
-                                                    bNode.z = z_points[z_input_count - 1];
+                                                if (h0 > 0.005)
+                                                {
+                                                    //if (l > z_input_count - 2)
+                                                    //    bNode.z = z_points[z_input_count - 2];
+                                                    if (l >= z_input_count - 3)
+                                                        bNode.z = z_points[z_input_count - 2];
+                                                }
+                                                else
+                                                {
+                                                    //if (l > z_input_count - 1)
+                                                    //    bNode.z = z_points[z_input_count - 1];
+                                                    if (l >= z_input_count - 2)
+                                                        bNode.z = z_points[z_input_count - 1];
+                                                }
                                                 break;
                                             }
                                         }
@@ -1701,40 +1804,63 @@ namespace MidasHelper_CS
                                                 break;
                                             }
                                         }
+                                        if (Math.Abs(fNode.z - bNode.z) > 2.5)
+                                        {
+                                            //Console.WriteLine(String.Format("fnode.z = {0},bnode.z = {1},gap = {2}", fNode.z, bNode.z, bNode.z - fNode.z));
+                                            xz_bridging_elements[xz_bridging_elements_count].fNode = fNode.Copy();
+                                            xz_bridging_elements[xz_bridging_elements_count].num = ++all_elements_count;
+                                            xz_bridging_elements[xz_bridging_elements_count++].bNode = bNode.Copy();
+                                        }
+                                        else
+                                        {
+                                            xz_bridging_elements[xz_bridging_elements_count - 1].bNode = bNode.Copy();
+                                        }
+                                    }
+
+                                }
+                                else
+                                {
+                                    bNode = singleLineNodes[singleLineNodes_count - 1].Copy();
+
+                                    for (int l = 0; l < z_input_count; l++)
+                                    {
+                                        if (bNode.z >= z_points[l] && bNode.z <= z_points[l + 1])
+                                        {
+                                            bNode.z = Math.Abs(bNode.z - z_points[l]) < Math.Abs(bNode.z - z_points[l + 1]) ? z_points[l] : z_points[l + 1];
+                                            if (h0 > 0.005)
+                                            {
+                                                //if (l > z_input_count - 2)
+                                                //    bNode.z = z_points[z_input_count - 2];
+                                                if (l >= z_input_count - 3)
+                                                    bNode.z = z_points[z_input_count - 2];
+                                            }
+                                            else
+                                            {
+                                                //if (l > z_input_count - 1)
+                                                //    bNode.z = z_points[z_input_count - 1];
+                                                if (l >= z_input_count - 2)
+                                                    bNode.z = z_points[z_input_count - 1];
+                                            }
+                                            break;
+                                        }
+                                    }
+
+                                    for (int l = 0; l < normal_nodes_count; l++)
+                                    {
+                                        if (Math.Abs(all_normal_nodes[l].x - bNode.x) < 0.005 && Math.Abs(all_normal_nodes[l].y - bNode.y) < 0.005 && Math.Abs(all_normal_nodes[l].z - bNode.z) < 0.005)
+                                        {
+                                            bNode.num = all_normal_nodes[l].num;
+                                            break;
+                                        }
+                                    }
+                                    if (Math.Abs(fNode.z - bNode.z) > 2.5)
+                                    {
                                         //Console.WriteLine(String.Format("fnode.z = {0},bnode.z = {1},gap = {2}", fNode.z, bNode.z, bNode.z - fNode.z));
                                         xz_bridging_elements[xz_bridging_elements_count].fNode = fNode.Copy();
                                         xz_bridging_elements[xz_bridging_elements_count].num = ++all_elements_count;
                                         xz_bridging_elements[xz_bridging_elements_count++].bNode = bNode.Copy();
-
-                                    }
-                                    else
-                                    {
-                                        bNode = singleLineNodes[singleLineNodes_count - 1].Copy();
-
-                                        for (int l = 0; l < z_input_count; l++)
-                                        {
-                                            if (bNode.z >= z_points[l] && bNode.z <= z_points[l + 1])
-                                            {
-                                                bNode.z = Math.Abs(bNode.z - z_points[l]) < Math.Abs(bNode.z - z_points[l + 1]) ? z_points[l] : z_points[l + 1];
-                                                if (l > z_input_count - 2)
-                                                    bNode.z = z_points[z_input_count - 1];
-                                                break;
-                                            }
-                                        }
-
-                                        for (int l = 0; l < normal_nodes_count; l++)
-                                        {
-                                            if (Math.Abs(all_normal_nodes[l].x - bNode.x) < 0.005 && Math.Abs(all_normal_nodes[l].y - bNode.y) < 0.005 && Math.Abs(all_normal_nodes[l].z - bNode.z) < 0.005)
-                                            {
-                                                bNode.num = all_normal_nodes[l].num;
-                                                break;
-                                            }
-                                        }
-                                        xz_bridging_elements[xz_bridging_elements_count - 1].bNode = bNode.Copy();
-
                                     }
                                 }
-                                
                             }
                         }
                     }
@@ -1744,7 +1870,7 @@ namespace MidasHelper_CS
 
                 xz_bridging_elements_end = all_elements_count;
                 xz_bridging_elements_start = xz_bridging_elements_start < xz_bridging_elements_end ? xz_bridging_elements_start : xz_bridging_elements_end;
-                
+
                 SetProcess(75);
 
                 //MidasNode[] yz_bridging_nodes = new MidasNode[5000];//yz面剪刀撑节点
@@ -1841,6 +1967,7 @@ namespace MidasHelper_CS
                             H_step = line_length;
                         else
                             H_step = line_length / step_count;
+                        int single_elements_count = 0;
                         for (int j = 0; j < singleLineNodes_count; j++)
                         {
 
@@ -1855,6 +1982,8 @@ namespace MidasHelper_CS
                                         fNode.z = Math.Abs(fNode.z - z_points[l]) < Math.Abs(fNode.z - z_points[l + 1]) ? z_points[l] : z_points[l + 1];
                                         //if (l < 2) 
                                         //    fNode.z = z_points[2];
+                                        if (l <= 3)
+                                            fNode.z = z_points[2];
                                         break;
                                     }
                                 }
@@ -1878,6 +2007,17 @@ namespace MidasHelper_CS
                                     if (bNode.z >= z_points[l] && bNode.z <= z_points[l + 1])
                                     {
                                         bNode.z = Math.Abs(bNode.z - z_points[l]) < Math.Abs(bNode.z - z_points[l + 1]) ? z_points[l] : z_points[l + 1];
+                                        if (h0 > 0.005)
+                                        {
+                                            if (l >= z_input_count - 3)
+                                                bNode.z = z_points[z_input_count - 2];
+                                        }
+                                        else
+                                        {
+                                            if (l >= z_input_count - 2)
+                                                bNode.z = z_points[z_input_count - 1];
+                                        }
+                                        break;
                                     }
                                 }
                                 for (int l = 0; l < normal_nodes_count; l++)
@@ -1888,29 +2028,49 @@ namespace MidasHelper_CS
                                         break;
                                     }
                                 }
-                                //Console.WriteLine(String.Format("fnode.z = {0},bnode.z = {1},gap = {2}", fNode.z, bNode.z, bNode.z - fNode.z));
-                                yz_bridging_elements[yz_bridging_elements_count].fNode = fNode.Copy();
-                                yz_bridging_elements[yz_bridging_elements_count].num = ++all_elements_count;
-                                yz_bridging_elements[yz_bridging_elements_count++].bNode = bNode.Copy();
+                                if (Math.Abs(bNode.z - fNode.z) > 2.5)
+                                {
 
-                                fNode = bNode.Copy();
+                                    //Console.WriteLine(String.Format("fnode.z = {0},bnode.z = {1},gap = {2}", fNode.z, bNode.z, bNode.z - fNode.z));
+                                    yz_bridging_elements[yz_bridging_elements_count].fNode = fNode.Copy();
+                                    yz_bridging_elements[yz_bridging_elements_count].num = ++all_elements_count;
+                                    yz_bridging_elements[yz_bridging_elements_count++].bNode = bNode.Copy();
+
+                                    fNode = bNode.Copy();
+                                }
                             }
 
-                            if (j == singleLineNodes_count - 1)
+                            if (j == singleLineNodes_count - 1 && singleLineNodes_count != 1)
                             {
-                                if (Math.Abs(yz_bridging_elements[yz_bridging_elements_count - 1].bNode.z - singleLineNodes[singleLineNodes_count - 1].z) > 0.005)
+                                if (single_elements_count >= 1)
                                 {
-                                    if (Math.Abs(yz_bridging_elements[yz_bridging_elements_count - 1].bNode.z - singleLineNodes[singleLineNodes_count - 1].z) > 2.5)
+
+                                    if (Math.Abs(yz_bridging_elements[yz_bridging_elements_count - 1].bNode.z - singleLineNodes[singleLineNodes_count - 1].z) > 0.005)
                                     {
-                                        fNode = bNode.Copy();
+
+                                        if (bNode.num != 0)
+                                            fNode = bNode.Copy();
+                                        //fNode = bNode.Copy();
                                         bNode = singleLineNodes[singleLineNodes_count - 1].Copy();
                                         for (int l = 0; l < z_input_count; l++)
                                         {
                                             if (bNode.z >= z_points[l] && bNode.z <= z_points[l + 1])
                                             {
                                                 bNode.z = Math.Abs(bNode.z - z_points[l]) < Math.Abs(bNode.z - z_points[l + 1]) ? z_points[l] : z_points[l + 1];
-                                                if (l > z_input_count - 2)
-                                                    bNode.z = z_points[z_input_count - 2];
+                                                if (h0 > 0.005)
+                                                {
+                                                    //if (l > z_input_count - 2)
+                                                    //    bNode.z = z_points[z_input_count - 2];
+                                                    if (l >= z_input_count - 3)
+                                                        bNode.z = z_points[z_input_count - 2];
+                                                }
+                                                else
+                                                {
+                                                    //if (l > z_input_count - 1)
+                                                    //    bNode.z = z_points[z_input_count - 1];
+                                                    if (l >= z_input_count - 2)
+                                                        bNode.z = z_points[z_input_count - 1];
+                                                }
                                                 break;
                                             }
                                         }
@@ -1922,39 +2082,63 @@ namespace MidasHelper_CS
                                                 break;
                                             }
                                         }
+                                        if (Math.Abs(fNode.z - bNode.z) > 2.5)
+                                        {
+                                            //Console.WriteLine(String.Format("fnode.z = {0},bnode.z = {1},gap = {2}", fNode.z, bNode.z, bNode.z - fNode.z));
+                                            yz_bridging_elements[yz_bridging_elements_count].fNode = fNode.Copy();
+                                            yz_bridging_elements[yz_bridging_elements_count].num = ++all_elements_count;
+                                            yz_bridging_elements[yz_bridging_elements_count++].bNode = bNode.Copy();
+                                        }
+                                        else
+                                        {
+                                            yz_bridging_elements[yz_bridging_elements_count - 1].bNode = bNode.Copy();
+                                        }
+                                    }
+
+                                }
+                                else
+                                {
+                                    bNode = singleLineNodes[singleLineNodes_count - 1].Copy();
+
+                                    for (int l = 0; l < z_input_count; l++)
+                                    {
+                                        if (bNode.z >= z_points[l] && bNode.z <= z_points[l + 1])
+                                        {
+                                            bNode.z = Math.Abs(bNode.z - z_points[l]) < Math.Abs(bNode.z - z_points[l + 1]) ? z_points[l] : z_points[l + 1];
+                                            if (h0 > 0.005)
+                                            {
+                                                //if (l > z_input_count - 2)
+                                                //    bNode.z = z_points[z_input_count - 2];
+                                                if (l >= z_input_count - 3)
+                                                    bNode.z = z_points[z_input_count - 2];
+                                            }
+                                            else
+                                            {
+                                                //if (l > z_input_count - 1)
+                                                //    bNode.z = z_points[z_input_count - 1];
+                                                if (l >= z_input_count - 2)
+                                                    bNode.z = z_points[z_input_count - 1];
+                                            }
+                                            break;
+                                        }
+                                    }
+
+                                    for (int l = 0; l < normal_nodes_count; l++)
+                                    {
+                                        if (Math.Abs(all_normal_nodes[l].x - bNode.x) < 0.005 && Math.Abs(all_normal_nodes[l].y - bNode.y) < 0.005 && Math.Abs(all_normal_nodes[l].z - bNode.z) < 0.005)
+                                        {
+                                            bNode.num = all_normal_nodes[l].num;
+                                            break;
+                                        }
+                                    }
+                                    if (Math.Abs(fNode.z - bNode.z) > 2.5)
+                                    {
                                         //Console.WriteLine(String.Format("fnode.z = {0},bnode.z = {1},gap = {2}", fNode.z, bNode.z, bNode.z - fNode.z));
                                         yz_bridging_elements[yz_bridging_elements_count].fNode = fNode.Copy();
                                         yz_bridging_elements[yz_bridging_elements_count].num = ++all_elements_count;
                                         yz_bridging_elements[yz_bridging_elements_count++].bNode = bNode.Copy();
-                                        
-                                    }
-                                    else
-                                    {
-                                        bNode = singleLineNodes[singleLineNodes_count - 1].Copy();
-
-                                        for (int l = 0; l < z_input_count; l++)
-                                        {
-                                            if (bNode.z >= z_points[l] && bNode.z <= z_points[l + 1])
-                                            {
-                                                bNode.z = Math.Abs(bNode.z - z_points[l]) < Math.Abs(bNode.z - z_points[l + 1]) ? z_points[l] : z_points[l + 1];
-                                                if (l > z_input_count - 2)
-                                                    bNode.z = z_points[z_input_count - 2];
-                                                break;
-                                            }
-                                        }
-
-                                        for (int l = 0; l < normal_nodes_count; l++)
-                                        {
-                                            if (Math.Abs(all_normal_nodes[l].x - bNode.x) < 0.005 && Math.Abs(all_normal_nodes[l].y - bNode.y) < 0.005 && Math.Abs(all_normal_nodes[l].z - bNode.z) < 0.005)
-                                            {
-                                                bNode.num = all_normal_nodes[l].num;
-                                                break;
-                                            }
-                                        }
-                                        yz_bridging_elements[yz_bridging_elements_count - 1].bNode = bNode.Copy();
                                     }
                                 }
-
                             }
                         }
                     }
@@ -1964,7 +2148,7 @@ namespace MidasHelper_CS
 
                 yz_bridging_elements_end = all_elements_count;
                 yz_bridging_elements_start = yz_bridging_elements_start < yz_bridging_elements_end ? yz_bridging_elements_start : yz_bridging_elements_end;
-                
+
             }
             /////////////////////////////////////////////////////////////////////////
             # endregion
@@ -2525,7 +2709,7 @@ namespace MidasHelper_CS
                     all_normal_nodes[i].x, all_normal_nodes[i].y, all_normal_nodes[i].z);
                 writer.WriteLine(buffer_string);
             }
-            
+
             if (false)
             {
                 buffer_string = String.Format("\r\n;XY剪刀撑节点");
@@ -2675,7 +2859,7 @@ namespace MidasHelper_CS
             writer.WriteLine(buffer_string);
             buffer_string = "; NAME";
             writer.WriteLine(buffer_string);
-            buffer_string = "地基支撑\r\n铰接\r\n横杆-立杆\r\n剪刀撑-立杆\r\n剪刀撑-横杆";
+            buffer_string = "地基支撑\r\n横杆-立杆\r\n剪刀撑-立杆";
             writer.WriteLine(buffer_string);
             buffer_string = "\r\n*LOAD-GROUP    ; Load Group";
             writer.WriteLine(buffer_string);
@@ -2930,7 +3114,7 @@ namespace MidasHelper_CS
 *CONSTRAINT    ; Supports
 ; NODE_LIST, CONSt(Dx,Dy,Dz,Rx,Ry,Rz),GROUP";
             writer.WriteLine(buffer_string);
-            buffer_string = string.Format("{0} to  {1}  , 111000,地基支撑", 1, (x_input_count+1) * (y_input_count+1));
+            buffer_string = string.Format("{0} to  {1}  , 111000,地基支撑", 1, (x_input_count + 1) * (y_input_count + 1));
             writer.WriteLine(buffer_string);
             buffer_string = @"
 *FRAME-RLS    ; Beam End Release
@@ -2939,82 +3123,101 @@ namespace MidasHelper_CS
             writer.WriteLine(buffer_string);
             string fnode_rel = "";
             string bnode_rel = "";
+            double xy_My_i = 40.0;
+            double xy_My_j = 40.0;
+            double xy_Mz_i = 40.0;
+            double xy_Mz_j = 40.0;
             for (int i = 0; i < y_elements_count; i++)
             {
-                if (y_elements[i].fNode.num > bottom_nodes_end)
-                    fnode_rel = "000000, 0, 0, 0, 0, 0, 0";
-                else
-                    fnode_rel = string.Format("000110, 0, 0, 0, {0}, {1}, 0", 40.0, 40.0);
-                if (y_elements[i].bNode.num > bottom_nodes_end)
-                    bnode_rel = "           000000, 0, 0, 0, 0, 0, 0";
-                else
-                    bnode_rel = string.Format("         000110, 0, 0, 0, {0}, {1}, 0", 40.0, 40.0);
+                //if (y_elements[i].fNode.num > bottom_nodes_end)
+                //    fnode_rel = "000000, 0, 0, 0, 0, 0, 0";
+                //else
+                //    fnode_rel = string.Format("000110, 0, 0, 0, {0}, {1}, 0", 40.0, 40.0);
+                //if (y_elements[i].bNode.num > bottom_nodes_end)
+                //    bnode_rel = "           000000, 0, 0, 0, 0, 0, 0";
+                //else
+                //    bnode_rel = string.Format("         000110, 0, 0, 0, {0}, {1}, 0", 40.0, 40.0);
+                fnode_rel = string.Format("000011, 0, 0, 0, 0, {0}, {1}", xy_My_i, xy_Mz_i);
+                bnode_rel = string.Format("         000011, 0, 0, 0, 0, {0}, {1}", xy_My_j, xy_Mz_j);
                 buffer_string = string.Format("{0,-5},  YES,{1}\n{2},{3}", y_elements[i].num, fnode_rel, bnode_rel, "横杆-立杆");
                 writer.WriteLine(buffer_string);
             }
             for (int i = 0; i < x_elements_count; i++)
             {
-                if (x_elements[i].fNode.num > bottom_nodes_end)
-                    fnode_rel = "000000, 0, 0, 0, 0, 0, 0";
-                else
-                    fnode_rel = string.Format("000110, 0, 0, 0, {0}, {1}, 0", 40.0, 40.0);
-                if (x_elements[i].bNode.num > bottom_nodes_end)
-                    bnode_rel = "           000000, 0, 0, 0, 0, 0, 0";
-                else
-                    bnode_rel = string.Format("         000110, 0, 0, 0, {0}, {1}, 0", 40.0, 40.0);
+                //if (x_elements[i].fNode.num > bottom_nodes_end)
+                //    fnode_rel = "000000, 0, 0, 0, 0, 0, 0";
+                //else
+                //    fnode_rel = string.Format("000110, 0, 0, 0, {0}, {1}, 0", 40.0, 40.0);
+                //if (x_elements[i].bNode.num > bottom_nodes_end)
+                //    bnode_rel = "           000000, 0, 0, 0, 0, 0, 0";
+                //else
+                //    bnode_rel = string.Format("         000110, 0, 0, 0, {0}, {1}, 0", 40.0, 40.0);
+                fnode_rel = string.Format("000011, 0, 0, 0, 0, {0}, {1}", xy_My_i, xy_Mz_i);
+                bnode_rel = string.Format("         000011, 0, 0, 0, 0, {0}, {1}", xy_My_j, xy_Mz_j);
                 buffer_string = string.Format("{0,-5},  YES,{1}\n{2},{3}", x_elements[i].num, fnode_rel, bnode_rel, "横杆-立杆");
                 writer.WriteLine(buffer_string);
             }
-            for (int i = 0; i < z_elements_count; i++)
-            {
-                if (z_elements[i].fNode.num > bottom_nodes_end)
-                    fnode_rel = "000000, 0, 0, 0, 0, 0, 0";
-                else
-                    fnode_rel = string.Format("000110, 0, 0, 0, {0}, {1}, 0", 40.0, 40.0);
-                if (z_elements[i].bNode.num > bottom_nodes_end)
-                    bnode_rel = "           000000, 0, 0, 0, 0, 0, 0";
-                else
-                    bnode_rel = string.Format("         000110, 0, 0, 0, {0}, {1}, 0", 40.0, 40.0);
-                buffer_string = string.Format("{0,-5},  YES,{1}\n{2},{3}", z_elements[i].num, fnode_rel, bnode_rel, "横杆-立杆");
-                writer.WriteLine(buffer_string);
-            }
-            for (int i = 0; i < bottom_elements_count; i++)
-            {
-                if (bottom_elements[i].fNode.num > bottom_nodes_end)
-                    fnode_rel = "000000, 0, 0, 0, 0, 0, 0";
-                else
-                    fnode_rel = string.Format("000110, 0, 0, 0, {0}, {1}, 0", 40.0, 40.0);
-                if (bottom_elements[i].bNode.num > bottom_nodes_end)
-                    bnode_rel = "           000000, 0, 0, 0, 0, 0, 0";
-                else
-                    bnode_rel = string.Format("         000110, 0, 0, 0, {0}, {1}, 0", 40.0, 40.0);
-                buffer_string = string.Format("{0,-5},  YES,{1}\n{2},{3}", bottom_elements[i].num, fnode_rel, bnode_rel, "横杆-立杆");
-                writer.WriteLine(buffer_string);
-            }
+            //for (int i = 0; i < z_elements_count; i++)
+            //{
+            //    if (z_elements[i].fNode.num > bottom_nodes_end)
+            //        fnode_rel = "000000, 0, 0, 0, 0, 0, 0";
+            //    else
+            //        fnode_rel = string.Format("000110, 0, 0, 0, {0}, {1}, 0", 40.0, 40.0);
+            //    if (z_elements[i].bNode.num > bottom_nodes_end)
+            //        bnode_rel = "           000000, 0, 0, 0, 0, 0, 0";
+            //    else
+            //        bnode_rel = string.Format("         000110, 0, 0, 0, {0}, {1}, 0", 40.0, 40.0);
+            //    buffer_string = string.Format("{0,-5},  YES,{1}\n{2},{3}", z_elements[i].num, fnode_rel, bnode_rel, "横杆-立杆");
+            //    writer.WriteLine(buffer_string);
+            //}
 
 
+            //for (int i = 0; i < bottom_elements_count; i++)
+            //{
+            //    if (bottom_elements[i].fNode.num > bottom_nodes_end)
+            //        fnode_rel = "000000, 0, 0, 0, 0, 0, 0";
+            //    else
+            //        fnode_rel = string.Format("000110, 0, 0, 0, {0}, {1}, 0", 40.0, 40.0);
+            //    if (bottom_elements[i].bNode.num > bottom_nodes_end)
+            //        bnode_rel = "           000000, 0, 0, 0, 0, 0, 0";
+            //    else
+            //        bnode_rel = string.Format("         000110, 0, 0, 0, {0}, {1}, 0", 40.0, 40.0);
+            //    buffer_string = string.Format("{0,-5},  YES,{1}\n{2},{3}", bottom_elements[i].num, fnode_rel, bnode_rel, "横杆-立杆");
+            //    writer.WriteLine(buffer_string);
+            //}
+
+            double My_i = 50.0;
+            double My_j = 50.0;
+            double Mz_i = 50.0;
+            double Mz_j = 50.0;
             if (bridging_check)
             {
                 for (int i = 0; i < xy_bridging_elements_count; i++)
                 {
-                    fnode_rel = string.Format("000000, 0, 0, 0, {0}, {1}, 0", 0, 0);
-                    bnode_rel = string.Format("         000000, 0, 0, 0, {0}, {1}, 0", 0, 0);
-                    buffer_string = string.Format("{0,-5},  YES,{1}\n{2},{3}", xy_bridging_elements[i].num, fnode_rel, bnode_rel, "剪刀撑-横杆");
+                    //fnode_rel = string.Format("000000, 0, 0, 0, {0}, {1}, 0", 0, 0);
+                    //bnode_rel = string.Format("         000000, 0, 0, 0, {0}, {1}, 0", 0, 0);
+                    fnode_rel = string.Format("000011, 0, 0, 0, 0, {0}, {1}", My_i, Mz_i);
+                    bnode_rel = string.Format("         000011, 0, 0, 0, 0, {0}, {1}", My_j, Mz_j);
+                    buffer_string = string.Format("{0,-5},  YES,{1}\n{2},{3}", xy_bridging_elements[i].num, fnode_rel, bnode_rel, "剪刀撑-立杆");
                     writer.WriteLine(buffer_string);
                 }
 
                 for (int i = 0; i < xz_bridging_elements_count; i++)
                 {
-                    fnode_rel = string.Format("000000, 0, 0, 0, {0}, {1}, 0", 0, 0);
-                    bnode_rel = string.Format("         000000, 0, 0, 0, {0}, {1}, 0", 0, 0);
+                    //fnode_rel = string.Format("000000, 0, 0, 0, {0}, {1}, 0", 0, 0);
+                    //bnode_rel = string.Format("         000000, 0, 0, 0, {0}, {1}, 0", 0, 0);
+                    fnode_rel = string.Format("000011, 0, 0, 0, 0, {0}, {1}", My_i, Mz_i);
+                    bnode_rel = string.Format("         000011, 0, 0, 0, 0, {0}, {1}", My_j, Mz_j);
                     buffer_string = string.Format("{0,-5},  YES,{1}\n{2},{3}", xz_bridging_elements[i].num, fnode_rel, bnode_rel, "剪刀撑-立杆");
                     writer.WriteLine(buffer_string);
                 }
 
                 for (int i = 0; i < yz_bridging_elements_count; i++)
                 {
-                    fnode_rel = string.Format("000000, 0, 0, 0, {0}, {1}, 0", 0, 0);
-                    bnode_rel = string.Format("         000000, 0, 0, 0, {0}, {1}, 0", 0, 0);
+                    //fnode_rel = string.Format("000000, 0, 0, 0, {0}, {1}, 0", 0, 0);
+                    //bnode_rel = string.Format("         000000, 0, 0, 0, {0}, {1}, 0", 0, 0);
+                    fnode_rel = string.Format("000011, 0, 0, 0, 0, {0}, {1}", My_i, Mz_i);
+                    bnode_rel = string.Format("         000011, 0, 0, 0, 0, {0}, {1}", My_j, Mz_j);
                     buffer_string = string.Format("{0,-5},  YES,{1}\n{2},{3}", yz_bridging_elements[i].num, fnode_rel, bnode_rel, "剪刀撑-立杆");
                     writer.WriteLine(buffer_string);
                 }
@@ -3098,6 +3301,9 @@ namespace MidasHelper_CS
                 default:
                     break;
             }
+            double scaffold_width = x_points[x_input_count];
+            double offset_scaffold = (scaffold_width - section_width / 100.0) / 2;
+
 
             buffer_string = @"
 *USE-STLD,预压荷载1
@@ -3105,21 +3311,21 @@ namespace MidasHelper_CS
 *CONLOAD    ; Nodal Loads
 ; NODE_LIST, FX, FY, FZ, MX, MY, MZ, GROUP";
             writer.WriteLine(buffer_string);
-            string first_step_info = x_input_info.Substring(0,x_input_info.IndexOf(' '));
-            string last_step_info = x_input_info.Substring(x_input_info.LastIndexOf(' ') + 1, x_input_info.Length -1 - x_input_info.LastIndexOf(' '));
+            string first_step_info = x_input_info.Substring(0, x_input_info.IndexOf(' '));
+            string last_step_info = x_input_info.Substring(x_input_info.LastIndexOf(' ') + 1, x_input_info.Length - 1 - x_input_info.LastIndexOf(' '));
             //MessageBox.Show(first_step_info);
             //MessageBox.Show(last_step_info);
             int Y1_nodes_count = 0;
             for (int i = 0; i < bottom_nodes_end; i++)
             {
-                if (Math.Abs(all_normal_nodes[i].z - z_length) < 0.005 && (all_normal_nodes[i].x - B01 / 100.0) > -0.005 && (all_normal_nodes[i].x - (x_length - B01 / 100.0)) < 0.005)
+                if (Math.Abs(all_normal_nodes[i].z - z_length) < 0.005 && (all_normal_nodes[i].x - offset_scaffold - B01 / 100.0) > -0.005 && (all_normal_nodes[i].x - (x_length - offset_scaffold - B01 / 100.0)) < 0.005)
                 {
                     Y1_nodes_count++;
                 }
             }
             for (int i = 0; i < bottom_nodes_end; i++)
             {
-                if (Math.Abs(all_normal_nodes[i].z - z_length) < 0.005 && (all_normal_nodes[i].x - B01 / 100.0) > -0.005 && (all_normal_nodes[i].x - (x_length - B01 / 100.0)) < 0.005)
+                if (Math.Abs(all_normal_nodes[i].z - z_length) < 0.005 && (all_normal_nodes[i].x - offset_scaffold - B01 / 100.0) > -0.005 && (all_normal_nodes[i].x - (x_length - offset_scaffold - B01 / 100.0)) < 0.005)
                 {
                     buffer_string = string.Format("{0,-5},  0.00 , 0.00 , -{1:0.00} , 0.00 , 0.00 , 0.00 , {2}", all_normal_nodes[i].num, Y1 * 1.1 * (G1 + G2) / Y1_nodes_count, "预压第一次");
                     writer.WriteLine(buffer_string);
@@ -3139,7 +3345,7 @@ namespace MidasHelper_CS
             int Y2_nodes_count = Y1_nodes_count;
             for (int i = 0; i < bottom_nodes_end; i++)
             {
-                if (Math.Abs(all_normal_nodes[i].z - z_length) < 0.005 && (all_normal_nodes[i].x - B01 / 100.0) > -0.005 && (all_normal_nodes[i].x - (x_length - B01 / 100.0)) < 0.005)
+                if (Math.Abs(all_normal_nodes[i].z - z_length) < 0.005 && (all_normal_nodes[i].x - offset_scaffold - B01 / 100.0) > -0.005 && (all_normal_nodes[i].x - (x_length - offset_scaffold - B01 / 100.0)) < 0.005)
                 {
                     buffer_string = string.Format("{0,-5},  0.00 , 0.00 , -{1:0.00} , 0.00 , 0.00 , 0.00 , {2}", all_normal_nodes[i].num, Y2 * 1.1 * (G1 + G2) / Y2_nodes_count, "预压第二次");
                     writer.WriteLine(buffer_string);
@@ -3159,7 +3365,7 @@ namespace MidasHelper_CS
             int Y3_nodes_count = Y1_nodes_count;
             for (int i = 0; i < bottom_nodes_end; i++)
             {
-                if (Math.Abs(all_normal_nodes[i].z - z_length) < 0.005 && (all_normal_nodes[i].x - B01 / 100.0) > -0.005 && (all_normal_nodes[i].x - (x_length - B01 / 100.0)) < 0.005)
+                if (Math.Abs(all_normal_nodes[i].z - z_length) < 0.005 && (all_normal_nodes[i].x - offset_scaffold - B01 / 100.0) > -0.005 && (all_normal_nodes[i].x - (x_length - offset_scaffold - B01 / 100.0)) < 0.005)
                 {
                     buffer_string = string.Format("{0,-5},  0.00 , 0.00 , -{1:0.00} , 0.00 , 0.00 , 0.00 , {2}", all_normal_nodes[i].num, Y3 * 1.1 * (G1 + G2) / Y3_nodes_count, "预压第三次");
                     writer.WriteLine(buffer_string);
@@ -3186,7 +3392,7 @@ namespace MidasHelper_CS
                         for (int i = 0; i < bottom_nodes_end; i++)
                         {
                             if (Math.Abs(all_normal_nodes[i].z - z_length) < 0.005 &&
-                                all_normal_nodes[i].x > x_length/2-B03/200.0-B02/100.0- 0.005 &&
+                                all_normal_nodes[i].x > x_length / 2 - B03 / 200.0 - B02 / 100.0 - 0.005 &&
                                 all_normal_nodes[i].x < x_length / 2 + B03 / 200.0 + B02 / 100.0 + 0.005)
                             {
                                 if ((all_normal_nodes[i].x > x_length / 2 - B03 / 200.0 - B02 / 100.0 - 0.005 &&
@@ -3473,16 +3679,65 @@ namespace MidasHelper_CS
 *CONLOAD    ; Nodal Loads
 ; NODE_LIST, FX, FY, FZ, MX, MY, MZ, GROUP";
             writer.WriteLine(buffer_string);
-            //int P3_nodes_count = 0;
-            for (int i = 0; i < bottom_nodes_end; i++)
+            int P3_nodes_count = 0;
+            if (h0 < 0.005)
             {
-                if (Math.Abs(all_normal_nodes[i].x - x_length) < 0.005)
+                for (int i = 0; i < bottom_nodes_end; i++)
                 {
-                    //P3_nodes_count++;
-                    buffer_string = string.Format("{0,-5},  -{1:0.00} ,0.00, 0.00 ,  0.00 , 0.00 , 0.00 , {2}", all_normal_nodes[i].num, P3, "风荷载");
-                    writer.WriteLine(buffer_string);
+                    if (Math.Abs(all_normal_nodes[i].x - x_length) < 0.005)
+                    {
+                        if (all_normal_nodes[i].z <= z_points[z_input_count - 1] + 0.005 && all_normal_nodes[i].z >= z_points[2] - 0.005)
+                        {
+                            P3_nodes_count++;
+                        }
+                    }
                 }
             }
+            else
+            {
+                for (int i = 0; i < bottom_nodes_end; i++)
+                {
+                    if (Math.Abs(all_normal_nodes[i].x - x_length) < 0.005)
+                    {
+                        if (all_normal_nodes[i].z <= z_points[z_input_count - 2] + 0.005 && all_normal_nodes[i].z >= z_points[2] - 0.005)
+                        {
+                            P3_nodes_count++;
+                        }
+                    }
+                }
+            }
+            if (Math.Abs(P3 / P3_nodes_count) >= 0.01)
+            {
+                if (h0 < 0.005)
+                {
+                    for (int i = 0; i < bottom_nodes_end; i++)
+                    {
+                        if (Math.Abs(all_normal_nodes[i].x - x_length) < 0.005)
+                        {
+                            if (all_normal_nodes[i].z <= z_points[z_input_count - 1] + 0.005 && all_normal_nodes[i].z >= z_points[2] - 0.005)
+                            {
+                                buffer_string = string.Format("{0,-5},  -{1:0.00} ,0.00, 0.00 ,  0.00 , 0.00 , 0.00 , {2}", all_normal_nodes[i].num, P3 / P3_nodes_count, "风荷载");
+                                writer.WriteLine(buffer_string);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i < bottom_nodes_end; i++)
+                    {
+                        if (Math.Abs(all_normal_nodes[i].x - x_length) < 0.005)
+                        {
+                            if (all_normal_nodes[i].z <= z_points[z_input_count - 2] + 0.005 && all_normal_nodes[i].z >= z_points[2] - 0.005)
+                            {
+                                buffer_string = string.Format("{0,-5},  -{1:0.00} ,0.00, 0.00 ,  0.00 , 0.00 , 0.00 , {2}", all_normal_nodes[i].num, P3 / P3_nodes_count, "风荷载");
+                                writer.WriteLine(buffer_string);
+                            }
+                        }
+                    }
+                }
+            }
+
 
             buffer_string = @"
 ; End of data for load case [风荷载] -------------------------";
@@ -3557,7 +3812,7 @@ namespace MidasHelper_CS
                 writer.WriteLine(buffer_string);
                 buffer_string = "5, NO, NO, 0, 0, NO";
                 writer.WriteLine(buffer_string);
-                buffer_string = "杆系自重, 1, 1, 第二次浇筑, 1.4, 0";
+                buffer_string = "杆系自重, 1.1, 1, 预压荷载1,1.2,1,预压荷载2,1.2,1,预压荷载3,1.2,1,模板、支撑梁,1.2,1,浇筑和振捣混凝土,1.2,1,施工人员、材料、设备,1.2,1,第一次浇筑, 1.4, 0,第二次浇筑, 1.4, 0,风荷载,1.4,0";
                 writer.WriteLine(buffer_string);
             }
             if (nolinear_analyse)
@@ -3580,8 +3835,27 @@ namespace MidasHelper_CS
                 writer.WriteLine(buffer_string);
                 buffer_string = "   GEOM, NEWTON, 1, 30, NO, 0.001, YES, 0.001, NO, 0.001";
                 writer.WriteLine(buffer_string);
+                buffer_string = "     杆系自重, 1, 30, 1";
+                writer.WriteLine(buffer_string);
+                buffer_string = "     预压荷载1, 1, 30, 1";
+                writer.WriteLine(buffer_string);
+                buffer_string = "     预压荷载2, 1, 30, 1";
+                writer.WriteLine(buffer_string);
+                buffer_string = "     预压荷载3, 1, 30, 1";
+                writer.WriteLine(buffer_string);
+                buffer_string = "     第一次浇筑, 1, 30, 1";
+                writer.WriteLine(buffer_string);
                 buffer_string = "     第二次浇筑, 1, 30, 1";
                 writer.WriteLine(buffer_string);
+                buffer_string = "     模板、支撑梁, 1, 30, 1";
+                writer.WriteLine(buffer_string);
+                buffer_string = "     浇筑和振捣混凝土, 1, 30, 1";
+                writer.WriteLine(buffer_string);
+                buffer_string = "     施工人员、材料、设备, 1, 30, 1";
+                writer.WriteLine(buffer_string);
+                buffer_string = "     风荷载, 1, 30, 1";
+                writer.WriteLine(buffer_string);
+
             }
             //buffer_string = String.Format("\r\n;XY剪刀线 ");
             //writer.WriteLine(buffer_string);
@@ -3621,7 +3895,10 @@ namespace MidasHelper_CS
                 mctfile.Dispose();
             }
             SetProcess(100);
-            SetText("写入完成", this.status_bar_text);
+            if (Math.Abs(P3 / P3_nodes_count) < 0.01)
+                SetText("写入完成,风荷载不足0.01,未添加", this.status_bar_text);
+            else
+                SetText("写入完成", this.status_bar_text);
         }
         private void btn_section_Click(object sender, RoutedEventArgs e)
         {
@@ -4014,8 +4291,8 @@ namespace MidasHelper_CS
 
         private void check_cut_Checked(object sender, RoutedEventArgs e)
         {
-            
-            
+
+
         }
 
         private void check_cut_Click(object sender, RoutedEventArgs e)

@@ -25,6 +25,7 @@ namespace MidasHelper_CS
         /// </summary>
         bool charFlag = true;
         private bool xmlLoaded = false;
+        private bool openflag = false;
         private float rotation = 0.0f;
         private int xLength = 0;///x方向实际总长
         private int yLength = 0;///y方向实际总长
@@ -35,6 +36,9 @@ namespace MidasHelper_CS
         private double ScralSize = 1.0;//鼠标缩放因数
         public double bridgeLength = 0.0;
         public double sectionArea = 0.0;
+        public int big_step = 90;
+        public int little_step = 60;
+
 
         public int H01 = 0, H02 = 0, H03 = 0;
         public int B01 = 0, B02 = 0, B03 = 0, B04 = 0, B05 = 0, B06 = 0;
@@ -49,6 +53,7 @@ namespace MidasHelper_CS
         {
             InitializeComponent();
             parentWin = (MainWindow)parent;
+
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -59,8 +64,11 @@ namespace MidasHelper_CS
             combo_select.Items.Add("单箱多室");
             combo_select.SelectedIndex = 0;
             getXmlValue();
-            //drawSection(0);
             check_textview.IsChecked = true;
+            text_big.Text = big_step.ToString();
+            text_little.Text = little_step.ToString();
+            openflag = true;
+            drawSection(0);
             //check_textview.
             //gl = openGLControl.OpenGL;
             //gl.Clear(OpenGL.GL_COLOR_BUFFER_BIT | OpenGL.GL_DEPTH_BUFFER_BIT);
@@ -224,8 +232,6 @@ namespace MidasHelper_CS
             drawSection(combo_select.SelectedIndex);
             this.parentWin.text_G1.Text = (26 * sectionArea * bridgeLength).ToString();
             this.parentWin.selected_section = combo_select.SelectedIndex;
-            int big_step = 90;
-            int little_step = 60;
             switch (combo_select.SelectedIndex)
             {
                 case 0:
@@ -256,11 +262,11 @@ namespace MidasHelper_CS
                     {
                         int nStep_B06 = (int)Math.Ceiling((double)B06 / little_step);
                         int nStep_B05 = (int)Math.Floor((double)(2 * B05 + B06 - nStep_B06 * little_step) / 2.0 / big_step);
-                        int nStep_B04 = (int)Math.Ceiling((double)(2 * B04 + 2 * B05 + B06 - nStep_B06 * little_step - 2*nStep_B05 * big_step) / 2.0 / little_step);
+                        int nStep_B04 = (int)Math.Ceiling((double)(2 * B04 + 2 * B05 + B06 - nStep_B06 * little_step - 2 * nStep_B05 * big_step) / 2.0 / little_step);
                         int nStep_B03 = (int)Math.Floor((double)(2 * B03 + 2 * B04 + 2 * B05 + B06 - nStep_B06 * little_step - 2 * nStep_B05 * big_step - 2 * nStep_B04 * little_step) / 2.0 / big_step);
                         int nStep_B02 = (int)Math.Ceiling((double)(2 * B02 + 2 * B03 + 2 * B04 + 2 * B05 + B06 - nStep_B06 * little_step - 2 * nStep_B05 * big_step - 2 * nStep_B04 * little_step - 2 * nStep_B03 * big_step) / 2.0 / little_step);
                         int nStep_B01 = (int)Math.Ceiling((double)(2 * B01 + 2 * B02 + 2 * B03 + 2 * B04 + 2 * B05 + B06 - nStep_B06 * little_step - 2 * nStep_B05 * big_step - 2 * nStep_B04 * little_step - 2 * nStep_B03 * big_step - 2 * nStep_B02 * little_step) / 2.0 / big_step);
-                        this.parentWin.text_x_input.Text = string.Format("{0}@{7:0.0} {1}@{6:0.0} {2}@{7:0.0} {3}@{6:0.0} {4}@{7:0.0} {5}@{6:0.0} {4}@{7:0.0} {3}@{6:0.0} {2}@{7:0.0} {1}@{6:0.0} {0}@{7:0.0}", nStep_B01, nStep_B02, nStep_B03, nStep_B04, nStep_B05,nStep_B05, little_step / 100.0, big_step / 100.0);
+                        this.parentWin.text_x_input.Text = string.Format("{0}@{7:0.0} {1}@{6:0.0} {2}@{7:0.0} {3}@{6:0.0} {4}@{7:0.0} {5}@{6:0.0} {4}@{7:0.0} {3}@{6:0.0} {2}@{7:0.0} {1}@{6:0.0} {0}@{7:0.0}", nStep_B01, nStep_B02, nStep_B03, nStep_B04, nStep_B05, nStep_B05, little_step / 100.0, big_step / 100.0);
 
                     } break;
                 default:
@@ -399,10 +405,13 @@ namespace MidasHelper_CS
         }
 
 
-        private void drawLine(double nX, double nY, double Length, bool Col, bool IsArrow = true, bool WithBorder = true)
+        private void drawLine(double nX, double nY, double Length, bool Col, bool IsArrow = true, bool WithBorder = true, int color = 0)
         {
             OpenGL gl = openGLControl.OpenGL;
-            gl.Color(1.0f, 0.0f, 0.0f);
+            if (color == 0)
+                gl.Color(1.0f, 0.0f, 0.0f);
+            if (color == 1)
+                gl.Color(0.0f, 1.0f, 0.0f);
             double BorderLen = 5.0 / ScralSize;
             gl.Begin(SharpGL.Enumerations.BeginMode.Lines);
             gl.Vertex((nX) * xRange, (nY) * yRange);
@@ -636,6 +645,48 @@ namespace MidasHelper_CS
                         tempX = B01 + B02 + b12 * 2 / 3; tempY = -(H01 + H02 + H03 - H12 - h12 / 2);
                         drawString("(1,2)", tempX, tempY);
 
+                        
+                        drawString(string.Format("bigstep = {0}cm,little_step = {1}cm",big_step,little_step), -300, 50);
+
+                        int nStep_B03 = (int)Math.Floor((double)B03 / big_step);
+                        int nStep_B02 = (int)Math.Ceiling((double)((B03 - nStep_B03 * big_step) / 2.0 + B02) / little_step);
+                        int nStep_B01 = (int)Math.Ceiling((double)(B01 * 2 + B02 * 2 + B03 - 2 * nStep_B02 * little_step - nStep_B03 * big_step) / 2.0 / big_step);
+                        int scalffold_width = 2 * nStep_B01 * big_step + 2 * nStep_B02 * little_step + nStep_B03 * big_step;
+                        drawString(string.Format("width of bridge = {0:0.00}m,width of scaffold = {1:0.00}m", xLength/100.0, scalffold_width/100.0), -300, 30);
+                        //this.parentWin.text_x_input.Text = string.Format("{0}@{4:0.0} {1}@{3:0.0} {2}@{4:0.0} {1}@{3:0.0} {0}@{4:0.0}", nStep_B01, nStep_B02, nStep_B03, little_step / 100.0, big_step / 100.0);
+
+                        int startpoint = (2 * B01 + 2 * B02 + B03 - nStep_B03 * big_step - 2 * nStep_B02 * little_step - 2 * nStep_B01 * big_step) / 2;
+                        for (int i = 0; i < nStep_B01; i++)
+                        {
+                            startpoint += 0;
+                            tempX = startpoint + i * big_step; tempY = -(H01 + H02 + H03) - 10 * yTimes / xTimes / ScralSize;
+                            drawLine(tempX, tempY, big_step, false, true, true, 1);
+                        }
+                        startpoint += nStep_B01 * big_step;
+                        for (int i = 0; i < nStep_B02; i++)
+                        {
+                            tempX = startpoint + i * little_step; tempY = -(H01 + H02 + H03) - 10 * yTimes / xTimes / ScralSize;
+                            drawLine(tempX, tempY, little_step, false, true, true, 1);
+                        }
+                        startpoint += nStep_B02 * little_step;
+                        for (int i = 0; i < nStep_B03; i++)
+                        {
+                            tempX = startpoint + i * big_step; tempY = -(H01 + H02 + H03) - 10 * yTimes / xTimes / ScralSize;
+                            drawLine(tempX, tempY, big_step, false, true, true, 1);
+                        }
+                        startpoint += nStep_B03 * big_step;
+                        for (int i = 0; i < nStep_B02; i++)
+                        {
+                            tempX = startpoint + i * little_step; tempY = -(H01 + H02 + H03) - 10 * yTimes / xTimes / ScralSize;
+                            drawLine(tempX, tempY, little_step, false, true, true, 1);
+                        }
+                        startpoint += nStep_B02 * little_step;
+                        for (int i = 0; i < nStep_B01; i++)
+                        {
+                            tempX = startpoint + i * big_step; tempY = -(H01 + H02 + H03) - 10 * yTimes / xTimes / ScralSize;
+                            drawLine(tempX, tempY, big_step, false, true, true, 1);
+                        }
+
                         sectionArea = (2 * B01 + 2 * B02 + B03) * (H01 + H02 + H03) - H02 * B01 - 2 * H03 * B01 - (H01 + H02 + H03 - H11 - H12) * B03 + h11 * b11 + h12 * b12;
                         sectionArea = sectionArea / 10000.0;
                     } break;
@@ -765,6 +816,62 @@ namespace MidasHelper_CS
                         drawString("(2,1)", tempX, tempY);
                         tempX = B01 + B02 + B03 + b22 * 2 / 3 - 80 * xTimes; tempY = -(H01 + H02 + H03 - H12 - h22 / 2);
                         drawString("(2,2)", tempX, tempY);
+
+                        drawString(string.Format("bigstep={0}cm,little_step={1}cm", big_step, little_step), -350, 50);
+
+
+                        int nStep_B04 = (int)Math.Ceiling((double)B04 / little_step);
+                        int nStep_B03 = (int)Math.Floor((double)(2 * B03 + B04 - nStep_B04 * little_step) / 2.0 / big_step);
+                        int nStep_B02 = (int)Math.Ceiling((double)(2 * B02 + B04 + 2 * B03 - nStep_B04 * little_step - 2 * nStep_B03 * big_step) / 2.0 / little_step);
+                        int nStep_B01 = (int)Math.Ceiling((double)(2 * B01 + 2 * B02 + 2 * B03 + B04 - nStep_B04 * little_step - 2 * nStep_B03 * big_step - 2 * nStep_B02 * little_step) / 2.0 / big_step);
+                        int scalffold_width = 2 * nStep_B01 * big_step + 2 * nStep_B02 * little_step + 2 * nStep_B03 * big_step + nStep_B04 * little_step;
+                        drawString(string.Format("width of bridge = {0:0.00}m,width of scaffold = {1:0.00}m", xLength / 100.0, scalffold_width / 100.0), -350, 30);
+                        //this.parentWin.text_x_input.Text = string.Format("{0}@{5:0.0} {1}@{4:0.0} {2}@{5:0.0} {3}@{4:0.0} {2}@{5:0.0} {1}@{4:0.0} {0}@{5:0.0}", nStep_B01, nStep_B02, nStep_B03, nStep_B04, little_step / 100.0, big_step / 100.0);
+                        int startpoint = (2 * B01 + 2 * B02 + 2 * B03 + B04 - nStep_B04 * little_step - 2 * nStep_B03 * big_step - 2 * nStep_B02 * little_step - 2 * nStep_B01 * big_step) / 2;
+                        for (int i = 0; i < nStep_B01; i++)
+                        {
+                            startpoint += 0;
+                            tempX = startpoint + i * big_step; tempY = -(H01 + H02 + H03) - 10 * yTimes / xTimes / ScralSize;
+                            drawLine(tempX, tempY, big_step, false, true, true, 1);
+                        }
+                        startpoint += nStep_B01 * big_step;
+                        for (int i = 0; i < nStep_B02; i++)
+                        {
+                            tempX = startpoint + i * little_step; tempY = -(H01 + H02 + H03) - 10 * yTimes / xTimes / ScralSize;
+                            drawLine(tempX, tempY, little_step, false, true, true, 1);
+                        }
+                        startpoint += nStep_B02 * little_step;
+                        for (int i = 0; i < nStep_B03; i++)
+                        {
+                            tempX = startpoint + i * big_step; tempY = -(H01 + H02 + H03) - 10 * yTimes / xTimes / ScralSize;
+                            drawLine(tempX, tempY, big_step, false, true, true, 1);
+                        }
+                        startpoint += nStep_B03 * big_step;
+                        for (int i = 0; i < nStep_B04; i++)
+                        {
+                            tempX = startpoint + i * little_step; tempY = -(H01 + H02 + H03) - 10 * yTimes / xTimes / ScralSize;
+                            drawLine(tempX, tempY, little_step, false, true, true, 1);
+                        }
+                        startpoint += nStep_B04 * little_step;
+                        for (int i = 0; i < nStep_B03; i++)
+                        {
+                            tempX = startpoint + i * big_step; tempY = -(H01 + H02 + H03) - 10 * yTimes / xTimes / ScralSize;
+                            drawLine(tempX, tempY, big_step, false, true, true, 1);
+                        }
+                        startpoint += nStep_B03 * big_step;
+                        for (int i = 0; i < nStep_B02; i++)
+                        {
+                            tempX = startpoint + i * little_step; tempY = -(H01 + H02 + H03) - 10 * yTimes / xTimes / ScralSize;
+                            drawLine(tempX, tempY, little_step, false, true, true, 1);
+                        }
+                        startpoint += nStep_B02 * little_step;
+                        for (int i = 0; i < nStep_B01; i++)
+                        {
+                            tempX = startpoint + i * big_step; tempY = -(H01 + H02 + H03) - 10 * yTimes / xTimes / ScralSize;
+                            drawLine(tempX, tempY, big_step, false, true, true, 1);
+                        }
+                        //drawString("B01", tempX + B01 / 2 - 32 * xTimes / yTimes / ScralSize, tempY - 20 * yTimes / xTimes / ScralSize);
+
 
                         sectionArea = (2 * B01 + 2 * B02 + 2 * B03 + B04) * (H01 + H02 + H03) - H02 * B01 - 2 * H03 * B01 - 2 * (H01 + H02 + H03 - H11 - H12) * B03 + h11 * b11 + h12 * b12 + h21 * b21 + h22 * b22;
                         sectionArea = sectionArea / 10000.0;
@@ -936,6 +1043,76 @@ namespace MidasHelper_CS
                         drawString("(3,1)", tempX, tempY);
                         tempX = B01 + B02 + B03 + B04 + b32 * 2 / 3; tempY = -(H01 + H02 + H03 - H22 - h32 / 2);
                         drawString("(3,2)", tempX, tempY);
+
+                        drawString(string.Format("bigstep={0}cm,little_step={1}cm", big_step, little_step), -400, 50);
+
+
+                        int nStep_B05 = (int)Math.Floor((double)B05 / big_step);
+                        int nStep_B04 = (int)Math.Ceiling((double)(2 * B04 + B05 - nStep_B05 * big_step) / 2.0 / little_step);
+                        int nStep_B03 = (int)Math.Floor((double)(2 * B03 + 2 * B04 + B05 - nStep_B05 * big_step - 2 * nStep_B04 * little_step) / 2.0 / big_step);
+                        int nStep_B02 = (int)Math.Ceiling((double)(2 * B02 + 2 * B03 + 2 * B04 + B05 - nStep_B05 * big_step - 2 * nStep_B04 * little_step - 2 * nStep_B03 * big_step) / 2.0 / little_step);
+                        int nStep_B01 = (int)Math.Ceiling((double)(2 * B01 + 2 * B02 + 2 * B03 + 2 * B04 + B05 - nStep_B05 * big_step - 2 * nStep_B04 * little_step - 2 * nStep_B03 * big_step - 2 * nStep_B02 * little_step) / 2.0 / big_step);
+                        int scalffold_width = 2 * nStep_B01 * big_step + 2 * nStep_B02 * little_step + 2 * nStep_B03 * big_step + 2 * nStep_B04 * little_step + nStep_B05 * big_step;
+                        drawString(string.Format("width of bridge = {0:0.00}m,width of scaffold = {1:0.00}m", xLength / 100.0, scalffold_width / 100.0), -400, 30);
+                        //this.parentWin.text_x_input.Text = string.Format("{0}@{6:0.0} {1}@{5:0.0} {2}@{6:0.0} {3}@{5:0.0} {4}@{6:0.0} {3}@{5:0.0} {2}@{6:0.0} {1}@{5:0.0} {0}@{6:0.0}", nStep_B01, nStep_B02, nStep_B03, nStep_B04, nStep_B05, little_step / 100.0, big_step / 100.0);
+
+
+                        int startpoint = (2 * B01 + 2 * B02 + 2 * B03 + 2 * B04 + B05 - nStep_B05 * big_step - 2 * nStep_B04 * little_step - 2 * nStep_B03 * big_step - 2 * nStep_B02 * little_step - 2 * nStep_B01 * big_step) / 2;
+                        for (int i = 0; i < nStep_B01; i++)
+                        {
+                            startpoint += 0;
+                            tempX = startpoint + i * big_step; tempY = -(H01 + H02 + H03) - 10 * yTimes / xTimes / ScralSize;
+                            drawLine(tempX, tempY, big_step, false, true, true, 1);
+                        }
+                        startpoint += nStep_B01 * big_step;
+                        for (int i = 0; i < nStep_B02; i++)
+                        {
+                            tempX = startpoint + i * little_step; tempY = -(H01 + H02 + H03) - 10 * yTimes / xTimes / ScralSize;
+                            drawLine(tempX, tempY, little_step, false, true, true, 1);
+                        }
+                        startpoint += nStep_B02 * little_step;
+                        for (int i = 0; i < nStep_B03; i++)
+                        {
+                            tempX = startpoint + i * big_step; tempY = -(H01 + H02 + H03) - 10 * yTimes / xTimes / ScralSize;
+                            drawLine(tempX, tempY, big_step, false, true, true, 1);
+                        }
+                        startpoint += nStep_B03 * big_step;
+                        for (int i = 0; i < nStep_B04; i++)
+                        {
+                            tempX = startpoint + i * little_step; tempY = -(H01 + H02 + H03) - 10 * yTimes / xTimes / ScralSize;
+                            drawLine(tempX, tempY, little_step, false, true, true, 1);
+                        }
+                        startpoint += nStep_B04 * little_step;
+                        for (int i = 0; i < nStep_B05; i++)
+                        {
+                            tempX = startpoint + i * big_step; tempY = -(H01 + H02 + H03) - 10 * yTimes / xTimes / ScralSize;
+                            drawLine(tempX, tempY, big_step, false, true, true, 1);
+                        }
+                        startpoint += nStep_B05 * big_step;
+                        for (int i = 0; i < nStep_B04; i++)
+                        {
+                            tempX = startpoint + i * little_step; tempY = -(H01 + H02 + H03) - 10 * yTimes / xTimes / ScralSize;
+                            drawLine(tempX, tempY, little_step, false, true, true, 1);
+                        }
+                        startpoint += nStep_B04 * little_step;
+                        for (int i = 0; i < nStep_B03; i++)
+                        {
+                            tempX = startpoint + i * big_step; tempY = -(H01 + H02 + H03) - 10 * yTimes / xTimes / ScralSize;
+                            drawLine(tempX, tempY, big_step, false, true, true, 1);
+                        }
+                        startpoint += nStep_B03 * big_step;
+                        for (int i = 0; i < nStep_B02; i++)
+                        {
+                            tempX = startpoint + i * little_step; tempY = -(H01 + H02 + H03) - 10 * yTimes / xTimes / ScralSize;
+                            drawLine(tempX, tempY, little_step, false, true, true, 1);
+                        }
+                        startpoint += nStep_B02 * little_step;
+                        for (int i = 0; i < nStep_B01; i++)
+                        {
+                            tempX = startpoint + i * big_step; tempY = -(H01 + H02 + H03) - 10 * yTimes / xTimes / ScralSize;
+                            drawLine(tempX, tempY, big_step, false, true, true, 1);
+                        }
+
 
                         sectionArea = (2 * B01 + 2 * B02 + 2 * B03 + 2 * B04 + B05) * (H01 + H02 + H03) - H02 * B01 - 2 * H03 * B01 - 2 * (H01 + H02 + H03 - H11 - H12) * B03 + h11 * b11 + h12 * b12 + h21 * b21 + h22 * b22 - (H01 + H02 + H03 - H21 - H22) * B05 + h31 * b31 + h32 * b32;
                         sectionArea = sectionArea / 10000.0;
@@ -1143,6 +1320,87 @@ namespace MidasHelper_CS
                         tempX = B01 + B02 + B03 + B04 + B05 + b42 * 2 / 3 - 80 * xTimes; tempY = -(H01 + H02 + H03 - H22 - h42 / 2);
                         drawString("(4,2)", tempX, tempY);
 
+                        drawString(string.Format("bigstep={0}cm,little_step={1}cm", big_step, little_step), -450, 50);
+
+                        int nStep_B06 = (int)Math.Ceiling((double)B06 / little_step);
+                        int nStep_B05 = (int)Math.Floor((double)(2 * B05 + B06 - nStep_B06 * little_step) / 2.0 / big_step);
+                        int nStep_B04 = (int)Math.Ceiling((double)(2 * B04 + 2 * B05 + B06 - nStep_B06 * little_step - 2 * nStep_B05 * big_step) / 2.0 / little_step);
+                        int nStep_B03 = (int)Math.Floor((double)(2 * B03 + 2 * B04 + 2 * B05 + B06 - nStep_B06 * little_step - 2 * nStep_B05 * big_step - 2 * nStep_B04 * little_step) / 2.0 / big_step);
+                        int nStep_B02 = (int)Math.Ceiling((double)(2 * B02 + 2 * B03 + 2 * B04 + 2 * B05 + B06 - nStep_B06 * little_step - 2 * nStep_B05 * big_step - 2 * nStep_B04 * little_step - 2 * nStep_B03 * big_step) / 2.0 / little_step);
+                        int nStep_B01 = (int)Math.Ceiling((double)(2 * B01 + 2 * B02 + 2 * B03 + 2 * B04 + 2 * B05 + B06 - nStep_B06 * little_step - 2 * nStep_B05 * big_step - 2 * nStep_B04 * little_step - 2 * nStep_B03 * big_step - 2 * nStep_B02 * little_step) / 2.0 / big_step);
+                        int scalffold_width = 2 * nStep_B01 * big_step + 2 * nStep_B02 * little_step + 2 * nStep_B03 * big_step + 2 * nStep_B04 * little_step + 2 * nStep_B05 * big_step + nStep_B06 * little_step;
+                        drawString(string.Format("width of bridge = {0:0.00}m,width of scaffold = {1:0.00}m", xLength / 100.0, scalffold_width / 100.0), -450, 30);
+                        //this.parentWin.text_x_input.Text = string.Format("{0}@{7:0.0} {1}@{6:0.0} {2}@{7:0.0} {3}@{6:0.0} {4}@{7:0.0} {5}@{6:0.0} {4}@{7:0.0} {3}@{6:0.0} {2}@{7:0.0} {1}@{6:0.0} {0}@{7:0.0}", nStep_B01, nStep_B02, nStep_B03, nStep_B04, nStep_B05, nStep_B05, little_step / 100.0, big_step / 100.0);
+                        int startpoint = (2 * B01 + 2 * B02 + 2 * B03 + 2 * B04 + 2 * B05 + B06 - nStep_B06 * little_step - 2 * nStep_B05 * big_step - 2 * nStep_B04 * little_step - 2 * nStep_B03 * big_step - 2 * nStep_B02 * little_step - 2 * nStep_B01 * big_step) / 2;
+                        for (int i = 0; i < nStep_B01; i++)
+                        {
+                            startpoint += 0;
+                            tempX = startpoint + i * big_step; tempY = -(H01 + H02 + H03) - 10 * yTimes / xTimes / ScralSize;
+                            drawLine(tempX, tempY, big_step, false, true, true, 1);
+                        }
+                        startpoint += nStep_B01 * big_step;
+                        for (int i = 0; i < nStep_B02; i++)
+                        {
+                            tempX = startpoint + i * little_step; tempY = -(H01 + H02 + H03) - 10 * yTimes / xTimes / ScralSize;
+                            drawLine(tempX, tempY, little_step, false, true, true, 1);
+                        }
+                        startpoint += nStep_B02 * little_step;
+                        for (int i = 0; i < nStep_B03; i++)
+                        {
+                            tempX = startpoint + i * big_step; tempY = -(H01 + H02 + H03) - 10 * yTimes / xTimes / ScralSize;
+                            drawLine(tempX, tempY, big_step, false, true, true, 1);
+                        }
+                        startpoint += nStep_B03 * big_step;
+                        for (int i = 0; i < nStep_B04; i++)
+                        {
+                            tempX = startpoint + i * little_step; tempY = -(H01 + H02 + H03) - 10 * yTimes / xTimes / ScralSize;
+                            drawLine(tempX, tempY, little_step, false, true, true, 1);
+                        }
+                        startpoint += nStep_B04 * little_step;
+                        for (int i = 0; i < nStep_B05; i++)
+                        {
+                            tempX = startpoint + i * big_step; tempY = -(H01 + H02 + H03) - 10 * yTimes / xTimes / ScralSize;
+                            drawLine(tempX, tempY, big_step, false, true, true, 1);
+                        }
+                        startpoint += nStep_B05 * big_step;
+                        for (int i = 0; i < nStep_B06; i++)
+                        {
+                            tempX = startpoint + i * little_step; tempY = -(H01 + H02 + H03) - 10 * yTimes / xTimes / ScralSize;
+                            drawLine(tempX, tempY, little_step, false, true, true, 1);
+                        }
+                        startpoint += nStep_B06 * little_step;
+                        for (int i = 0; i < nStep_B05; i++)
+                        {
+                            tempX = startpoint + i * big_step; tempY = -(H01 + H02 + H03) - 10 * yTimes / xTimes / ScralSize;
+                            drawLine(tempX, tempY, big_step, false, true, true, 1);
+                        }
+                        startpoint += nStep_B05 * big_step;
+                        for (int i = 0; i < nStep_B04; i++)
+                        {
+                            tempX = startpoint + i * little_step; tempY = -(H01 + H02 + H03) - 10 * yTimes / xTimes / ScralSize;
+                            drawLine(tempX, tempY, little_step, false, true, true, 1);
+                        }
+                        startpoint += nStep_B04 * little_step;
+                        for (int i = 0; i < nStep_B03; i++)
+                        {
+                            tempX = startpoint + i * big_step; tempY = -(H01 + H02 + H03) - 10 * yTimes / xTimes / ScralSize;
+                            drawLine(tempX, tempY, big_step, false, true, true, 1);
+                        }
+                        startpoint += nStep_B03 * big_step;
+                        for (int i = 0; i < nStep_B02; i++)
+                        {
+                            tempX = startpoint + i * little_step; tempY = -(H01 + H02 + H03) - 10 * yTimes / xTimes / ScralSize;
+                            drawLine(tempX, tempY, little_step, false, true, true, 1);
+                        }
+                        startpoint += nStep_B02 * little_step;
+                        for (int i = 0; i < nStep_B01; i++)
+                        {
+                            tempX = startpoint + i * big_step; tempY = -(H01 + H02 + H03) - 10 * yTimes / xTimes / ScralSize;
+                            drawLine(tempX, tempY, big_step, false, true, true, 1);
+                        }
+
+
+
                         sectionArea = (2 * B01 + 2 * B02 + 2 * B03 + 2 * B04 + 2 * B05 + B06) * (H01 + H02 + H03) - H02 * B01 - 2 * H03 * B01 - 2 * (H01 + H02 + H03 - H11 - H12) * B03 + h11 * b11 + h12 * b12 + h21 * b21 + h22 * b22 - 2 * (H01 + H02 + H03 - H21 - H22) * B05 + h31 * b31 + h32 * b32 + h41 * b41 + h42 * b42;
                         sectionArea = sectionArea / 10000.0;
 
@@ -1152,6 +1410,7 @@ namespace MidasHelper_CS
         }
         private void Window_Closed(object sender, EventArgs e)
         {
+            openflag = false;
             this.parentWin.section_form_closed = true;
 
         }
@@ -1161,6 +1420,250 @@ namespace MidasHelper_CS
             charFlag = !charFlag;
             drawSection(combo_select.SelectedIndex);
         }
+
+        private void text_H01_TextChanged_1(object sender, TextChangedEventArgs e)
+        {
+            if (openflag == false)
+                return;
+            H01 = int.Parse(text_H01.Text);
+            drawSection(combo_select.SelectedIndex);
+        }
+
+        private void text_H02_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (openflag == false)
+                return;
+            H02 = int.Parse(text_H02.Text);
+            drawSection(combo_select.SelectedIndex);
+        }
+
+        private void text_H03_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (openflag == false)
+                return;
+            H03 = int.Parse(text_H03.Text);
+            drawSection(combo_select.SelectedIndex);
+        }
+
+        private void text_B01_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (openflag == false)
+                return;
+            B01 = int.Parse(text_B01.Text);
+            drawSection(combo_select.SelectedIndex);
+        }
+
+        private void text_B02_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (openflag == false)
+                return;
+            B02 = int.Parse(text_B02.Text);
+            drawSection(combo_select.SelectedIndex);
+        }
+
+        private void text_B03_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (openflag == false)
+                return;
+            B03 = int.Parse(text_B03.Text);
+            drawSection(combo_select.SelectedIndex);
+        }
+
+        private void text_B04_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (openflag == false)
+                return;
+            B04 = int.Parse(text_B04.Text);
+            drawSection(combo_select.SelectedIndex);
+        }
+
+        private void text_B05_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (openflag == false)
+                return;
+            B05 = int.Parse(text_B05.Text);
+            drawSection(combo_select.SelectedIndex);
+        }
+
+        private void text_B06_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (openflag == false)
+                return;
+            B06 = int.Parse(text_B06.Text);
+            drawSection(combo_select.SelectedIndex);
+        }
+
+        private void text_h11_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (openflag == false)
+                return;
+            h11 = int.Parse(text_h11.Text);
+            drawSection(combo_select.SelectedIndex);
+        }
+
+        private void text_b11_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (openflag == false)
+                return;
+            b11 = int.Parse(text_b11.Text);
+            drawSection(combo_select.SelectedIndex);
+        }
+
+        private void text_h12_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (openflag == false)
+                return;
+            h12 = int.Parse(text_h12.Text);
+            drawSection(combo_select.SelectedIndex);
+        }
+
+        private void text_b12_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (openflag == false)
+                return;
+            b12 = int.Parse(text_b12.Text);
+            drawSection(combo_select.SelectedIndex);
+        }
+
+        private void text_h21_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (openflag == false)
+                return;
+            h21 = int.Parse(text_h21.Text);
+            drawSection(combo_select.SelectedIndex);
+        }
+
+        private void text_b21_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (openflag == false)
+                return;
+            b21 = int.Parse(text_b21.Text);
+            drawSection(combo_select.SelectedIndex);
+        }
+
+        private void text_h22_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (openflag == false)
+                return;
+            h22 = int.Parse(text_h22.Text);
+            drawSection(combo_select.SelectedIndex);
+        }
+
+        private void text_b22_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (openflag == false)
+                return;
+            b22 = int.Parse(text_b22.Text);
+            drawSection(combo_select.SelectedIndex);
+        }
+
+        private void text_h31_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (openflag == false)
+                return;
+            h31 = int.Parse(text_h31.Text);
+            drawSection(combo_select.SelectedIndex);
+        }
+
+        private void text_b31_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (openflag == false)
+                return;
+            b31 = int.Parse(text_b31.Text);
+            drawSection(combo_select.SelectedIndex);
+        }
+
+        private void text_h32_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (openflag == false)
+                return;
+            h32 = int.Parse(text_h32.Text);
+            drawSection(combo_select.SelectedIndex);
+        }
+
+        private void text_b32_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (openflag == false)
+                return;
+            b32 = int.Parse(text_b32.Text);
+            drawSection(combo_select.SelectedIndex);
+        }
+
+        private void text_h41_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (openflag == false)
+                return;
+            h41 = int.Parse(text_h41.Text);
+            drawSection(combo_select.SelectedIndex);
+        }
+
+        private void text_b41_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (openflag == false)
+                return;
+            b41 = int.Parse(text_b41.Text);
+            drawSection(combo_select.SelectedIndex);
+        }
+
+        private void text_h42_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (openflag == false)
+                return;
+            h42 = int.Parse(text_h42.Text);
+            drawSection(combo_select.SelectedIndex);
+        }
+
+        private void text_b42_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (openflag == false)
+                return;
+            b42 = int.Parse(text_b42.Text);
+            drawSection(combo_select.SelectedIndex);
+        }
+
+        private void text_H11_TextChanged_1(object sender, TextChangedEventArgs e)
+        {
+            if (openflag == false)
+                return;
+            H11 = int.Parse(text_H11.Text);
+            drawSection(combo_select.SelectedIndex);
+        }
+
+        private void text_H12_TextChanged_1(object sender, TextChangedEventArgs e)
+        {
+            if (openflag == false)
+                return;
+            H12 = int.Parse(text_H12.Text);
+            drawSection(combo_select.SelectedIndex);
+        }
+
+        private void text_H21_TextChanged_1(object sender, TextChangedEventArgs e)
+        {
+            if (openflag == false)
+                return;
+            H21 = int.Parse(text_H21.Text);
+            drawSection(combo_select.SelectedIndex);
+        }
+
+        private void text_H22_TextChanged_1(object sender, TextChangedEventArgs e)
+        {
+            if (openflag == false)
+                return;
+            H22 = int.Parse(text_H22.Text);
+            drawSection(combo_select.SelectedIndex);
+        }
+
+        private void button2_Click(object sender, RoutedEventArgs e)
+        {
+            big_step = int.Parse(text_big.Text);
+            little_step = int.Parse(text_little.Text);
+            if (openflag == false)
+                return;
+            drawSection(combo_select.SelectedIndex);
+            
+        }
+
+
 
     }
 }

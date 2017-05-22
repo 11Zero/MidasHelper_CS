@@ -1,7 +1,15 @@
+D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\bin\Debug\MidasHelper_CS.exe.config
 D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\bin\Debug\MidasHelper_CS.exe
 D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\bin\Debug\MidasHelper_CS.pdb
+D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\obj\x86\Debug\MidasHelper_CS.csprojResolveAssemblyReference.cache
+D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\obj\x86\Debug\DefectForm.baml
 D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\obj\x86\Debug\MainWindow.baml
+D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\obj\x86\Debug\PcrForm.baml
+D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\obj\x86\Debug\SectionForm.baml
+D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\obj\x86\Debug\DefectForm.g.cs
 D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\obj\x86\Debug\MainWindow.g.cs
+D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\obj\x86\Debug\PcrForm.g.cs
+D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\obj\x86\Debug\SectionForm.g.cs
 D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\obj\x86\Debug\App.g.cs
 D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\obj\x86\Debug\MidasHelper_CS_MarkupCompile.cache
 D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\obj\x86\Debug\MidasHelper_CS.g.resources
@@ -9,11 +17,3 @@ D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\obj\x86\D
 D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\obj\x86\Debug\MidasHelper_CS.csproj.GenerateResource.Cache
 D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\obj\x86\Debug\MidasHelper_CS.exe
 D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\obj\x86\Debug\MidasHelper_CS.pdb
-D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\obj\x86\Debug\MidasHelper_CS.csprojResolveAssemblyReference.cache
-D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\bin\Debug\MidasHelper_CS.exe.config
-D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\obj\x86\Debug\SectionForm.baml
-D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\obj\x86\Debug\SectionForm.g.cs
-D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\obj\x86\Debug\DefectForm.baml
-D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\obj\x86\Debug\DefectForm.g.cs
-D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\obj\x86\Debug\PcrForm.baml
-D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\obj\x86\Debug\PcrForm.g.cs
