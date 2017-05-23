@@ -1539,7 +1539,7 @@ namespace MidasHelper_CS
                                             xy_bridging_elements[xy_bridging_elements_count].fNode = fNode.Copy();
                                             xy_bridging_elements[xy_bridging_elements_count].num = ++all_elements_count;
                                             xy_bridging_elements[xy_bridging_elements_count++].bNode = bNode.Copy();
-
+                                            single_elements_count++;
                                             fNode = bNode.Copy();
                                         }
                                         else
@@ -1579,7 +1579,7 @@ namespace MidasHelper_CS
                                         xy_bridging_elements[xy_bridging_elements_count].fNode = fNode.Copy();
                                         xy_bridging_elements[xy_bridging_elements_count].num = ++all_elements_count;
                                         xy_bridging_elements[xy_bridging_elements_count++].bNode = bNode.Copy();
-
+                                        single_elements_count++;
                                         fNode = bNode.Copy();
                                     }
                                     //xy_bridging_elements[xy_bridging_elements_count - 1].bNode = bNode.Copy();
@@ -1752,12 +1752,11 @@ namespace MidasHelper_CS
                                 }
                                 if (Math.Abs(bNode.z - fNode.z) > 2.5)
                                 {
-
                                     //Console.WriteLine(String.Format("fnode.z = {0},bnode.z = {1},gap = {2}", fNode.z, bNode.z, bNode.z - fNode.z));
                                     xz_bridging_elements[xz_bridging_elements_count].fNode = fNode.Copy();
                                     xz_bridging_elements[xz_bridging_elements_count].num = ++all_elements_count;
                                     xz_bridging_elements[xz_bridging_elements_count++].bNode = bNode.Copy();
-
+                                    single_elements_count++;
                                     fNode = bNode.Copy();
                                 }
                             }
@@ -1810,6 +1809,7 @@ namespace MidasHelper_CS
                                             xz_bridging_elements[xz_bridging_elements_count].fNode = fNode.Copy();
                                             xz_bridging_elements[xz_bridging_elements_count].num = ++all_elements_count;
                                             xz_bridging_elements[xz_bridging_elements_count++].bNode = bNode.Copy();
+                                            single_elements_count++;
                                         }
                                         else
                                         {
@@ -1859,6 +1859,7 @@ namespace MidasHelper_CS
                                         xz_bridging_elements[xz_bridging_elements_count].fNode = fNode.Copy();
                                         xz_bridging_elements[xz_bridging_elements_count].num = ++all_elements_count;
                                         xz_bridging_elements[xz_bridging_elements_count++].bNode = bNode.Copy();
+                                        single_elements_count++;
                                     }
                                 }
                             }
@@ -2035,7 +2036,7 @@ namespace MidasHelper_CS
                                     yz_bridging_elements[yz_bridging_elements_count].fNode = fNode.Copy();
                                     yz_bridging_elements[yz_bridging_elements_count].num = ++all_elements_count;
                                     yz_bridging_elements[yz_bridging_elements_count++].bNode = bNode.Copy();
-
+                                    single_elements_count++;
                                     fNode = bNode.Copy();
                                 }
                             }
@@ -2088,6 +2089,7 @@ namespace MidasHelper_CS
                                             yz_bridging_elements[yz_bridging_elements_count].fNode = fNode.Copy();
                                             yz_bridging_elements[yz_bridging_elements_count].num = ++all_elements_count;
                                             yz_bridging_elements[yz_bridging_elements_count++].bNode = bNode.Copy();
+                                            single_elements_count++;
                                         }
                                         else
                                         {
@@ -2137,6 +2139,7 @@ namespace MidasHelper_CS
                                         yz_bridging_elements[yz_bridging_elements_count].fNode = fNode.Copy();
                                         yz_bridging_elements[yz_bridging_elements_count].num = ++all_elements_count;
                                         yz_bridging_elements[yz_bridging_elements_count++].bNode = bNode.Copy();
+                                        single_elements_count++;
                                     }
                                 }
                             }
@@ -3123,10 +3126,18 @@ namespace MidasHelper_CS
             writer.WriteLine(buffer_string);
             string fnode_rel = "";
             string bnode_rel = "";
-            double xy_My_i = 40.0;
-            double xy_My_j = 40.0;
-            double xy_Mz_i = 40.0;
-            double xy_Mz_j = 40.0;
+            double xy_My_i = double.Parse((string)GetText(text_My_i_normal));
+            double xy_My_j = double.Parse((string)GetText(text_My_j_normal));
+            double xy_Mz_i = double.Parse((string)GetText(text_Mz_i_normal));
+            double xy_Mz_j = double.Parse((string)GetText(text_Mz_j_normal));
+            if (Math.Abs(xy_My_i) < 0.005)
+                xy_My_i = 40.0;
+            if (Math.Abs(xy_My_j) < 0.005)
+                xy_My_j = 40.0;
+            if (Math.Abs(xy_Mz_i) < 0.005)
+                xy_Mz_i = 40.0;
+            if (Math.Abs(xy_Mz_j) < 0.005)
+                xy_Mz_j = 40.0;
             for (int i = 0; i < y_elements_count; i++)
             {
                 //if (y_elements[i].fNode.num > bottom_nodes_end)
@@ -3186,10 +3197,22 @@ namespace MidasHelper_CS
             //    writer.WriteLine(buffer_string);
             //}
 
-            double My_i = 50.0;
-            double My_j = 50.0;
-            double Mz_i = 50.0;
-            double Mz_j = 50.0;
+            //double My_i = 50.0;
+            //double My_j = 50.0;
+            //double Mz_i = 50.0;
+            //double Mz_j = 50.0;
+            double My_i = double.Parse((string)GetText(text_My_i_cut));
+            double My_j = double.Parse((string)GetText(text_My_j_cut));
+            double Mz_i = double.Parse((string)GetText(text_Mz_i_cut));
+            double Mz_j = double.Parse((string)GetText(text_Mz_j_cut));
+            if (Math.Abs(My_i) < 0.005)
+                My_i = 50.0;
+            if (Math.Abs(My_j) < 0.005)
+                My_j = 50.0;
+            if (Math.Abs(Mz_i) < 0.005)
+                Mz_i = 50.0;
+            if (Math.Abs(Mz_j) < 0.005)
+                Mz_j = 50.0;
             if (bridging_check)
             {
                 for (int i = 0; i < xy_bridging_elements_count; i++)
@@ -3659,13 +3682,30 @@ namespace MidasHelper_CS
 *CONLOAD    ; Nodal Loads
 ; NODE_LIST, FX, FY, FZ, MX, MY, MZ, GROUP";
             writer.WriteLine(buffer_string);
-            int G3_nodes_count = J2_nodes_count;
+            int G3_nodes_count = 0;
             for (int i = 0; i < bottom_nodes_end; i++)
             {
                 if (Math.Abs(all_normal_nodes[i].z - z_length) < 0.005)
                 {
-                    buffer_string = string.Format("{0,-5},  0.00 , 0.00 , -{1:0.00} , 0.00 , 0.00 , 0.00 , {2}", all_normal_nodes[i].num, G3 / G3_nodes_count, "附加构件");
-                    writer.WriteLine(buffer_string);
+                    if (all_normal_nodes[i].x <= x_points[0] + 0.005 || all_normal_nodes[i].x >= x_points[x_input_count] - 0.005
+                        || all_normal_nodes[i].y <= y_points[0] + 0.005 || all_normal_nodes[i].y >= y_points[y_input_count] - 0.005)
+                        G3_nodes_count++;
+                    //buffer_string = string.Format("{0,-5},  0.00 , 0.00 , -{1:0.00} , 0.00 , 0.00 , 0.00 , {2}", all_normal_nodes[i].num, G3 / G3_nodes_count, "附加构件");
+                    //writer.WriteLine(buffer_string);
+                }
+            }
+            for (int i = 0; i < bottom_nodes_end; i++)
+            {
+                if (Math.Abs(G3 / G3_nodes_count) < 0.0001)
+                    break;
+                if (Math.Abs(all_normal_nodes[i].z - z_length) < 0.005)
+                {
+                    if (all_normal_nodes[i].x <= x_points[0] + 0.005 || all_normal_nodes[i].x >= x_points[x_input_count] - 0.005
+                        || all_normal_nodes[i].y <= y_points[0] + 0.005 || all_normal_nodes[i].y >= y_points[y_input_count] - 0.005)
+                    {
+                        buffer_string = string.Format("{0,-5},  0.00 , 0.00 , -{1:0.0000} , 0.00 , 0.00 , 0.00 , {2}", all_normal_nodes[i].num, G3 / G3_nodes_count, "附加构件");
+                        writer.WriteLine(buffer_string);
+                    }
                 }
             }
 
@@ -3706,7 +3746,7 @@ namespace MidasHelper_CS
                     }
                 }
             }
-            if (Math.Abs(P3 / P3_nodes_count) >= 0.01)
+            if (Math.Abs(P3 / P3_nodes_count) >= 0.0001)
             {
                 if (h0 < 0.005)
                 {
@@ -3716,7 +3756,7 @@ namespace MidasHelper_CS
                         {
                             if (all_normal_nodes[i].z <= z_points[z_input_count - 1] + 0.005 && all_normal_nodes[i].z >= z_points[2] - 0.005)
                             {
-                                buffer_string = string.Format("{0,-5},  -{1:0.00} ,0.00, 0.00 ,  0.00 , 0.00 , 0.00 , {2}", all_normal_nodes[i].num, P3 / P3_nodes_count, "风荷载");
+                                buffer_string = string.Format("{0,-5},  -{1:0.0000} ,0.00, 0.00 ,  0.00 , 0.00 , 0.00 , {2}", all_normal_nodes[i].num, P3 / P3_nodes_count, "风荷载");
                                 writer.WriteLine(buffer_string);
                             }
                         }
@@ -3749,19 +3789,22 @@ namespace MidasHelper_CS
 ;      ANAL1, LCNAME1, FACT1, ...                                    ; from line 2
    NAME=第一次预压, GEN, ACTIVE, 0, 0, , 0, 0
         ST,杆系自重, 1, ST, 预压荷载1, 1, ST, 模板、支撑梁, 1
-        ST, 防护设施、附加构件, 1, ST, 风荷载, 1
+        ST, 施工人员、材料、设备, 1, ST, 风荷载, 1
    NAME=第二次预压, GEN, ACTIVE, 0, 0, , 0, 0
-        ST,杆系自重, 1, ST, 预压荷载1, 1, ST, 预压荷载2, 1
-        ST,模板、支撑梁, 1, ST, 防护设施、附加构件, 1, ST, 风荷载, 1
+        ST,杆系自重, 1, ST, 预压荷载2, 1, ST, 模板、支撑梁, 1
+        ST, 施工人员、材料、设备, 1, ST, 风荷载, 1
    NAME=第三次预压, GEN, ACTIVE, 0, 0, , 0, 0
-        ST, 杆系自重, 1, ST,预压荷载1, 1, ST,预压荷载2, 1, ST,预压荷载3, 1
-        ST, 模板、支撑梁, 1, ST, 防护设施、附加构件, 1, ST, 风荷载, 1
+        ST,杆系自重, 1, ST, 预压荷载3, 1, ST, 模板、支撑梁, 1
+        ST, 施工人员、材料、设备, 1, ST, 风荷载, 1
+   NAME=浇筑前, GEN, ACTIVE, 0, 0, , 0, 0
+        ST, 杆系自重, 1, ST, 施工人员、材料、设备, 1, ST, 模板、支撑梁, 1
+        ST, 防护设施、附加构件, 1, ST, 风荷载, 1
    NAME=第一次浇筑, GEN, ACTIVE, 0, 0, , 0, 0
         ST, 杆系自重, 1, ST, 第一次浇筑, 1, ST, 浇筑和振捣混凝土, 1
         ST, 施工人员、材料、设备, 1, ST, 模板、支撑梁, 1
         ST, 防护设施、附加构件, 1, ST, 风荷载, 1
    NAME=第二次浇筑, GEN, ACTIVE, 0, 0, , 0, 0
-        ST, 杆系自重, 1, ST, 第一次浇筑,1, ST,第二次浇筑, 1
+        ST, 杆系自重, 1, ST,第一次浇筑, 1,ST,第二次浇筑, 1
         ST, 浇筑和振捣混凝土, 1, ST, 施工人员、材料、设备, 1
         ST, 模板、支撑梁, 1, ST, 防护设施、附加构件, 1, ST, 风荷载, 1
 
@@ -3777,6 +3820,7 @@ namespace MidasHelper_CS
  CB, 第一次预压, 192, 192, 0, 0, 192, 192, 192, 192, 192
  CB, 第二次预压, 78, 0, 255, 0, 157, 192, 160, 255, 255
  CB, 第三次预压, 192, 0, 128, 192, 0, 128, 93, 255, 87
+ CB, 浇筑前, 160, 160, 255, 93, 255, 87, 192, 192, 192
  CB, 第一次浇筑, 255, 160, 255, 210, 210, 210, 255, 0, 128
  ST, 第一次浇筑, 163, 160, 255, 93, 255, 87, 192, 192, 192
  CB, 第二次浇筑, 192, 72, 0, 148, 87, 255, 192, 0, 192
@@ -3812,7 +3856,7 @@ namespace MidasHelper_CS
                 writer.WriteLine(buffer_string);
                 buffer_string = "5, NO, NO, 0, 0, NO";
                 writer.WriteLine(buffer_string);
-                buffer_string = "杆系自重, 1.1, 1, 预压荷载1,1.2,1,预压荷载2,1.2,1,预压荷载3,1.2,1,模板、支撑梁,1.2,1,浇筑和振捣混凝土,1.2,1,施工人员、材料、设备,1.2,1,第一次浇筑, 1.4, 0,第二次浇筑, 1.4, 0,风荷载,1.4,0";
+                buffer_string = "杆系自重, 1.0, 1, 第二次浇筑, 1.0, 0";
                 writer.WriteLine(buffer_string);
             }
             if (nolinear_analyse)
@@ -3837,24 +3881,24 @@ namespace MidasHelper_CS
                 writer.WriteLine(buffer_string);
                 buffer_string = "     杆系自重, 1, 30, 1";
                 writer.WriteLine(buffer_string);
-                buffer_string = "     预压荷载1, 1, 30, 1";
-                writer.WriteLine(buffer_string);
-                buffer_string = "     预压荷载2, 1, 30, 1";
-                writer.WriteLine(buffer_string);
-                buffer_string = "     预压荷载3, 1, 30, 1";
-                writer.WriteLine(buffer_string);
+                //buffer_string = "     预压荷载1, 1, 30, 1";
+                //writer.WriteLine(buffer_string);
+                //buffer_string = "     预压荷载2, 1, 30, 1";
+                //writer.WriteLine(buffer_string);
+                //buffer_string = "     预压荷载3, 1, 30, 1";
+                //writer.WriteLine(buffer_string);
                 buffer_string = "     第一次浇筑, 1, 30, 1";
                 writer.WriteLine(buffer_string);
-                buffer_string = "     第二次浇筑, 1, 30, 1";
-                writer.WriteLine(buffer_string);
-                buffer_string = "     模板、支撑梁, 1, 30, 1";
-                writer.WriteLine(buffer_string);
-                buffer_string = "     浇筑和振捣混凝土, 1, 30, 1";
-                writer.WriteLine(buffer_string);
-                buffer_string = "     施工人员、材料、设备, 1, 30, 1";
-                writer.WriteLine(buffer_string);
-                buffer_string = "     风荷载, 1, 30, 1";
-                writer.WriteLine(buffer_string);
+                //buffer_string = "     第二次浇筑, 1, 30, 1";
+                //writer.WriteLine(buffer_string);
+                //buffer_string = "     模板、支撑梁, 1, 30, 1";
+                //writer.WriteLine(buffer_string);
+                //buffer_string = "     浇筑和振捣混凝土, 1, 30, 1";
+                //writer.WriteLine(buffer_string);
+                //buffer_string = "     施工人员、材料、设备, 1, 30, 1";
+                //writer.WriteLine(buffer_string);
+                //buffer_string = "     风荷载, 1, 30, 1";
+                //writer.WriteLine(buffer_string);
 
             }
             //buffer_string = String.Format("\r\n;XY剪刀线 ");
@@ -3895,7 +3939,7 @@ namespace MidasHelper_CS
                 mctfile.Dispose();
             }
             SetProcess(100);
-            if (Math.Abs(P3 / P3_nodes_count) < 0.01)
+            if (Math.Abs(P3 / P3_nodes_count) < 0.0001)
                 SetText("写入完成,风荷载不足0.01,未添加", this.status_bar_text);
             else
                 SetText("写入完成", this.status_bar_text);
@@ -3951,6 +3995,16 @@ namespace MidasHelper_CS
             XmlHelper.setXmlElementValue(xmlpath, "阶段设置", "J2", GetText(text_J2));
             XmlHelper.setXmlElementValue(xmlpath, "缺陷参数", "标准壁厚", wall_thickness.ToString());
             XmlHelper.setXmlElementValue(xmlpath, "缺陷参数", "标准管径", calibre.ToString());
+
+            XmlHelper.setXmlElementValue(xmlpath, "刚度设置", "My_i_cut", GetText(text_My_i_cut));
+            XmlHelper.setXmlElementValue(xmlpath, "刚度设置", "My_j_cut", GetText(text_My_j_cut));
+            XmlHelper.setXmlElementValue(xmlpath, "刚度设置", "Mz_i_cut", GetText(text_Mz_i_cut));
+            XmlHelper.setXmlElementValue(xmlpath, "刚度设置", "Mz_j_cut", GetText(text_Mz_j_cut));
+
+            XmlHelper.setXmlElementValue(xmlpath, "刚度设置", "My_i_normal", GetText(text_My_i_normal));
+            XmlHelper.setXmlElementValue(xmlpath, "刚度设置", "My_j_normal", GetText(text_My_j_normal));
+            XmlHelper.setXmlElementValue(xmlpath, "刚度设置", "Mz_i_normal", GetText(text_Mz_i_normal));
+            XmlHelper.setXmlElementValue(xmlpath, "刚度设置", "Mz_j_normal", GetText(text_Mz_j_normal));
         }
 
         private void getXmlValue()
@@ -3979,6 +4033,17 @@ namespace MidasHelper_CS
             SetText(XmlHelper.getXmlElementValue(xmlpath, "阶段设置", "Y3"), text_Y3);
             SetText(XmlHelper.getXmlElementValue(xmlpath, "阶段设置", "J1"), text_J1);
             SetText(XmlHelper.getXmlElementValue(xmlpath, "阶段设置", "J2"), text_J2);
+
+            SetText(XmlHelper.getXmlElementValue(xmlpath, "刚度设置", "My_i_cut"), text_My_i_cut);
+            SetText(XmlHelper.getXmlElementValue(xmlpath, "刚度设置", "My_j_cut"), text_My_j_cut);
+            SetText(XmlHelper.getXmlElementValue(xmlpath, "刚度设置", "Mz_i_cut"), text_Mz_i_cut);
+            SetText(XmlHelper.getXmlElementValue(xmlpath, "刚度设置", "Mz_j_cut"), text_Mz_j_cut);
+
+            SetText(XmlHelper.getXmlElementValue(xmlpath, "刚度设置", "My_i_normal"), text_My_i_normal);
+            SetText(XmlHelper.getXmlElementValue(xmlpath, "刚度设置", "My_j_normal"), text_My_j_normal);
+            SetText(XmlHelper.getXmlElementValue(xmlpath, "刚度设置", "Mz_i_normal"), text_Mz_i_normal);
+            SetText(XmlHelper.getXmlElementValue(xmlpath, "刚度设置", "Mz_j_normal"), text_Mz_j_normal);
+
             try
             {
                 wall_thickness = double.Parse(XmlHelper.getXmlElementValue(xmlpath, "缺陷参数", "标准壁厚"));
