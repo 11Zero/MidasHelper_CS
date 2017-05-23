@@ -1,0 +1,16 @@
+﻿<Window x:Class="MidasHelper_CS.StartForm"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="桥梁碗扣式满堂支架建模软件" Height="564" Width="716">
+    <Window.Background>
+        <ImageBrush ImageSource="/MidasHelper_CS;component/back1.jpg" Stretch="Uniform" TileMode="None" />
+    </Window.Background>
+    <Grid Height="414" Width="556">
+        <Button Content="开始建模" Height="36" HorizontalAlignment="Left" Margin="208,169,0,0" Name="button1" VerticalAlignment="Top" Width="120" FontSize="20" FontWeight="Normal" Background="#5E000000" Foreground="#FF192758" Click="button1_Click" />
+        <TextBlock FontSize="36" Height="53" HorizontalAlignment="Left" Margin="36,50,0,0" Name="text_warename" Text="桥梁碗扣式满堂支架建模软件" VerticalAlignment="Top" Width="472" FontWeight="Normal" TextWrapping="NoWrap" />
+        <TextBlock Height="19" HorizontalAlignment="Left" Margin="280,314,0,0" Name="textBlock1" Text="版本:1.0" VerticalAlignment="Top" Width="58" Foreground="#FF18207C" />
+        <TextBlock Height="23" HorizontalAlignment="Left" Margin="118,284,0,0" Name="textBlock2" Text="安徽省高等级公路工程监理公司  合肥工业大学" VerticalAlignment="Top" Width="315" Foreground="#FF18207C" FontSize="15" />
+        <TextBlock Height="18" HorizontalAlignment="Left" Margin="200,314,0,0" Name="textBlock3" Text="联合开发" VerticalAlignment="Top" Width="56" Foreground="#FF18207C" />
+    </Grid>
+
+</Window>

@@ -232,39 +232,40 @@ namespace MidasHelper_CS
             drawSection(combo_select.SelectedIndex);
             this.parentWin.text_G1.Text = (26 * sectionArea * bridgeLength).ToString();
             this.parentWin.selected_section = combo_select.SelectedIndex;
+            int conserve_length = 40;
             switch (combo_select.SelectedIndex)
             {
                 case 0:
                     {
-                        int nStep_B03 = (int)Math.Floor((double)B03 / big_step);
-                        int nStep_B02 = (int)Math.Ceiling((double)((B03 - nStep_B03 * big_step) / 2.0 + B02) / little_step);
+                        int nStep_B03 = (int)Math.Floor(((double)B03 - conserve_length) / big_step);
+                        int nStep_B02 = (int)Math.Ceiling((double)((B03 - nStep_B03 * big_step) / 2.0 + B02 + conserve_length) / little_step);
                         int nStep_B01 = (int)Math.Ceiling((double)(B01 * 2 + B02 * 2 + B03 - 2 * nStep_B02 * little_step - nStep_B03 * big_step) / 2.0 / big_step);
                         this.parentWin.text_x_input.Text = string.Format("{0}@{4:0.0} {1}@{3:0.0} {2}@{4:0.0} {1}@{3:0.0} {0}@{4:0.0}", nStep_B01, nStep_B02, nStep_B03, little_step / 100.0, big_step / 100.0);
                     } break;
                 case 1:
                     {
-                        int nStep_B04 = (int)Math.Ceiling((double)B04 / little_step);
-                        int nStep_B03 = (int)Math.Floor((double)(2 * B03 + B04 - nStep_B04 * little_step) / 2.0 / big_step);
-                        int nStep_B02 = (int)Math.Ceiling((double)(2 * B02 + B04 + 2 * B03 - nStep_B04 * little_step - 2 * nStep_B03 * big_step) / 2.0 / little_step);
+                        int nStep_B04 = (int)Math.Ceiling(((double)B04 + conserve_length) / little_step);
+                        int nStep_B03 = (int)Math.Floor(((double)(2 * B03 + B04 - nStep_B04 * little_step) / 2.0 -conserve_length) / big_step);
+                        int nStep_B02 = (int)Math.Ceiling(((double)(2 * B02 + B04 + 2 * B03 - nStep_B04 * little_step - 2 * nStep_B03 * big_step) / 2.0 + conserve_length) / little_step);
                         int nStep_B01 = (int)Math.Ceiling((double)(2 * B01 + 2 * B02 + 2 * B03 + B04 - nStep_B04 * little_step - 2 * nStep_B03 * big_step - 2 * nStep_B02 * little_step) / 2.0 / big_step);
                         this.parentWin.text_x_input.Text = string.Format("{0}@{5:0.0} {1}@{4:0.0} {2}@{5:0.0} {3}@{4:0.0} {2}@{5:0.0} {1}@{4:0.0} {0}@{5:0.0}", nStep_B01, nStep_B02, nStep_B03, nStep_B04, little_step / 100.0, big_step / 100.0);
                     } break;
                 case 2:
                     {
-                        int nStep_B05 = (int)Math.Floor((double)B05 / big_step);
-                        int nStep_B04 = (int)Math.Ceiling((double)(2 * B04 + B05 - nStep_B05 * big_step) / 2.0 / little_step);
-                        int nStep_B03 = (int)Math.Floor((double)(2 * B03 + 2 * B04 + B05 - nStep_B05 * big_step - 2 * nStep_B04 * little_step) / 2.0 / big_step);
-                        int nStep_B02 = (int)Math.Ceiling((double)(2 * B02 + 2 * B03 + 2 * B04 + B05 - nStep_B05 * big_step - 2 * nStep_B04 * little_step - 2 * nStep_B03 * big_step) / 2.0 / little_step);
+                        int nStep_B05 = (int)Math.Floor(((double)B05 - conserve_length )/ big_step);
+                        int nStep_B04 = (int)Math.Ceiling(((double)(2 * B04 + B05 - nStep_B05 * big_step) / 2.0 + conserve_length) / little_step);
+                        int nStep_B03 = (int)Math.Floor(((double)(2 * B03 + 2 * B04 + B05 - nStep_B05 * big_step - 2 * nStep_B04 * little_step) / 2.0 - conserve_length) / big_step);
+                        int nStep_B02 = (int)Math.Ceiling(((double)(2 * B02 + 2 * B03 + 2 * B04 + B05 - nStep_B05 * big_step - 2 * nStep_B04 * little_step - 2 * nStep_B03 * big_step) / 2.0 + conserve_length )/ little_step);
                         int nStep_B01 = (int)Math.Ceiling((double)(2 * B01 + 2 * B02 + 2 * B03 + 2 * B04 + B05 - nStep_B05 * big_step - 2 * nStep_B04 * little_step - 2 * nStep_B03 * big_step - 2 * nStep_B02 * little_step) / 2.0 / big_step);
                         this.parentWin.text_x_input.Text = string.Format("{0}@{6:0.0} {1}@{5:0.0} {2}@{6:0.0} {3}@{5:0.0} {4}@{6:0.0} {3}@{5:0.0} {2}@{6:0.0} {1}@{5:0.0} {0}@{6:0.0}", nStep_B01, nStep_B02, nStep_B03, nStep_B04, nStep_B05, little_step / 100.0, big_step / 100.0);
                     } break;
                 case 3:
                     {
-                        int nStep_B06 = (int)Math.Ceiling((double)B06 / little_step);
-                        int nStep_B05 = (int)Math.Floor((double)(2 * B05 + B06 - nStep_B06 * little_step) / 2.0 / big_step);
-                        int nStep_B04 = (int)Math.Ceiling((double)(2 * B04 + 2 * B05 + B06 - nStep_B06 * little_step - 2 * nStep_B05 * big_step) / 2.0 / little_step);
-                        int nStep_B03 = (int)Math.Floor((double)(2 * B03 + 2 * B04 + 2 * B05 + B06 - nStep_B06 * little_step - 2 * nStep_B05 * big_step - 2 * nStep_B04 * little_step) / 2.0 / big_step);
-                        int nStep_B02 = (int)Math.Ceiling((double)(2 * B02 + 2 * B03 + 2 * B04 + 2 * B05 + B06 - nStep_B06 * little_step - 2 * nStep_B05 * big_step - 2 * nStep_B04 * little_step - 2 * nStep_B03 * big_step) / 2.0 / little_step);
+                        int nStep_B06 = (int)Math.Ceiling(((double)B06 + conserve_length )/ little_step);
+                        int nStep_B05 = (int)Math.Floor(((double)(2 * B05 + B06 - nStep_B06 * little_step) / 2.0 - conserve_length )/ big_step);
+                        int nStep_B04 = (int)Math.Ceiling(((double)(2 * B04 + 2 * B05 + B06 - nStep_B06 * little_step - 2 * nStep_B05 * big_step) / 2.0+conserve_length) / little_step);
+                        int nStep_B03 = (int)Math.Floor(((double)(2 * B03 + 2 * B04 + 2 * B05 + B06 - nStep_B06 * little_step - 2 * nStep_B05 * big_step - 2 * nStep_B04 * little_step) / 2.0 - conserve_length) / big_step);
+                        int nStep_B02 = (int)Math.Ceiling(((double)(2 * B02 + 2 * B03 + 2 * B04 + 2 * B05 + B06 - nStep_B06 * little_step - 2 * nStep_B05 * big_step - 2 * nStep_B04 * little_step - 2 * nStep_B03 * big_step) / 2.0 +conserve_length)/ little_step);
                         int nStep_B01 = (int)Math.Ceiling((double)(2 * B01 + 2 * B02 + 2 * B03 + 2 * B04 + 2 * B05 + B06 - nStep_B06 * little_step - 2 * nStep_B05 * big_step - 2 * nStep_B04 * little_step - 2 * nStep_B03 * big_step - 2 * nStep_B02 * little_step) / 2.0 / big_step);
                         this.parentWin.text_x_input.Text = string.Format("{0}@{7:0.0} {1}@{6:0.0} {2}@{7:0.0} {3}@{6:0.0} {4}@{7:0.0} {5}@{6:0.0} {4}@{7:0.0} {3}@{6:0.0} {2}@{7:0.0} {1}@{6:0.0} {0}@{7:0.0}", nStep_B01, nStep_B02, nStep_B03, nStep_B04, nStep_B05, nStep_B05, little_step / 100.0, big_step / 100.0);
 
@@ -273,7 +274,13 @@ namespace MidasHelper_CS
                     break;
             }
             this.parentWin.section_selected_flag = true;
-            this.Close();
+            //////刷新视图
+            big_step = int.Parse(text_big.Text);
+            little_step = int.Parse(text_little.Text);
+            if (openflag == false)
+                return;
+            drawSection(combo_select.SelectedIndex);
+            //this.Close();
         }
 
         private void text_h01_TextChanged(object sender, TextChangedEventArgs e)
@@ -550,6 +557,7 @@ namespace MidasHelper_CS
             gl.Translate(-xTimes / 2, yTimes / 2, 0);
             gl.Color(1.0f, 1.0f, 1.0f);//设置当前色为白色
             double tempX = 0.0, tempY = 0.0;
+            int conserve_length = 40;
             switch (SelectFlag)
             {
                 case 0:
@@ -646,13 +654,45 @@ namespace MidasHelper_CS
                         drawString("(1,2)", tempX, tempY);
 
                         
-                        drawString(string.Format("bigstep = {0}cm,little_step = {1}cm",big_step,little_step), -300, 50);
+                        drawString(string.Format("big step = {0}cm,little step = {1}cm",big_step,little_step), -300, 30);
+                //        int nStep_B03 = (int)Math.Floor(((double)B03 - conserve_length) / big_step);
+                //        int nStep_B02 = (int)Math.Ceiling((double)((B03 - nStep_B03 * big_step) / 2.0 + B02 + conserve_length) / little_step);
+                //        int nStep_B01 = (int)Math.Ceiling((double)(B01 * 2 + B02 * 2 + B03 - 2 * nStep_B02 * little_step - nStep_B03 * big_step) / 2.0 / big_step);
+                //        this.parentWin.text_x_input.Text = string.Format("{0}@{4:0.0} {1}@{3:0.0} {2}@{4:0.0} {1}@{3:0.0} {0}@{4:0.0}", nStep_B01, nStep_B02, nStep_B03, little_step / 100.0, big_step / 100.0);
+                //    } break;
+                //case 1:
+                //    {
+                //        int nStep_B04 = (int)Math.Ceiling(((double)B04 + conserve_length) / little_step);
+                //        int nStep_B03 = (int)Math.Floor(((double)(2 * B03 + B04 - nStep_B04 * little_step) / 2.0 - conserve_length) / big_step);
+                //        int nStep_B02 = (int)Math.Ceiling(((double)(2 * B02 + B04 + 2 * B03 - nStep_B04 * little_step - 2 * nStep_B03 * big_step) / 2.0 + conserve_length) / little_step);
+                //        int nStep_B01 = (int)Math.Ceiling((double)(2 * B01 + 2 * B02 + 2 * B03 + B04 - nStep_B04 * little_step - 2 * nStep_B03 * big_step - 2 * nStep_B02 * little_step) / 2.0 / big_step);
+                //        this.parentWin.text_x_input.Text = string.Format("{0}@{5:0.0} {1}@{4:0.0} {2}@{5:0.0} {3}@{4:0.0} {2}@{5:0.0} {1}@{4:0.0} {0}@{5:0.0}", nStep_B01, nStep_B02, nStep_B03, nStep_B04, little_step / 100.0, big_step / 100.0);
+                //    } break;
+                //case 2:
+                //    {
+                //        int nStep_B05 = (int)Math.Floor(((double)B05 - conserve_length) / big_step);
+                //        int nStep_B04 = (int)Math.Ceiling(((double)(2 * B04 + B05 - nStep_B05 * big_step) / 2.0 + conserve_length) / little_step);
+                //        int nStep_B03 = (int)Math.Floor(((double)(2 * B03 + 2 * B04 + B05 - nStep_B05 * big_step - 2 * nStep_B04 * little_step) / 2.0 - conserve_length) / big_step);
+                //        int nStep_B02 = (int)Math.Ceiling(((double)(2 * B02 + 2 * B03 + 2 * B04 + B05 - nStep_B05 * big_step - 2 * nStep_B04 * little_step - 2 * nStep_B03 * big_step) / 2.0 + conserve_length) / little_step);
+                //        int nStep_B01 = (int)Math.Ceiling((double)(2 * B01 + 2 * B02 + 2 * B03 + 2 * B04 + B05 - nStep_B05 * big_step - 2 * nStep_B04 * little_step - 2 * nStep_B03 * big_step - 2 * nStep_B02 * little_step) / 2.0 / big_step);
+                //        this.parentWin.text_x_input.Text = string.Format("{0}@{6:0.0} {1}@{5:0.0} {2}@{6:0.0} {3}@{5:0.0} {4}@{6:0.0} {3}@{5:0.0} {2}@{6:0.0} {1}@{5:0.0} {0}@{6:0.0}", nStep_B01, nStep_B02, nStep_B03, nStep_B04, nStep_B05, little_step / 100.0, big_step / 100.0);
+                //    } break;
+                //case 3:
+                //    {
+                //        int nStep_B06 = (int)Math.Ceiling(((double)B06 + conserve_length) / little_step);
+                //        int nStep_B05 = (int)Math.Floor(((double)(2 * B05 + B06 - nStep_B06 * little_step) / 2.0 - conserve_length) / big_step);
+                //        int nStep_B04 = (int)Math.Ceiling(((double)(2 * B04 + 2 * B05 + B06 - nStep_B06 * little_step - 2 * nStep_B05 * big_step) / 2.0 + conserve_length) / little_step);
+                //        int nStep_B03 = (int)Math.Floor(((double)(2 * B03 + 2 * B04 + 2 * B05 + B06 - nStep_B06 * little_step - 2 * nStep_B05 * big_step - 2 * nStep_B04 * little_step) / 2.0 - conserve_length) / big_step);
+                //        int nStep_B02 = (int)Math.Ceiling(((double)(2 * B02 + 2 * B03 + 2 * B04 + 2 * B05 + B06 - nStep_B06 * little_step - 2 * nStep_B05 * big_step - 2 * nStep_B04 * little_step - 2 * nStep_B03 * big_step) / 2.0 + conserve_length) / little_step);
+                //        int nStep_B01 = (int)Math.Ceiling((double)(2 * B01 + 2 * B02 + 2 * B03 + 2 * B04 + 2 * B05 + B06 - nStep_B06 * little_step - 2 * nStep_B05 * big_step - 2 * nStep_B04 * little_step - 2 * nStep_B03 * big_step - 2 * nStep_B02 * little_step) / 2.0 / big_step);
+                //        this.parentWin.text_x_input.Text = string.Format("{0}@{7:0.0} {1}@{6:0.0} {2}@{7:0.0} {3}@{6:0.0} {4}@{7:0.0} {5}@{6:0.0} {4}@{7:0.0} {3}@{6:0.0} {2}@{7:0.0} {1}@{6:0.0} {0}@{7:0.0}", nStep_B01, nStep_B02, nStep_B03, nStep_B04, nStep_B05, nStep_B05, little_step / 100.0, big_step / 100.0);
 
-                        int nStep_B03 = (int)Math.Floor((double)B03 / big_step);
-                        int nStep_B02 = (int)Math.Ceiling((double)((B03 - nStep_B03 * big_step) / 2.0 + B02) / little_step);
+
+                        int nStep_B03 = (int)Math.Floor(((double)B03 - conserve_length) / big_step);
+                        int nStep_B02 = (int)Math.Ceiling((double)((B03 - nStep_B03 * big_step) / 2.0 + B02 + conserve_length) / little_step);
                         int nStep_B01 = (int)Math.Ceiling((double)(B01 * 2 + B02 * 2 + B03 - 2 * nStep_B02 * little_step - nStep_B03 * big_step) / 2.0 / big_step);
                         int scalffold_width = 2 * nStep_B01 * big_step + 2 * nStep_B02 * little_step + nStep_B03 * big_step;
-                        drawString(string.Format("width of bridge = {0:0.00}m,width of scaffold = {1:0.00}m", xLength/100.0, scalffold_width/100.0), -300, 30);
+                        drawString(string.Format("width of bridge = {0:0.00}m,width of scaffold = {1:0.00}m", xLength/100.0, scalffold_width/100.0), -300, 10);
                         //this.parentWin.text_x_input.Text = string.Format("{0}@{4:0.0} {1}@{3:0.0} {2}@{4:0.0} {1}@{3:0.0} {0}@{4:0.0}", nStep_B01, nStep_B02, nStep_B03, little_step / 100.0, big_step / 100.0);
 
                         int startpoint = (2 * B01 + 2 * B02 + B03 - nStep_B03 * big_step - 2 * nStep_B02 * little_step - 2 * nStep_B01 * big_step) / 2;
@@ -817,12 +857,12 @@ namespace MidasHelper_CS
                         tempX = B01 + B02 + B03 + b22 * 2 / 3 - 80 * xTimes; tempY = -(H01 + H02 + H03 - H12 - h22 / 2);
                         drawString("(2,2)", tempX, tempY);
 
-                        drawString(string.Format("bigstep={0}cm,little_step={1}cm", big_step, little_step), -350, 50);
+                        drawString(string.Format("big step={0}cm,little step={1}cm", big_step, little_step), -350, 50);
 
 
-                        int nStep_B04 = (int)Math.Ceiling((double)B04 / little_step);
-                        int nStep_B03 = (int)Math.Floor((double)(2 * B03 + B04 - nStep_B04 * little_step) / 2.0 / big_step);
-                        int nStep_B02 = (int)Math.Ceiling((double)(2 * B02 + B04 + 2 * B03 - nStep_B04 * little_step - 2 * nStep_B03 * big_step) / 2.0 / little_step);
+                        int nStep_B04 = (int)Math.Ceiling(((double)B04 + conserve_length) / little_step);
+                        int nStep_B03 = (int)Math.Floor(((double)(2 * B03 + B04 - nStep_B04 * little_step) / 2.0 - conserve_length) / big_step);
+                        int nStep_B02 = (int)Math.Ceiling(((double)(2 * B02 + B04 + 2 * B03 - nStep_B04 * little_step - 2 * nStep_B03 * big_step) / 2.0 + conserve_length) / little_step);
                         int nStep_B01 = (int)Math.Ceiling((double)(2 * B01 + 2 * B02 + 2 * B03 + B04 - nStep_B04 * little_step - 2 * nStep_B03 * big_step - 2 * nStep_B02 * little_step) / 2.0 / big_step);
                         int scalffold_width = 2 * nStep_B01 * big_step + 2 * nStep_B02 * little_step + 2 * nStep_B03 * big_step + nStep_B04 * little_step;
                         drawString(string.Format("width of bridge = {0:0.00}m,width of scaffold = {1:0.00}m", xLength / 100.0, scalffold_width / 100.0), -350, 30);
@@ -1044,13 +1084,13 @@ namespace MidasHelper_CS
                         tempX = B01 + B02 + B03 + B04 + b32 * 2 / 3; tempY = -(H01 + H02 + H03 - H22 - h32 / 2);
                         drawString("(3,2)", tempX, tempY);
 
-                        drawString(string.Format("bigstep={0}cm,little_step={1}cm", big_step, little_step), -400, 50);
+                        drawString(string.Format("big step={0}cm,little step={1}cm", big_step, little_step), -400, 50);
 
 
-                        int nStep_B05 = (int)Math.Floor((double)B05 / big_step);
-                        int nStep_B04 = (int)Math.Ceiling((double)(2 * B04 + B05 - nStep_B05 * big_step) / 2.0 / little_step);
-                        int nStep_B03 = (int)Math.Floor((double)(2 * B03 + 2 * B04 + B05 - nStep_B05 * big_step - 2 * nStep_B04 * little_step) / 2.0 / big_step);
-                        int nStep_B02 = (int)Math.Ceiling((double)(2 * B02 + 2 * B03 + 2 * B04 + B05 - nStep_B05 * big_step - 2 * nStep_B04 * little_step - 2 * nStep_B03 * big_step) / 2.0 / little_step);
+                        int nStep_B05 = (int)Math.Floor(((double)B05 - conserve_length) / big_step);
+                        int nStep_B04 = (int)Math.Ceiling(((double)(2 * B04 + B05 - nStep_B05 * big_step) / 2.0 + conserve_length) / little_step);
+                        int nStep_B03 = (int)Math.Floor(((double)(2 * B03 + 2 * B04 + B05 - nStep_B05 * big_step - 2 * nStep_B04 * little_step) / 2.0 - conserve_length) / big_step);
+                        int nStep_B02 = (int)Math.Ceiling(((double)(2 * B02 + 2 * B03 + 2 * B04 + B05 - nStep_B05 * big_step - 2 * nStep_B04 * little_step - 2 * nStep_B03 * big_step) / 2.0 + conserve_length) / little_step);
                         int nStep_B01 = (int)Math.Ceiling((double)(2 * B01 + 2 * B02 + 2 * B03 + 2 * B04 + B05 - nStep_B05 * big_step - 2 * nStep_B04 * little_step - 2 * nStep_B03 * big_step - 2 * nStep_B02 * little_step) / 2.0 / big_step);
                         int scalffold_width = 2 * nStep_B01 * big_step + 2 * nStep_B02 * little_step + 2 * nStep_B03 * big_step + 2 * nStep_B04 * little_step + nStep_B05 * big_step;
                         drawString(string.Format("width of bridge = {0:0.00}m,width of scaffold = {1:0.00}m", xLength / 100.0, scalffold_width / 100.0), -400, 30);
@@ -1320,13 +1360,13 @@ namespace MidasHelper_CS
                         tempX = B01 + B02 + B03 + B04 + B05 + b42 * 2 / 3 - 80 * xTimes; tempY = -(H01 + H02 + H03 - H22 - h42 / 2);
                         drawString("(4,2)", tempX, tempY);
 
-                        drawString(string.Format("bigstep={0}cm,little_step={1}cm", big_step, little_step), -450, 50);
+                        drawString(string.Format("big step={0}cm,little step={1}cm", big_step, little_step), -450, 50);
 
-                        int nStep_B06 = (int)Math.Ceiling((double)B06 / little_step);
-                        int nStep_B05 = (int)Math.Floor((double)(2 * B05 + B06 - nStep_B06 * little_step) / 2.0 / big_step);
-                        int nStep_B04 = (int)Math.Ceiling((double)(2 * B04 + 2 * B05 + B06 - nStep_B06 * little_step - 2 * nStep_B05 * big_step) / 2.0 / little_step);
-                        int nStep_B03 = (int)Math.Floor((double)(2 * B03 + 2 * B04 + 2 * B05 + B06 - nStep_B06 * little_step - 2 * nStep_B05 * big_step - 2 * nStep_B04 * little_step) / 2.0 / big_step);
-                        int nStep_B02 = (int)Math.Ceiling((double)(2 * B02 + 2 * B03 + 2 * B04 + 2 * B05 + B06 - nStep_B06 * little_step - 2 * nStep_B05 * big_step - 2 * nStep_B04 * little_step - 2 * nStep_B03 * big_step) / 2.0 / little_step);
+                        int nStep_B06 = (int)Math.Ceiling(((double)B06 + conserve_length) / little_step);
+                        int nStep_B05 = (int)Math.Floor(((double)(2 * B05 + B06 - nStep_B06 * little_step) / 2.0 - conserve_length) / big_step);
+                        int nStep_B04 = (int)Math.Ceiling(((double)(2 * B04 + 2 * B05 + B06 - nStep_B06 * little_step - 2 * nStep_B05 * big_step) / 2.0 + conserve_length) / little_step);
+                        int nStep_B03 = (int)Math.Floor(((double)(2 * B03 + 2 * B04 + 2 * B05 + B06 - nStep_B06 * little_step - 2 * nStep_B05 * big_step - 2 * nStep_B04 * little_step) / 2.0 - conserve_length) / big_step);
+                        int nStep_B02 = (int)Math.Ceiling(((double)(2 * B02 + 2 * B03 + 2 * B04 + 2 * B05 + B06 - nStep_B06 * little_step - 2 * nStep_B05 * big_step - 2 * nStep_B04 * little_step - 2 * nStep_B03 * big_step) / 2.0 + conserve_length) / little_step);
                         int nStep_B01 = (int)Math.Ceiling((double)(2 * B01 + 2 * B02 + 2 * B03 + 2 * B04 + 2 * B05 + B06 - nStep_B06 * little_step - 2 * nStep_B05 * big_step - 2 * nStep_B04 * little_step - 2 * nStep_B03 * big_step - 2 * nStep_B02 * little_step) / 2.0 / big_step);
                         int scalffold_width = 2 * nStep_B01 * big_step + 2 * nStep_B02 * little_step + 2 * nStep_B03 * big_step + 2 * nStep_B04 * little_step + 2 * nStep_B05 * big_step + nStep_B06 * little_step;
                         drawString(string.Format("width of bridge = {0:0.00}m,width of scaffold = {1:0.00}m", xLength / 100.0, scalffold_width / 100.0), -450, 30);

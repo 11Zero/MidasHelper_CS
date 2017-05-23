@@ -24,3 +24,5 @@ D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\obj\x86\R
 D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\bin\Release\PcrCalcultor.dll
 D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\obj\x86\Release\PcrForm.baml
 D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\obj\x86\Release\PcrForm.g.cs
+D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\obj\x86\Release\StartForm.baml
+D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\obj\x86\Release\StartForm.g.cs
