@@ -17,3 +17,5 @@ D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\obj\x86\D
 D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\obj\x86\Debug\MidasHelper_CS.csproj.GenerateResource.Cache
 D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\obj\x86\Debug\MidasHelper_CS.exe
 D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\obj\x86\Debug\MidasHelper_CS.pdb
+D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\obj\x86\Debug\StartForm.baml
+D:\C++公用文件夹\My Projects_VS2010\MidasHelper_CS\MidasHelper_CS\obj\x86\Debug\StartForm.g.cs

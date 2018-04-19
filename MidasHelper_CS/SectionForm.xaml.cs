@@ -1465,7 +1465,10 @@ namespace MidasHelper_CS
         {
             if (openflag == false)
                 return;
-            H01 = int.Parse(text_H01.Text);
+            if (text_H01.Text == "")
+                H01 = 1;
+            else
+                H01 = int.Parse(text_H01.Text);
             drawSection(combo_select.SelectedIndex);
         }
 
@@ -1473,7 +1476,10 @@ namespace MidasHelper_CS
         {
             if (openflag == false)
                 return;
-            H02 = int.Parse(text_H02.Text);
+            if (text_H02.Text == "")
+                H02 = 1;
+            else
+                H02 = int.Parse(text_H02.Text);
             drawSection(combo_select.SelectedIndex);
         }
 
@@ -1481,7 +1487,10 @@ namespace MidasHelper_CS
         {
             if (openflag == false)
                 return;
-            H03 = int.Parse(text_H03.Text);
+            if (text_H03.Text == "")
+                H03 = 1;
+            else
+                H03 = int.Parse(text_H03.Text);
             drawSection(combo_select.SelectedIndex);
         }
 
@@ -1489,7 +1498,10 @@ namespace MidasHelper_CS
         {
             if (openflag == false)
                 return;
-            B01 = int.Parse(text_B01.Text);
+            if (text_B01.Text == "")
+                B01 = 1;
+            else
+                B01 = int.Parse(text_B01.Text);
             drawSection(combo_select.SelectedIndex);
         }
 
@@ -1497,7 +1509,10 @@ namespace MidasHelper_CS
         {
             if (openflag == false)
                 return;
-            B02 = int.Parse(text_B02.Text);
+            if (text_B02.Text == "")
+                B02 = 1;
+            else
+                B02 = int.Parse(text_B02.Text);
             drawSection(combo_select.SelectedIndex);
         }
 
@@ -1505,7 +1520,10 @@ namespace MidasHelper_CS
         {
             if (openflag == false)
                 return;
-            B03 = int.Parse(text_B03.Text);
+            if (text_B03.Text == "")
+                B03 = 1;
+            else
+                B03 = int.Parse(text_B03.Text);
             drawSection(combo_select.SelectedIndex);
         }
 
@@ -1513,7 +1531,10 @@ namespace MidasHelper_CS
         {
             if (openflag == false)
                 return;
-            B04 = int.Parse(text_B04.Text);
+            if (text_B04.Text == "")
+                B04 = 1;
+            else
+                B04 = int.Parse(text_B04.Text);
             drawSection(combo_select.SelectedIndex);
         }
 
@@ -1521,7 +1542,10 @@ namespace MidasHelper_CS
         {
             if (openflag == false)
                 return;
-            B05 = int.Parse(text_B05.Text);
+            if (text_B05.Text == "")
+                B05 = 1;
+            else
+                B05 = int.Parse(text_B05.Text);
             drawSection(combo_select.SelectedIndex);
         }
 
@@ -1529,7 +1553,10 @@ namespace MidasHelper_CS
         {
             if (openflag == false)
                 return;
-            B06 = int.Parse(text_B06.Text);
+            if (text_B06.Text == "")
+                B06 = 1;
+            else
+                B06 = int.Parse(text_B06.Text);
             drawSection(combo_select.SelectedIndex);
         }
 
@@ -1537,7 +1564,10 @@ namespace MidasHelper_CS
         {
             if (openflag == false)
                 return;
-            h11 = int.Parse(text_h11.Text);
+            if (text_h11.Text == "")
+               h11 = 1;
+            else
+                h11 = int.Parse(text_h11.Text);
             drawSection(combo_select.SelectedIndex);
         }
 
@@ -1545,7 +1575,10 @@ namespace MidasHelper_CS
         {
             if (openflag == false)
                 return;
-            b11 = int.Parse(text_b11.Text);
+            if (text_b11.Text == "")
+                b11 = 1;
+            else
+                b11 = int.Parse(text_b11.Text);
             drawSection(combo_select.SelectedIndex);
         }
 
@@ -1553,7 +1586,10 @@ namespace MidasHelper_CS
         {
             if (openflag == false)
                 return;
-            h12 = int.Parse(text_h12.Text);
+            if (text_h12.Text == "")
+                h12 = 1;
+            else
+                h12 = int.Parse(text_h12.Text);
             drawSection(combo_select.SelectedIndex);
         }
 
@@ -1561,7 +1597,10 @@ namespace MidasHelper_CS
         {
             if (openflag == false)
                 return;
-            b12 = int.Parse(text_b12.Text);
+            if (text_b12.Text == "")
+                b12 = 1;
+            else
+                b12 = int.Parse(text_b12.Text);
             drawSection(combo_select.SelectedIndex);
         }
 
@@ -1569,7 +1608,10 @@ namespace MidasHelper_CS
         {
             if (openflag == false)
                 return;
-            h21 = int.Parse(text_h21.Text);
+            if (text_h21.Text == "")
+                h21 = 1;
+            else
+                h21 = int.Parse(text_h21.Text);
             drawSection(combo_select.SelectedIndex);
         }
 
@@ -1577,7 +1619,10 @@ namespace MidasHelper_CS
         {
             if (openflag == false)
                 return;
-            b21 = int.Parse(text_b21.Text);
+            if (text_b21.Text == "")
+                b21 = 1;
+            else
+                b21 = int.Parse(text_b21.Text);
             drawSection(combo_select.SelectedIndex);
         }
 
@@ -1585,7 +1630,10 @@ namespace MidasHelper_CS
         {
             if (openflag == false)
                 return;
-            h22 = int.Parse(text_h22.Text);
+            if (text_h22.Text == "")
+                h22 = 1;
+            else
+                h22 = int.Parse(text_h22.Text);
             drawSection(combo_select.SelectedIndex);
         }
 
@@ -1593,7 +1641,10 @@ namespace MidasHelper_CS
         {
             if (openflag == false)
                 return;
-            b22 = int.Parse(text_b22.Text);
+            if (text_b22.Text == "")
+                b22 = 1;
+            else
+                b22 = int.Parse(text_b22.Text);
             drawSection(combo_select.SelectedIndex);
         }
 
@@ -1601,7 +1652,10 @@ namespace MidasHelper_CS
         {
             if (openflag == false)
                 return;
-            h31 = int.Parse(text_h31.Text);
+            if (text_h31.Text == "")
+                h31 = 1;
+            else
+                h31 = int.Parse(text_h31.Text);
             drawSection(combo_select.SelectedIndex);
         }
 
@@ -1609,7 +1663,10 @@ namespace MidasHelper_CS
         {
             if (openflag == false)
                 return;
-            b31 = int.Parse(text_b31.Text);
+            if (text_b31.Text == "")
+                b31 = 1;
+            else
+                b31 = int.Parse(text_b31.Text);
             drawSection(combo_select.SelectedIndex);
         }
 
@@ -1617,7 +1674,10 @@ namespace MidasHelper_CS
         {
             if (openflag == false)
                 return;
-            h32 = int.Parse(text_h32.Text);
+            if (text_h32.Text == "")
+                h32 = 1;
+            else
+                h32 = int.Parse(text_h32.Text);
             drawSection(combo_select.SelectedIndex);
         }
 
@@ -1625,7 +1685,10 @@ namespace MidasHelper_CS
         {
             if (openflag == false)
                 return;
-            b32 = int.Parse(text_b32.Text);
+            if (text_b32.Text == "")
+                b32 = 1;
+            else
+                b32 = int.Parse(text_b32.Text);
             drawSection(combo_select.SelectedIndex);
         }
 
@@ -1633,7 +1696,10 @@ namespace MidasHelper_CS
         {
             if (openflag == false)
                 return;
-            h41 = int.Parse(text_h41.Text);
+            if (text_h41.Text == "")
+                h41 = 1;
+            else
+                h41 = int.Parse(text_h41.Text);
             drawSection(combo_select.SelectedIndex);
         }
 
@@ -1641,7 +1707,10 @@ namespace MidasHelper_CS
         {
             if (openflag == false)
                 return;
-            b41 = int.Parse(text_b41.Text);
+            if (text_b41.Text == "")
+                b41 = 1;
+            else
+                b41 = int.Parse(text_b41.Text);
             drawSection(combo_select.SelectedIndex);
         }
 
@@ -1649,7 +1718,10 @@ namespace MidasHelper_CS
         {
             if (openflag == false)
                 return;
-            h42 = int.Parse(text_h42.Text);
+            if (text_h42.Text == "")
+                h42 = 1;
+            else
+                h42 = int.Parse(text_h42.Text);
             drawSection(combo_select.SelectedIndex);
         }
 
@@ -1657,7 +1729,10 @@ namespace MidasHelper_CS
         {
             if (openflag == false)
                 return;
-            b42 = int.Parse(text_b42.Text);
+            if (text_b42.Text == "")
+                b42 = 1;
+            else
+                b42 = int.Parse(text_b42.Text);
             drawSection(combo_select.SelectedIndex);
         }
 
@@ -1665,7 +1740,10 @@ namespace MidasHelper_CS
         {
             if (openflag == false)
                 return;
-            H11 = int.Parse(text_H11.Text);
+            if (text_H11.Text == "")
+                H11 = 1;
+            else
+                H11 = int.Parse(text_H11.Text);
             drawSection(combo_select.SelectedIndex);
         }
 
@@ -1673,7 +1751,10 @@ namespace MidasHelper_CS
         {
             if (openflag == false)
                 return;
-            H12 = int.Parse(text_H12.Text);
+            if (text_H12.Text == "")
+                H12 = 1;
+            else
+                H12 = int.Parse(text_H12.Text);
             drawSection(combo_select.SelectedIndex);
         }
 
@@ -1681,7 +1762,10 @@ namespace MidasHelper_CS
         {
             if (openflag == false)
                 return;
-            H21 = int.Parse(text_H21.Text);
+            if (text_H21.Text == "")
+                H21 = 1;
+            else
+                H21 = int.Parse(text_H21.Text);
             drawSection(combo_select.SelectedIndex);
         }
 
@@ -1689,7 +1773,10 @@ namespace MidasHelper_CS
         {
             if (openflag == false)
                 return;
-            H22 = int.Parse(text_H22.Text);
+            if (text_H22.Text == "")
+                H22 = 1;
+            else
+                H22 = int.Parse(text_H22.Text);
             drawSection(combo_select.SelectedIndex);
         }
 

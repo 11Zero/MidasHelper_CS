@@ -90,9 +90,9 @@ namespace MidasHelper_CS
             //status_bar_text = new TextBlock();
             //BottomStatusBar.Items.Add(status_bar_text);
             //BottomStatusBar.Items.GetItemAt(0)
-            x_input = new double[50];
-            y_input = new double[50];
-            z_input = new double[50];
+            x_input = new double[100];
+            y_input = new double[100];
+            z_input = new double[100];
             msgQueue = new Queue<int>();
             check_cut.IsChecked = true;
             //section_form = new SectionForm();
@@ -284,7 +284,7 @@ namespace MidasHelper_CS
             }
             x_length = x_points[x_points.Length - 1];
 
-            x_bridging_points = new double[100];
+            x_bridging_points = new double[200];
             double temp_l1 = 0.0;
             x_bridging_points[x_bridging_count++] = 0.0;
             for (int i = 0; i < x_input_count; i++)
@@ -346,7 +346,7 @@ namespace MidasHelper_CS
             }
             y_length = y_points[y_points.Length - 1];
 
-            y_bridging_points = new double[100];
+            y_bridging_points = new double[200];
             double temp_l1 = 0.0;
             y_bridging_points[y_bridging_count++] = 0.0;
             for (int i = 0; i < y_input_count; i++)
@@ -414,7 +414,7 @@ namespace MidasHelper_CS
             }
             z_length = z_points[z_points.Length - 1];
 
-            z_bridging_points = new double[100];
+            z_bridging_points = new double[200];
             double temp_l1 = z_points[2];
             z_bridging_points[z_bridging_count++] = temp_l1;
             for (int i = 2; i < z_input_count - 2; i++)
@@ -751,7 +751,7 @@ namespace MidasHelper_CS
             }
 
             //MidasNode node = new MidasNode();
-            MidasNode[] all_normal_nodes = new MidasNode[20000];//未计入底层扫地杆节点
+            MidasNode[] all_normal_nodes = new MidasNode[40000];//未计入底层扫地杆节点
             int regular_nodes_start = 1;
             for (int i = 0; i < all_normal_nodes.Length; i++)
             {
@@ -775,7 +775,7 @@ namespace MidasHelper_CS
             SetText("计算中...", this.status_bar_text);
             int regular_nodes_end = normal_nodes_count;
 
-            MidasNode[] bottom_nodes = new MidasNode[1000];//扫地杆节点
+            MidasNode[] bottom_nodes = new MidasNode[5000];//扫地杆节点
             int bottom_nodes_start = normal_nodes_count + 1;
             for (int i = 0; i < bottom_nodes.Length; i++)
             {
@@ -824,14 +824,14 @@ namespace MidasHelper_CS
 
             int all_elements_count = 0;//单元号计数器
 
-            MidasElement[] y_elements = new MidasElement[20000];
+            MidasElement[] y_elements = new MidasElement[40000];
             for (int i = 0; i < y_elements.Length; i++)
             {
                 y_elements[i] = new MidasElement();
             }
             int y_elements_count = 0;
 
-            MidasElement[] x_elements = new MidasElement[20000];
+            MidasElement[] x_elements = new MidasElement[40000];
             for (int i = 0; i < x_elements.Length; i++)
             {
                 x_elements[i] = new MidasElement();
@@ -869,7 +869,7 @@ namespace MidasHelper_CS
             }
             SetProcess(4);
 
-            MidasElement[] z_elements = new MidasElement[20000];
+            MidasElement[] z_elements = new MidasElement[40000];
             for (int i = 0; i < z_elements.Length; i++)
             {
                 z_elements[i] = new MidasElement();
@@ -927,7 +927,7 @@ namespace MidasHelper_CS
                 }
             }
             SetProcess(5);
-            MidasElement[] bottom_elements = new MidasElement[1000];
+            MidasElement[] bottom_elements = new MidasElement[5000];
             for (int i = 0; i < bottom_elements.Length; i++)
             {
                 bottom_elements[i] = new MidasElement();
@@ -1230,24 +1230,24 @@ namespace MidasHelper_CS
             //int _xz_bridging_elements_count = 0;
 
 
-            MidasElement[] xy_bridging_elements = new MidasElement[2000];
+            MidasElement[] xy_bridging_elements = new MidasElement[20000];
             int xy_bridging_elements_count = 0;
             int xy_bridging_elements_start = 0;
             int xy_bridging_elements_end = 0;
 
-            MidasElement[] xz_bridging_elements = new MidasElement[2000];
+            MidasElement[] xz_bridging_elements = new MidasElement[20000];
             int xz_bridging_elements_count = 0;
             int xz_bridging_elements_start = 0;
             int xz_bridging_elements_end = 0;
 
-            MidasElement[] yz_bridging_elements = new MidasElement[2000];
+            MidasElement[] yz_bridging_elements = new MidasElement[20000];
             int yz_bridging_elements_count = 0;
             int yz_bridging_elements_start = 0;
             int yz_bridging_elements_end = 0;
 
             if (bridging_check)
             {
-                xy_bridging_lines = new MidasElement[500];//单层xy剪刀线
+                xy_bridging_lines = new MidasElement[5000];//单层xy剪刀线
                 for (int i = 0; i < xy_bridging_lines.Length; i++)
                 {
                     xy_bridging_lines[i] = new MidasElement();
@@ -1278,7 +1278,7 @@ namespace MidasHelper_CS
                 xy_bridging_lines_count = 2 * xy_bridging_lines_count;
                 SetProcess(55);
 
-                xz_bridging_lines = new MidasElement[500];//单层xz剪刀线
+                xz_bridging_lines = new MidasElement[5000];//单层xz剪刀线
                 xz_bridging_lines_count = 0;
                 for (int i = 0; i < xz_bridging_lines.Length; i++)
                 {
@@ -1311,7 +1311,7 @@ namespace MidasHelper_CS
                 xz_bridging_lines_count = 2 * xz_bridging_lines_count;
                 SetProcess(60);
 
-                yz_bridging_lines = new MidasElement[500];//单层yz剪刀线
+                yz_bridging_lines = new MidasElement[5000];//单层yz剪刀线
                 yz_bridging_lines_count = 0;
                 for (int i = 0; i < yz_bridging_lines.Length; i++)
                 {
@@ -1351,7 +1351,7 @@ namespace MidasHelper_CS
                 {
                     xy_bridging_elements[i] = new MidasElement();
                 }
-                xy_bridging_repeat_nodenum = new int[2000];//xy面剪刀撑节点号与前部分节点重复的节点号码
+                xy_bridging_repeat_nodenum = new int[20000];//xy面剪刀撑节点号与前部分节点重复的节点号码
                 xy_bridging_nodes_start = normal_nodes_count + 1;
                 xy_bridging_nodes_end = normal_nodes_count;
                 xy_bridging_repeat_nodenum_count = 0;
@@ -1363,7 +1363,7 @@ namespace MidasHelper_CS
                 {
                     for (int i = 0; i < xy_bridging_lines_count; i++)
                     {
-                        MidasNode[] singleLineNodes = new MidasNode[100];
+                        MidasNode[] singleLineNodes = new MidasNode[1000];
                         int singleLineNodes_count = 0;
                         for (int j = 0; j < singleLineNodes.Length; j++)
                         {
@@ -1492,7 +1492,7 @@ namespace MidasHelper_CS
                                 }
                                 if (Math.Abs(bNode.x - fNode.x) > 2.5)
                                 {
-                                    Console.WriteLine(String.Format("fnode.x = {0},bnode.x = {1},gap = {2}", fNode.x, bNode.x, bNode.x - fNode.x));
+                                    //Console.WriteLine(String.Format("fnode.x = {0},bnode.x = {1},gap = {2}", fNode.x, bNode.x, bNode.x - fNode.x));
                                     xy_bridging_elements[xy_bridging_elements_count].fNode = fNode.Copy();
                                     xy_bridging_elements[xy_bridging_elements_count].num = ++all_elements_count;
                                     xy_bridging_elements[xy_bridging_elements_count++].bNode = bNode.Copy();
@@ -1604,7 +1604,7 @@ namespace MidasHelper_CS
                 xz_bridging_elements_start = all_elements_count + 1;
                 xz_bridging_elements_end = all_elements_count;
 
-                xz_bridging_repeat_nodenum = new int[2000];//xz面剪刀撑节点号与前部分节点重复的节点号码
+                xz_bridging_repeat_nodenum = new int[20000];//xz面剪刀撑节点号与前部分节点重复的节点号码
                 xz_bridging_nodes_start = normal_nodes_count + 1;
                 xz_bridging_nodes_end = normal_nodes_count;
                 xz_bridging_repeat_nodenum_count = 0;
@@ -1616,7 +1616,7 @@ namespace MidasHelper_CS
                 {
                     for (int i = 0; i < xz_bridging_lines_count; i++)
                     {
-                        MidasNode[] singleLineNodes = new MidasNode[100];
+                        MidasNode[] singleLineNodes = new MidasNode[1000];
                         int singleLineNodes_count = 0;
                         for (int j = 0; j < singleLineNodes.Length; j++)
                         {
@@ -1884,7 +1884,7 @@ namespace MidasHelper_CS
                 yz_bridging_elements_end = all_elements_count;
 
                 //int yz_bridging_nodes_count = 0;
-                yz_bridging_repeat_nodenum = new int[2000];//yz面剪刀撑节点号与前部分节点重复的节点号码
+                yz_bridging_repeat_nodenum = new int[20000];//yz面剪刀撑节点号与前部分节点重复的节点号码
                 yz_bridging_nodes_start = normal_nodes_count + 1;
                 yz_bridging_nodes_end = normal_nodes_count;
                 yz_bridging_repeat_nodenum_count = 0;
@@ -1896,7 +1896,7 @@ namespace MidasHelper_CS
                 {
                     for (int i = 0; i < yz_bridging_lines_count; i++)
                     {
-                        MidasNode[] singleLineNodes = new MidasNode[100];
+                        MidasNode[] singleLineNodes = new MidasNode[1000];
                         int singleLineNodes_count = 0;
                         for (int j = 0; j < singleLineNodes.Length; j++)
                         {
@@ -2391,7 +2391,7 @@ namespace MidasHelper_CS
             # region 可以去除的部分，该部分为以前的版本中计算剪刀撑单元算法
             if (false)
             {
-                xy_bridging_elements = new MidasElement[5000];
+                xy_bridging_elements = new MidasElement[50000];
                 xy_bridging_elements_count = 0;
                 xy_bridging_elements_start = all_elements_count + 1;
                 for (int i = 0; i < xy_bridging_elements.Length; i++)
@@ -2405,7 +2405,7 @@ namespace MidasHelper_CS
                         xy_bridging_lines[i].fNode.z = z_bridging_points[k];
                         xy_bridging_lines[i].bNode.z = z_bridging_points[k];
                         //算法从xy剪刀节点中找出在这条线上的点，并按先后生成单元
-                        MidasNode[] xy_bridgingline_nodes = new MidasNode[100];
+                        MidasNode[] xy_bridgingline_nodes = new MidasNode[1000];
                         int xy_bridgingline_nodes_count = 0;
                         for (int j = 0; j < xy_bridgingline_nodes.Length; j++)
                         {
@@ -2480,7 +2480,7 @@ namespace MidasHelper_CS
 
 
 
-                xz_bridging_elements = new MidasElement[5000];
+                xz_bridging_elements = new MidasElement[50000];
                 xz_bridging_elements_count = 0;
                 xz_bridging_elements_start = all_elements_count + 1;
                 for (int i = 0; i < xz_bridging_elements.Length; i++)
@@ -2494,7 +2494,7 @@ namespace MidasHelper_CS
                         xz_bridging_lines[i].fNode.y = y_bridging_points[k];
                         xz_bridging_lines[i].bNode.y = y_bridging_points[k];
                         //算法从xy剪刀节点中找出在这条线上的点，并按先后生成单元
-                        MidasNode[] xz_bridgingline_nodes = new MidasNode[100];
+                        MidasNode[] xz_bridgingline_nodes = new MidasNode[1000];
                         int xz_bridgingline_nodes_count = 0;
                         for (int j = 0; j < xz_bridgingline_nodes.Length; j++)
                         {
@@ -2567,7 +2567,7 @@ namespace MidasHelper_CS
                 xz_bridging_elements_end = all_elements_count;
                 SetProcess(90);
 
-                yz_bridging_elements = new MidasElement[5000];
+                yz_bridging_elements = new MidasElement[50000];
                 yz_bridging_elements_count = 0;
                 yz_bridging_elements_start = all_elements_count + 1;
                 for (int i = 0; i < yz_bridging_elements.Length; i++)
@@ -2581,7 +2581,7 @@ namespace MidasHelper_CS
                         yz_bridging_lines[i].fNode.x = x_bridging_points[k];
                         yz_bridging_lines[i].bNode.x = x_bridging_points[k];
                         //算法从xy剪刀节点中找出在这条线上的点，并按先后生成单元
-                        MidasNode[] yz_bridgingline_nodes = new MidasNode[100];
+                        MidasNode[] yz_bridgingline_nodes = new MidasNode[1000];
                         int yz_bridgingline_nodes_count = 0;
                         for (int j = 0; j < yz_bridgingline_nodes.Length; j++)
                         {
